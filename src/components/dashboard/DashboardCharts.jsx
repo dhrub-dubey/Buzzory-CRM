@@ -62,7 +62,7 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
   const currentYear = new Date().getFullYear();
 
   const data = months.map((month, idx) => {
-    const revenue = clientPayments.filter(p => {
+    const revenue = (Array.isArray(clientPayments) ? clientPayments : []).filter(p => {
       const d = new Date(p.received_date || p.created_date);
       return d.getMonth() === idx && d.getFullYear() === currentYear;
     }).reduce((s, p) => s + (p.amount || 0), 0);
@@ -99,14 +99,43 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
   );
 }
 
+// function getMonthlyData(records, amountField) {
+//   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+//   const currentYear = new Date().getFullYear();
+//   return months.map((month, idx) => {
+//     const total = records.filter(r => {
+//       const d = new Date(r.received_date || r.payment_date || r.created_date);
+//       return d.getMonth() === idx && d.getFullYear() === currentYear;
+//     }).reduce((s, r) => s + (r[amountField] || 0), 0);
+//     return { month, amount: total };
+//   });
+// }
+
 function getMonthlyData(records, amountField) {
+  const safeRecords = Array.isArray(records) ? records : [];
+
+  console.log("RevenueChart records:", records);
+  console.log("RevenueChart isArray:", Array.isArray(records));
+
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const currentYear = new Date().getFullYear();
+
   return months.map((month, idx) => {
-    const total = records.filter(r => {
-      const d = new Date(r.received_date || r.payment_date || r.created_date);
-      return d.getMonth() === idx && d.getFullYear() === currentYear;
-    }).reduce((s, r) => s + (r[amountField] || 0), 0);
+    const total = safeRecords
+      .filter(r => {
+        const d = new Date(
+          r.received_date ||
+          r.payment_date ||
+          r.created_date
+        );
+
+        return (
+          d.getMonth() === idx &&
+          d.getFullYear() === currentYear
+        );
+      })
+      .reduce((s, r) => s + (r[amountField] || 0), 0);
+
     return { month, amount: total };
   });
 }
