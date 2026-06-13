@@ -67,7 +67,7 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
       return d.getMonth() === idx && d.getFullYear() === currentYear;
     }).reduce((s, p) => s + (p.amount || 0), 0);
 
-    const cost = influencerPayments.filter(p => {
+    const cost = (Array.isArray(influencerPayments) ? influencerPayments : []).filter(p => {
       const d = new Date(p.payment_date || p.created_date);
       return d.getMonth() === idx && d.getFullYear() === currentYear;
     }).reduce((s, p) => s + (p.amount || 0), 0);
