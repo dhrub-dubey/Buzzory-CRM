@@ -82,12 +82,42 @@ export default function Dashboard() {
     enabled: showFinancials,
   });
 
-  const activeCampaigns = campaigns.filter(c => c.status === 'active');
-  const completedCampaigns = campaigns.filter(c => c.status === 'completed');
-  const totalRevenue = clientPayments.filter(p => p.status === 'Paid').reduce((s, p) => s + (p.amount || 0), 0);
-  const totalCosts = influencerPayments.filter(p => p.status === 'Paid').reduce((s, p) => s + (p.amount || 0), 0);
-  const totalProfit = totalRevenue - totalCosts;
-  const fundBalance = fundTransactions.reduce((s, t) => s + (t.amount_credited || 0) - (t.amount_debited || 0), 0);
+  //const activeCampaigns = campaigns.filter(c => c.status === 'active');
+  //const completedCampaigns = campaigns.filter(c => c.status === 'completed');
+
+  // const totalRevenue = clientPayments.filter(p => p.status === 'Paid').reduce((s, p) => s + (p.amount || 0), 0);
+  // const totalCosts = influencerPayments.filter(p => p.status === 'Paid').reduce((s, p) => s + (p.amount || 0), 0);
+  // const totalProfit = totalRevenue - totalCosts;
+  // const fundBalance = fundTransactions.reduce((s, t) => s + (t.amount_credited || 0) - (t.amount_debited || 0), 0);
+  
+  const activeCampaigns = Array.isArray(campaigns)
+  ? campaigns.filter(c => c.status === 'active')
+  : [];
+
+  const completedCampaigns = Array.isArray(campaigns)
+    ? campaigns.filter(c => c.status === 'completed')
+    : [];
+
+  const totalRevenue = Array.isArray(clientPayments)
+  ? clientPayments
+      .filter(p => p.status === 'Paid')
+      .reduce((s, p) => s + (p.amount || 0), 0)
+  : 0;
+
+  const totalCosts = Array.isArray(influencerPayments)
+  ? influencerPayments
+      .filter(p => p.status === 'Paid')
+      .reduce((s, p) => s + (p.amount || 0), 0)
+  : 0;
+
+  const fundBalance = Array.isArray(fundTransactions)
+  ? fundTransactions.reduce(
+      (s, t) =>
+        s + (t.amount_credited || 0) - (t.amount_debited || 0),
+      0
+    )
+  : 0;
+  
   const formatCurrency = (v) => `₹${v.toLocaleString('en-IN')}`;
 
   return (
