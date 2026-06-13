@@ -110,6 +110,8 @@ export default function Dashboard() {
       .reduce((s, p) => s + (p.amount || 0), 0)
   : 0;
 
+  const totalProfit = totalRevenue - totalCosts;
+  
   const fundBalance = Array.isArray(fundTransactions)
   ? fundTransactions.reduce(
       (s, t) =>
@@ -117,7 +119,7 @@ export default function Dashboard() {
       0
     )
   : 0;
-  
+
   const formatCurrency = (v) => `₹${v.toLocaleString('en-IN')}`;
 
   return (
