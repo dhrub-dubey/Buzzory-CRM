@@ -54,7 +54,8 @@ export default function Dashboard() {
   const { user } = useOutletContext() || {};
   const [dateFilter, setDateFilter] = useState('this_month');
 
-  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin';
+  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
+  user?.role === 'super_admin';
   const isBoardMember = user?.role === 'board_member';
   const isInfluencer = user?.role === 'influencer';
   const showFinancials = isAdmin || isBoardMember;

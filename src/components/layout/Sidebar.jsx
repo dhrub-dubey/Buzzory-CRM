@@ -17,7 +17,8 @@ const allNavItems = [
 
 function getNavItems(user) {
   if (!user) return allNavItems.filter(i => i.roles.includes('all'));
-  const isAdmin = user.email === ADMIN_EMAIL || user.role === 'admin';
+  const isAdmin = user.email === ADMIN_EMAIL || user.role === 'admin'||
+  user?.role === 'super_admin';
   if (isAdmin) return allNavItems; // admin sees everything
   return allNavItems.filter(i => i.roles.includes('all') || i.roles.includes(user.role));
 }
@@ -36,7 +37,8 @@ export default function Sidebar({ user, collapsed, onToggle }) {
     logout();
   };
 
-  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin';
+  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
+  user?.role === 'super_admin';
 
   return (
     <aside className={`fixed left-0 top-0 h-screen bg-[hsl(222,47%,11%)] text-white flex flex-col z-50 transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
