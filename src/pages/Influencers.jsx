@@ -41,7 +41,11 @@ export default function Influencers() {
   const [viewing, setViewing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [viewMode, setViewMode] = useState('table');
-  const [form, setForm] = useState(emptyForm);
+ // const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem("influencerDraft");
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -58,6 +62,13 @@ export default function Influencers() {
       showDialog.toString()
     );
   }, [showDialog]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "influencerDraft",
+      JSON.stringify(form)
+    );
+  }, [form]);
 
   const queryClient = useQueryClient();
 
@@ -111,7 +122,15 @@ export default function Influencers() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['influencers'] }); setDeleteId(null); },
   });
 
-  const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+ // const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  const closeDialog = () => {
+    localStorage.removeItem("influencerDraft");
+    localStorage.removeItem("showInfluencerDialog");
+
+    setShowDialog(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
 
   const openEdit = (inf) => {
     setEditing(inf);
