@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,41 +22,73 @@ const emptyForm = { full_name: '', username: '', city: '', category: '', followe
 const ITEMS_PER_PAGE = 10;
 
 export default function Influencers() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [showAddCity, setShowAddCity] = useState(false);
   const [newCityName, setNewCityName] = useState('');
   const [newCityEmoji, setNewCityEmoji] = useState('📍');
+ // const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(
+    () => localStorage.getItem("selectedCity") || null
+  );
   const [catFilter, setCatFilter] = useState('all');
   const [followFilter, setFollowFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
-  const [showDialog, setShowDialog] = useState(false);
+  const [cityFilter, setCityFilter] = useState('');
+ // const [showDialog, setShowDialog] = useState(false);
+ const [showDialog, setShowDialog] = useState(
+  () => localStorage.getItem("showInfluencerDialog") === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [viewMode, setViewMode] = useState('table');
   const [form, setForm] = useState(emptyForm);
   const [page, setPage] = useState(1);
-  const queryClient = useQueryClient();
 
-  const selectedCity = searchParams.get('city') || null;
-  const setSelectedCity = (city) => {
-    if (city) setSearchParams({ city });
-    else setSearchParams({});
-  };
-  const cityFilter = selectedCity || '';
-  const setCityFilter = (city) => { if (city) setSearchParams({ city }); };
+  useEffect(() => {
+    if (selectedCity) {
+      localStorage.setItem("selectedCity", selectedCity);
+    } else {
+      localStorage.removeItem("selectedCity");
+    }
+  }, [selectedCity]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      "showInfluencerDialog",
+      showDialog.toString()
+    );
+  }, [showDialog]);
+
+  const queryClient = useQueryClient();
 
   const { data: cityRecords = [] } = useQuery({
     queryKey: ['cities'],
     queryFn: () => base44.entities.City.list('name', 100),
   });
 
+  console.log("CITY RECORDS:", cityRecords);
+
   const cities = cityRecords.map(c => c.name);
   const cityEmojiMap = Object.fromEntries(cityRecords.map(c => [c.name, c.emoji || '📍']));
 
+  // const createCityMutation = useMutation({
+  //   mutationFn: (data) => base44.entities.City.create(data),
+  //   onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['cities'] }); setShowAddCity(false); setNewCityName(''); setNewCityEmoji('📍'); },
+  // });
+
   const createCityMutation = useMutation({
-    mutationFn: (data) => base44.entities.City.create(data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['cities'] }); setShowAddCity(false); setNewCityName(''); setNewCityEmoji('📍'); },
+    mutationFn: async (data) => {
+      console.log("CREATING CITY:", data);
+  
+      const result = await base44.entities.City.create(data);
+  
+      console.log("CITY CREATED:", result);
+  
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
+    }
   });
 
   const { data: influencers = [] } = useQuery({
@@ -98,7 +129,7 @@ export default function Influencers() {
     else createMutation.mutate(form);
   };
 
-  const resetFilters = () => { setCatFilter('all'); setFollowFilter('all'); setPriceFilter('all'); setPage(1); };
+  const resetFilters = () => { setCatFilter('all'); setFollowFilter('all'); setPriceFilter('all'); setCityFilter(selectedCity || ''); setPage(1); };
 
   // City selection view
   if (!selectedCity) {
@@ -500,14 +531,27 @@ export default function Influencers() {
       {/* Add/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={v => { if (!v) closeDialog(); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          {/* <DialogHeader><DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle></DialogHeader> */}
+
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <button onClick={closeDialog} className="p-1 rounded-md hover:bg-muted transition-colors">
-                <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-              </button>
-              <DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle>
+              {!editing && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => closeDialog()}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+              )}
+
+              <DialogTitle>
+                {editing ? 'Edit Influencer' : 'Add Influencer'}
+              </DialogTitle>
             </div>
           </DialogHeader>
+
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">Full Name *</Label><Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} /></div>
