@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw } from 'lucide-react';
@@ -25,18 +25,40 @@ export default function Influencers() {
   const [showAddCity, setShowAddCity] = useState(false);
   const [newCityName, setNewCityName] = useState('');
   const [newCityEmoji, setNewCityEmoji] = useState('📍');
-  const [selectedCity, setSelectedCity] = useState(null);
+ // const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(
+    () => localStorage.getItem("selectedCity") || null
+  );
   const [catFilter, setCatFilter] = useState('all');
   const [followFilter, setFollowFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('');
-  const [showDialog, setShowDialog] = useState(false);
+ // const [showDialog, setShowDialog] = useState(false);
+ const [showDialog, setShowDialog] = useState(
+  () => localStorage.getItem("showInfluencerDialog") === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [viewMode, setViewMode] = useState('table');
   const [form, setForm] = useState(emptyForm);
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (selectedCity) {
+      localStorage.setItem("selectedCity", selectedCity);
+    } else {
+      localStorage.removeItem("selectedCity");
+    }
+  }, [selectedCity]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      "showInfluencerDialog",
+      showDialog.toString()
+    );
+  }, [showDialog]);
+
   const queryClient = useQueryClient();
 
   const { data: cityRecords = [] } = useQuery({
@@ -509,7 +531,27 @@ export default function Influencers() {
       {/* Add/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={v => { if (!v) closeDialog(); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle></DialogHeader>
+          {/* <DialogHeader><DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle></DialogHeader> */}
+
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              {!editing && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => closeDialog()}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+              )}
+
+              <DialogTitle>
+                {editing ? 'Edit Influencer' : 'Add Influencer'}
+              </DialogTitle>
+            </div>
+          </DialogHeader>
+
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">Full Name *</Label><Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} /></div>
