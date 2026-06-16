@@ -14,9 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-const DEFAULT_CITIES = ['Kolkata', 'Siliguri', 'Assam', 'Guwahati', 'Delhi', 'Northeast', 'Celebrity'];
 const CATEGORIES = ['Fashion', 'Lifestyle', 'Beauty', 'Food', 'Fitness', 'Technology', 'Celebrity'];
-const cityEmojis = { Kolkata: '🏛️', Siliguri: '🏔️', Assam: '🍵', Guwahati: '🌊', Delhi: '🏙️', Northeast: '🌿', Celebrity: '⭐' };
 const categoryIcons = { Fashion: '👗', Lifestyle: '✨', Beauty: '💄', Food: '🍴', Fitness: '💪', Technology: '💻', Celebrity: '⭐' };
 
 const emptyForm = { full_name: '', username: '', city: '', category: '', followers: 0, pricing: 0, phone: '', email: '', instagram: '', youtube: '', niche: '', engagement_rate: 0, notes: '', status: 'Active' };
@@ -24,9 +22,9 @@ const emptyForm = { full_name: '', username: '', city: '', category: '', followe
 const ITEMS_PER_PAGE = 10;
 
 export default function Influencers() {
-  const [cities, setCities] = useState(DEFAULT_CITIES);
   const [showAddCity, setShowAddCity] = useState(false);
   const [newCityName, setNewCityName] = useState('');
+  const [newCityEmoji, setNewCityEmoji] = useState('📍');
   const [selectedCity, setSelectedCity] = useState(null);
   const [catFilter, setCatFilter] = useState('all');
   const [followFilter, setFollowFilter] = useState('all');
@@ -40,6 +38,36 @@ export default function Influencers() {
   const [form, setForm] = useState(emptyForm);
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
+
+  const { data: cityRecords = [] } = useQuery({
+    queryKey: ['cities'],
+    queryFn: () => base44.entities.City.list('name', 100),
+  });
+
+  console.log("CITY RECORDS:", cityRecords);
+
+  const cities = cityRecords.map(c => c.name);
+  const cityEmojiMap = Object.fromEntries(cityRecords.map(c => [c.name, c.emoji || '📍']));
+
+  // const createCityMutation = useMutation({
+  //   mutationFn: (data) => base44.entities.City.create(data),
+  //   onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['cities'] }); setShowAddCity(false); setNewCityName(''); setNewCityEmoji('📍'); },
+  // });
+
+  const createCityMutation = useMutation({
+    mutationFn: async (data) => {
+      console.log("CREATING CITY:", data);
+  
+      const result = await base44.entities.City.create(data);
+  
+      console.log("CITY CREATED:", result);
+  
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
+    }
+  });
 
   const { data: influencers = [] } = useQuery({
     queryKey: ['influencers'],
@@ -101,7 +129,7 @@ export default function Influencers() {
             const count = influencers.filter(i => i.city === city).length;
             return (
               <Card key={city} className="p-6 border border-border/50 hover:border-orange-500/40 hover:shadow-md transition-all cursor-pointer group text-center" onClick={() => { setSelectedCity(city); setCityFilter(city); setPage(1); }}>
-                <span className="text-3xl mb-2 block">{cityEmojis[city] || '📍'}</span>
+                <span className="text-3xl mb-2 block">{cityEmojiMap[city] || '📍'}</span>
                 <h3 className="text-sm font-semibold group-hover:text-orange-500 transition-colors">{city}</h3>
                 <p className="text-xs text-muted-foreground mt-1">{count} Influencer{count !== 1 ? 's' : ''}</p>
               </Card>
@@ -124,12 +152,13 @@ export default function Influencers() {
             <DialogHeader><DialogTitle>Add New City</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div><Label className="text-xs">City Name *</Label><Input value={newCityName} onChange={e => setNewCityName(e.target.value)} placeholder="e.g. Mumbai" autoFocus /></div>
+              <div><Label className="text-xs">Emoji Icon</Label><Input value={newCityEmoji} onChange={e => setNewCityEmoji(e.target.value)} placeholder="📍" /></div>
               <Button
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                disabled={!newCityName.trim() || cities.includes(newCityName.trim())}
-                onClick={() => { setCities(prev => [...prev, newCityName.trim()]); setShowAddCity(false); setNewCityName(''); }}
+                disabled={!newCityName.trim() || cities.includes(newCityName.trim()) || createCityMutation.isPending}
+                onClick={() => createCityMutation.mutate({ name: newCityName.trim(), emoji: newCityEmoji.trim() || '📍' })}
               >
-                Add City
+                {createCityMutation.isPending ? 'Saving...' : 'Add City'}
               </Button>
             </div>
           </DialogContent>
