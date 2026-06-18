@@ -58,8 +58,8 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div><Label className="text-xs">Company Name</Label><Input defaultValue="Buzzory" /></div>
-                <div><Label className="text-xs">Email</Label><Input defaultValue="hello@buzzory.com" /></div>
-                <div><Label className="text-xs">Phone</Label><Input defaultValue="+91 98765 43210" /></div>
+                <div><Label className="text-xs">Email</Label><Input defaultValue="buzzory@gmail.com" /></div>
+                <div><Label className="text-xs">Phone</Label><Input defaultValue="+91 81709 13636" /></div>
                 <div><Label className="text-xs">Address</Label><Input defaultValue="123, Park Street, Kolkata" /></div>
               </div>
               <div><Label className="text-xs">Bank Details</Label><Input placeholder="Bank Name, Account No, IFSC" /></div>

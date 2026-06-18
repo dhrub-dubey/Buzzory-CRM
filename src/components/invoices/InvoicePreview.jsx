@@ -14,10 +14,10 @@ export default function InvoicePreview({ form, subtotal, gstAmount, total }) {
             <h3 className="text-lg font-bold"><span className="text-gray-900">Buzz</span><span className="text-orange-500">ory</span></h3>
             <p className="text-[10px] text-gray-500">Influencer Marketing Agency</p>
             <div className="mt-2 text-[10px] text-gray-500 space-y-0.5">
-              <p>123, Park Street, Kolkata</p>
-              <p>West Bengal - 700016</p>
-              <p>Email: hello@buzzory.com</p>
-              <p>Phone: +91 98765 43210</p>
+              <p>Baragharia, Dhupguri,</p>
+              <p>Jalpaiguri, West Bengal - 700016</p>
+              <p>Email: buzzory@gmail.com</p>
+              <p>Phone: +91 81709 13636</p>
             </div>
           </div>
           <div className="text-right">
