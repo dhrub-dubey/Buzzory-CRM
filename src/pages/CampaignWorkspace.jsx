@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Search, Pencil, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Pencil, Trash2, AlertTriangle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -39,6 +39,8 @@ export default function CampaignWorkspace() {
   const [form, setForm] = useState(emptyForm);
   const [showDeleteCampaign, setShowDeleteCampaign] = useState(false);
   const [confirmName, setConfirmName] = useState('');
+  const [showEditCampaign, setShowEditCampaign] = useState(false);
+  const [campaignForm, setCampaignForm] = useState({});
   const queryClient = useQueryClient();
 
   const { data: campaign } = useQuery({
@@ -75,6 +77,11 @@ export default function CampaignWorkspace() {
     onSuccess: () => { navigate('/campaigns'); },
   });
 
+  const updateCampaignMutation = useMutation({
+    mutationFn: (data) => base44.entities.Campaign.update(id, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); setShowEditCampaign(false); },
+  });
+
   const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
 
   const openEdit = (inf) => { setEditing(inf); setForm({ influencer_name: inf.influencer_name, instagram_link: inf.instagram_link || '', contact_number: inf.contact_number || '', status: inf.status, pricing: inf.pricing || 0, payment_status: inf.payment_status, posting_date: inf.posting_date || '', posting_link: inf.posting_link || '', notes: inf.notes || '' }); setShowDialog(true); };
@@ -101,6 +108,9 @@ export default function CampaignWorkspace() {
           <Badge className={campaign?.status === 'active' ? 'bg-green-500/10 text-green-600 border-0' : 'bg-gray-500/10 text-gray-500 border-0'}>
             {campaign?.status === 'active' ? 'Active' : 'Completed'}
           </Badge>
+          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setCampaignForm({ name: campaign?.name, client_name: campaign?.client_name, budget: campaign?.budget || 0, assigned_manager: campaign?.assigned_manager || '', start_date: campaign?.start_date || '', end_date: campaign?.end_date || '', brief: campaign?.brief || '', status: campaign?.status || 'active' }); setShowEditCampaign(true); }}>
+            <Settings className="w-3 h-3" /> Edit Campaign
+          </Button>
           <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={() => { setConfirmName(''); setShowDeleteCampaign(true); }}>
             <Trash2 className="w-3 h-3" /> Delete Campaign
           </Button>
@@ -207,6 +217,37 @@ export default function CampaignWorkspace() {
             <div><Label className="text-xs">Notes</Label><Textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
             <Button onClick={handleSave} disabled={!form.influencer_name} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
               {editing ? 'Update' : 'Add Influencer'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Campaign Dialog */}
+      <Dialog open={showEditCampaign} onOpenChange={setShowEditCampaign}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit Campaign</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label className="text-xs">Campaign Name *</Label><Input value={campaignForm.name || ''} onChange={e => setCampaignForm({...campaignForm, name: e.target.value})} /></div>
+              <div><Label className="text-xs">Client Name</Label><Input value={campaignForm.client_name || ''} onChange={e => setCampaignForm({...campaignForm, client_name: e.target.value})} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label className="text-xs">Status</Label>
+                <Select value={campaignForm.status || 'active'} onValueChange={v => setCampaignForm({...campaignForm, status: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="completed">Completed</SelectItem></SelectContent>
+                </Select>
+              </div>
+              <div><Label className="text-xs">Influencer Cost (₹)</Label><Input type="number" value={campaignForm.budget || 0} onChange={e => setCampaignForm({...campaignForm, budget: Number(e.target.value)})} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label className="text-xs">Start Date</Label><Input type="date" value={campaignForm.start_date || ''} onChange={e => setCampaignForm({...campaignForm, start_date: e.target.value})} /></div>
+              <div><Label className="text-xs">End Date</Label><Input type="date" value={campaignForm.end_date || ''} onChange={e => setCampaignForm({...campaignForm, end_date: e.target.value})} /></div>
+            </div>
+            <div><Label className="text-xs">Assigned Manager</Label><Input value={campaignForm.assigned_manager || ''} onChange={e => setCampaignForm({...campaignForm, assigned_manager: e.target.value})} /></div>
+            <div><Label className="text-xs">Brief</Label><Textarea value={campaignForm.brief || ''} onChange={e => setCampaignForm({...campaignForm, brief: e.target.value})} rows={2} /></div>
+            <Button onClick={() => updateCampaignMutation.mutate(campaignForm)} disabled={!campaignForm.name || updateCampaignMutation.isPending} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+              {updateCampaignMutation.isPending ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>
         </DialogContent>
