@@ -120,10 +120,18 @@ function CampaignCard({ campaign }) {
           <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{campaign.start_date ? format(new Date(campaign.start_date), 'MMM d, yyyy') : 'No date'}</span>
           <span className="flex items-center gap-1"><User className="w-3 h-3" />{campaign.assigned_manager || 'Unassigned'}</span>
         </div>
-        {(campaign.budget > 0 || campaign.revenue > 0) && (
+        {/* {(campaign.budget > 0 || campaign.revenue > 0) && (
           <div className="flex items-center gap-4 text-[10px] mt-2">
             <span className="text-muted-foreground">Budget: ₹{(campaign.budget || 0).toLocaleString('en-IN')}</span>
             <span className="text-orange-500 font-medium">Revenue: ₹{(campaign.revenue || 0).toLocaleString('en-IN')}</span>
+          </div>
+        )} */}
+
+        {campaign.budget > 0 && (
+          <div className="text-[10px] mt-2">
+            <span className="text-muted-foreground">
+              Influencer Budget: ₹{(campaign.budget || 0).toLocaleString('en-IN')}
+            </span>
           </div>
         )}
       </Card>
