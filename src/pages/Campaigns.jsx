@@ -18,7 +18,7 @@ import EmptyState from '@/components/shared/EmptyState';
 export default function Campaigns() {
   const [search, setSearch] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [form, setForm] = useState({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0, revenue: 0 });
+  const [form, setForm] = useState({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0 });
   const queryClient = useQueryClient();
 
   const { data: campaigns = [], isLoading } = useQuery({
@@ -31,7 +31,7 @@ export default function Campaigns() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaigns'] }); setShowDialog(false); resetForm(); },
   });
 
-  const resetForm = () => setForm({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0, revenue: 0 });
+  const resetForm = () => setForm({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0 });
 
   const filtered = campaigns.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) || c.client_name?.toLowerCase().includes(search.toLowerCase())
@@ -92,10 +92,7 @@ export default function Campaigns() {
               <div><Label>End Date</Label><Input type="date" value={form.end_date} onChange={e => setForm({...form, end_date: e.target.value})} /></div>
             </div>
             <div><Label>Campaign Manager</Label><Input value={form.assigned_manager} onChange={e => setForm({...form, assigned_manager: e.target.value})} /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>Budget (₹)</Label><Input type="number" value={form.budget} onChange={e => setForm({...form, budget: Number(e.target.value)})} /></div>
-              <div><Label>Revenue (₹)</Label><Input type="number" value={form.revenue} onChange={e => setForm({...form, revenue: Number(e.target.value)})} /></div>
-            </div>
+            <div><Label>Influencer Budget (₹)</Label><Input type="number" value={form.budget} onChange={e => setForm({...form, budget: Number(e.target.value)})} /></div>
             <div><Label>Brief</Label><Textarea value={form.brief} onChange={e => setForm({...form, brief: e.target.value})} rows={3} /></div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
             <Button onClick={() => createMutation.mutate(form)} disabled={!form.name || !form.client_name || createMutation.isPending} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
