@@ -129,7 +129,7 @@ function CampaignCard({ campaign }) {
 
         {campaign.budget > 0 && (
           <div className="text-[10px] mt-2">
-            <span className="text-muted-foreground">
+            <span className="text-orange-500 font-medium">
               Influencer Budget: ₹{(campaign.budget || 0).toLocaleString('en-IN')}
             </span>
           </div>
