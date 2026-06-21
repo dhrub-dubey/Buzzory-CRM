@@ -92,14 +92,22 @@ function SwipeableRow({ children, onDelete }) {
 const emptyForm = { date: '', transaction_type: 'Credit', description: '', amount_credited: 0, amount_debited: 0, notes: '' };
 
 export default function FundLedger() {
-  const [showDialog, setShowDialog] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [showDialog, setShowDialog] = useState(() => {
+    return sessionStorage.getItem('fundLedgerShowDialog') === 'true';
+  });
+  
+  const [form, setForm] = useState(() => {
+    const saved = sessionStorage.getItem('fundLedgerForm');
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
 
   useEffect(() => {
-    if (!showDialog) {
-      setForm(emptyForm);
-    }
+    sessionStorage.setItem('fundLedgerShowDialog', showDialog);
   }, [showDialog]);
+  
+  useEffect(() => {
+    sessionStorage.setItem('fundLedgerForm', JSON.stringify(form));
+  }, [form]);
   
   const queryClient = useQueryClient();
 
@@ -119,8 +127,19 @@ export default function FundLedger() {
       const newBalance = balance + (data.amount_credited || 0) - (data.amount_debited || 0);
       return base44.entities.FundTransaction.create({ ...data, running_balance: newBalance });
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['fundTransactions'] }); setShowDialog(false); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fundTransactions'] });
+      closeDialog();
+    },
   });
+
+  const closeDialog = () => {
+    setShowDialog(false);
+    setForm(emptyForm);
+  
+    sessionStorage.removeItem('fundLedgerShowDialog');
+    sessionStorage.removeItem('fundLedgerForm');
+  };
 
   const handleSave = () => {
     const data = { ...form };
@@ -193,7 +212,13 @@ export default function FundLedger() {
       </Card>
 
       {/* Add transaction dialog */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <Dialog
+          open={showDialog}
+          onOpenChange={(v) => {
+            if (!v) closeDialog();
+            else setShowDialog(true);
+          }}
+        >
         <DialogContent>
           <DialogHeader><DialogTitle>Add Transaction</DialogTitle></DialogHeader>
           <div className="space-y-3">
