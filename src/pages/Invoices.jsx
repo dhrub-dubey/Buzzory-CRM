@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { FileText, Plus, ArrowLeft, Trash2, Download } from 'lucide-react';
@@ -107,6 +107,28 @@ export default function Invoices() {
     invoice_number: '', invoice_date: '', due_date: '', currency: 'INR (₹)',
     items: [{ ...emptyItem }], gst_percent: 18,
   });
+
+  const modeRef = useRef(mode);
+  const formRef = useRef(form);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+  
+  useEffect(() => {
+    formRef.current = form;
+  }, [form]);
+
+  useEffect(() => {
+    if (modeRef.current) {
+      setMode(modeRef.current);
+    }
+  
+    if (formRef.current) {
+      setForm(formRef.current);
+    }
+  }, []);
+
   const queryClient = useQueryClient();
 
   const [deleteId, setDeleteId] = useState(null);
@@ -166,7 +188,12 @@ export default function Invoices() {
     return (
       <div>
         <PageHeader icon={FileText} title="Invoices" subtitle="Generate and manage invoices">
-          <Button onClick={() => { resetForm(); setMode('create'); }} className="bg-orange-500 hover:bg-orange-600 text-white gap-2"><Plus className="w-4 h-4" /> Create Invoice</Button>
+        <Button
+            onClick={() => {
+              if (mode !== 'create') {
+                setMode('create');
+              }
+            }} className="bg-orange-500 hover:bg-orange-600 text-white gap-2"><Plus className="w-4 h-4" /> Create Invoice</Button>
         </PageHeader>
 
         {/* <Card className="border border-border/50 overflow-hidden">
@@ -272,7 +299,12 @@ export default function Invoices() {
           <h1 className="text-2xl font-bold">Create Invoice</h1>
           <p className="text-sm text-muted-foreground">Fill the details and generate professional invoice for your client.</p>
         </div>
-        <Button variant="outline" onClick={() => setMode('list')} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Dashboard</Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            resetForm();
+            setMode('list');
+          }} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Dashboard</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
