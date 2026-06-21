@@ -187,28 +187,7 @@ export default function CampaignWorkspace() {
           <Badge className={campaign?.status === 'active' ? 'bg-green-500/10 text-green-600 border-0' : 'bg-gray-500/10 text-gray-500 border-0'}>
             {campaign?.status === 'active' ? 'Active' : 'Completed'}
           </Badge>
-          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => {
-              const draft = localStorage.getItem(
-                `campaign_${id}_editDraft`
-              );
-
-              if (draft) {
-                setCampaignForm(JSON.parse(draft));
-              } else {
-                setCampaignForm({
-                  name: campaign?.name || '',
-                  client_name: campaign?.client_name || '',
-                  budget: campaign?.budget || 0,
-                  assigned_manager: campaign?.assigned_manager || '',
-                  start_date: campaign?.start_date || '',
-                  end_date: campaign?.end_date || '',
-                  brief: campaign?.brief || '',
-                  status: campaign?.status || 'active'
-                });
-              }
-
-              setShowEditCampaign(true);
-            }}>
+          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setCampaignForm({ name: campaign?.name, client_name: campaign?.client_name, budget: campaign?.budget || 0, assigned_manager: campaign?.assigned_manager || '', start_date: campaign?.start_date || '', end_date: campaign?.end_date || '', brief: campaign?.brief || '', status: campaign?.status || 'active' }); setShowEditCampaign(true); }}>
             <Settings className="w-3 h-3" /> Edit Campaign
           </Button>
           <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={() => { setConfirmName(''); setShowDeleteCampaign(true); }}>
