@@ -103,6 +103,9 @@ export default function Salaries() {
     return matchSearch && matchMonth && matchYear;
   });
 
+  console.log("payments", payments);
+  console.log("filtered", filtered);
+
   return (
     <div>
       <PageHeader icon={Briefcase} title="Employee Salaries" subtitle="Monthly salary management">
