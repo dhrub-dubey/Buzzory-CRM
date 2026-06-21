@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
@@ -15,11 +15,44 @@ import { format } from 'date-fns';
 import PageHeader from '@/components/shared/PageHeader';
 import EmptyState from '@/components/shared/EmptyState';
 
+const emptyForm = {
+  name: '',
+  client_name: '',
+  status: 'active',
+  assigned_manager: '',
+  start_date: '',
+  end_date: '',
+  brief: '',
+  notes: '',
+  budget: 0
+};
+
 export default function Campaigns() {
   const [search, setSearch] = useState('');
-  const [showDialog, setShowDialog] = useState(false);
-  const [form, setForm] = useState({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0 });
-  const queryClient = useQueryClient();
+  const [showDialog, setShowDialog] = useState(
+    () => localStorage.getItem("campaignDialog") === "true"
+  );
+ // const [form, setForm] = useState({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0 });
+ const [form, setForm] = useState(() => {
+  const saved = localStorage.getItem("campaignDraft");
+  return saved ? JSON.parse(saved) : emptyForm;
+ });
+
+ useEffect(() => {
+   localStorage.setItem(
+     "campaignDialog",
+     showDialog.toString()
+   );
+ }, [showDialog]);
+
+ useEffect(() => {
+   localStorage.setItem(
+     "campaignDraft",
+     JSON.stringify(form)
+   );
+ }, [form]);
+
+ const queryClient = useQueryClient();
 
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ['campaigns'],
@@ -28,10 +61,27 @@ export default function Campaigns() {
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Campaign.create(data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaigns'] }); setShowDialog(false); resetForm(); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
+      closeDialog();
+    },
   });
 
-  const resetForm = () => setForm({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0 });
+ // const resetForm = () => setForm({ name: '', client_name: '', status: 'active', assigned_manager: '', start_date: '', end_date: '', brief: '', notes: '', budget: 0 });
+
+  const resetForm = () => {
+    localStorage.removeItem("campaignDraft");
+    localStorage.removeItem("campaignDialog");
+    setForm(emptyForm);
+  };
+
+  const closeDialog = () => {
+    localStorage.removeItem("campaignDraft");
+    localStorage.removeItem("campaignDialog");
+  
+    setShowDialog(false);
+    setForm(emptyForm);
+  };
 
   const filtered = campaigns.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) || c.client_name?.toLowerCase().includes(search.toLowerCase())
@@ -79,7 +129,7 @@ export default function Campaigns() {
         </div>
       )}
 
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <Dialog open={showDialog} onOpenChange={(v) => { if (!v) closeDialog();}}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Create New Campaign</DialogTitle></DialogHeader>
           <div className="space-y-4">
