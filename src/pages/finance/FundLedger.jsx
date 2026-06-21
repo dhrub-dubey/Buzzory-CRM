@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Plus, Wallet, TrendingUp, TrendingDown, DollarSign, Trash2 } from 'lucide-react';
@@ -94,6 +94,13 @@ const emptyForm = { date: '', transaction_type: 'Credit', description: '', amoun
 export default function FundLedger() {
   const [showDialog, setShowDialog] = useState(false);
   const [form, setForm] = useState(emptyForm);
+
+  useEffect(() => {
+    if (!showDialog) {
+      setForm(emptyForm);
+    }
+  }, [showDialog]);
+  
   const queryClient = useQueryClient();
 
   const { data: transactions = [] } = useQuery({
@@ -112,7 +119,7 @@ export default function FundLedger() {
       const newBalance = balance + (data.amount_credited || 0) - (data.amount_debited || 0);
       return base44.entities.FundTransaction.create({ ...data, running_balance: newBalance });
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['fundTransactions'] }); setShowDialog(false); setForm(emptyForm); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['fundTransactions'] }); setShowDialog(false); },
   });
 
   const handleSave = () => {
@@ -186,7 +193,7 @@ export default function FundLedger() {
       </Card>
 
       {/* Add transaction dialog */}
-      <Dialog open={showDialog} onOpenChange={v => { if (!v) { setShowDialog(false); setForm(emptyForm); } }}>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader><DialogTitle>Add Transaction</DialogTitle></DialogHeader>
           <div className="space-y-3">
