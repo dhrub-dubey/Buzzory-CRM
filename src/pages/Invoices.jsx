@@ -410,6 +410,12 @@ export default function Invoices() {
         </div>
 
         {/* Preview */}
+        <div>
+            <h2 className="text-sm font-semibold mb-3">
+              Invoice Preview
+            </h2>
+        </div>
+        
         <div ref={invoiceRef}>
           <InvoicePreview 
             form={form} 
