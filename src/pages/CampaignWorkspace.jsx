@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -33,14 +33,63 @@ export default function CampaignWorkspace() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [showDialog, setShowDialog] = useState(false);
+  //const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(
+    () => localStorage.getItem(`campaign_${id}_influencerDialog`) === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
+ // const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem(
+      `campaign_${id}_influencerDraft`
+    );
+
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
   const [showDeleteCampaign, setShowDeleteCampaign] = useState(false);
   const [confirmName, setConfirmName] = useState('');
-  const [showEditCampaign, setShowEditCampaign] = useState(false);
-  const [campaignForm, setCampaignForm] = useState({});
+
+  const [showEditCampaign, setShowEditCampaign] = useState(
+    () => localStorage.getItem(`campaign_${id}_editDialog`) === "true"
+  );
+  
+  const [campaignForm, setCampaignForm] = useState(() => {
+    const saved = localStorage.getItem(
+      `campaign_${id}_editDraft`
+    );
+  
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      `campaign_${id}_influencerDialog`,
+      showDialog.toString()
+    );
+  }, [showDialog, id]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      `campaign_${id}_influencerDraft`,
+      JSON.stringify(form)
+    );
+  }, [form, id]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      `campaign_${id}_editDialog`,
+      showEditCampaign.toString()
+    );
+  }, [showEditCampaign, id]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      `campaign_${id}_editDraft`,
+      JSON.stringify(campaignForm)
+    );
+  }, [campaignForm, id]);
+
   const queryClient = useQueryClient();
 
   const { data: campaign } = useQuery({
@@ -79,10 +128,40 @@ export default function CampaignWorkspace() {
 
   const updateCampaignMutation = useMutation({
     mutationFn: (data) => base44.entities.Campaign.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaign', id] }); setShowEditCampaign(false); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaign', id] });
+      closeEditCampaign();
+    },
   });
 
-  const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  //const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+
+  const closeDialog = () => {
+    localStorage.removeItem(
+      `campaign_${id}_influencerDraft`
+    );
+  
+    localStorage.removeItem(
+      `campaign_${id}_influencerDialog`
+    );
+  
+    setShowDialog(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
+
+  const closeEditCampaign = () => {
+    localStorage.removeItem(
+      `campaign_${id}_editDialog`
+    );
+  
+    localStorage.removeItem(
+      `campaign_${id}_editDraft`
+    );
+  
+    setShowEditCampaign(false);
+    setCampaignForm({});
+  };
 
   const openEdit = (inf) => { setEditing(inf); setForm({ influencer_name: inf.influencer_name, instagram_link: inf.instagram_link || '', contact_number: inf.contact_number || '', status: inf.status, pricing: inf.pricing || 0, payment_status: inf.payment_status, posting_date: inf.posting_date || '', posting_link: inf.posting_link || '', notes: inf.notes || '' }); setShowDialog(true); };
 
@@ -108,7 +187,22 @@ export default function CampaignWorkspace() {
           <Badge className={campaign?.status === 'active' ? 'bg-green-500/10 text-green-600 border-0' : 'bg-gray-500/10 text-gray-500 border-0'}>
             {campaign?.status === 'active' ? 'Active' : 'Completed'}
           </Badge>
-          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setCampaignForm({ name: campaign?.name, client_name: campaign?.client_name, budget: campaign?.budget || 0, assigned_manager: campaign?.assigned_manager || '', start_date: campaign?.start_date || '', end_date: campaign?.end_date || '', brief: campaign?.brief || '', status: campaign?.status || 'active' }); setShowEditCampaign(true); }}>
+          <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => {
+                    if (!localStorage.getItem(`campaign_${id}_editDraft`)) {
+                      setCampaignForm({
+                        name: campaign?.name,
+                        client_name: campaign?.client_name,
+                        budget: campaign?.budget || 0,
+                        assigned_manager: campaign?.assigned_manager || '',
+                        start_date: campaign?.start_date || '',
+                        end_date: campaign?.end_date || '',
+                        brief: campaign?.brief || '',
+                        status: campaign?.status || 'active'
+                      });
+                    }
+
+                    setShowEditCampaign(true);
+                  }}>
             <Settings className="w-3 h-3" /> Edit Campaign
           </Button>
           <Button variant="destructive" size="sm" className="gap-1 text-xs" onClick={() => { setConfirmName(''); setShowDeleteCampaign(true); }}>
@@ -223,7 +317,7 @@ export default function CampaignWorkspace() {
       </Dialog>
 
       {/* Edit Campaign Dialog */}
-      <Dialog open={showEditCampaign} onOpenChange={setShowEditCampaign}>
+      <Dialog open={showEditCampaign} onOpenChange={(v) => { if (!v) closeEditCampaign(); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit Campaign</DialogTitle></DialogHeader>
           <div className="space-y-3">
