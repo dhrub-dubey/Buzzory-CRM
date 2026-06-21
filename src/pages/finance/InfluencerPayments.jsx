@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Plus, Search, Pencil, Trash2, Users, Calendar, User, ChevronRight } from 'lucide-react';
@@ -21,14 +21,59 @@ const emptyForm = { influencer_name: '', campaign: '', amount: 0, status: 'Pendi
 
 export default function InfluencerPayments() {
   const now = new Date();
-  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  //const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [selectedCampaign, setSelectedCampaign] = useState(() => {
+    const saved = localStorage.getItem(
+      "selectedInfluencerPaymentCampaign"
+    );
+  
+    return saved ? JSON.parse(saved) : null;
+  });
   const [search, setSearch] = useState('');
   const [monthFilter, setMonthFilter] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [yearFilter, setYearFilter] = useState(String(now.getFullYear()));
-  const [showDialog, setShowDialog] = useState(false);
+  //const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(
+    () => localStorage.getItem("influencerPaymentDialog") === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
+ // const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem(
+      "influencerPaymentDraft"
+    );
+
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "influencerPaymentDialog",
+      showDialog.toString()
+    );
+  }, [showDialog]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      "influencerPaymentDraft",
+      JSON.stringify(form)
+    );
+  }, [form]);
+  
+  useEffect(() => {
+    if (selectedCampaign) {
+      localStorage.setItem(
+        "selectedInfluencerPaymentCampaign",
+        JSON.stringify(selectedCampaign)
+      );
+    } else {
+      localStorage.removeItem(
+        "selectedInfluencerPaymentCampaign"
+      );
+    }
+  }, [selectedCampaign]);
+  
   const queryClient = useQueryClient();
 
   const { data: campaigns = [] } = useQuery({
@@ -56,7 +101,20 @@ export default function InfluencerPayments() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['influencerPayments'] }); setDeleteId(null); },
   });
 
-  const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  // const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  const closeDialog = () => {
+    localStorage.removeItem(
+      "influencerPaymentDraft"
+    );
+  
+    localStorage.removeItem(
+      "influencerPaymentDialog"
+    );
+  
+    setShowDialog(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
   const openEdit = (p) => { setEditing(p); setForm({ influencer_name: p.influencer_name, campaign: p.campaign || '', amount: p.amount, status: p.status, payment_date: p.payment_date || '', notes: p.notes || '' }); setShowDialog(true); };
   const handleSave = () => { if (editing) updateMutation.mutate({ id: editing.id, data: form }); else createMutation.mutate({ ...form, campaign: selectedCampaign?.name, campaign_id: selectedCampaign?.id }); };
 
