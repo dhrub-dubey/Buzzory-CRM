@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,  useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Plus, Search, Pencil, Trash2, CreditCard } from 'lucide-react';
@@ -25,10 +25,35 @@ export default function ClientPayments() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
-  const [showDialog, setShowDialog] = useState(false);
+  //const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(
+    () => localStorage.getItem("clientPaymentDialog") === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
+ // const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem(
+      "clientPaymentDraft"
+    );
+
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "clientPaymentDialog",
+      showDialog.toString()
+    );
+  }, [showDialog]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      "clientPaymentDraft",
+      JSON.stringify(form)
+    );
+  }, [form]);
+
   const queryClient = useQueryClient();
 
   const { data: payments = [] } = useQuery({
@@ -51,7 +76,21 @@ export default function ClientPayments() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['clientPayments'] }); setDeleteId(null); },
   });
 
-  const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  //const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+
+  const closeDialog = () => {
+    localStorage.removeItem(
+      "clientPaymentDraft"
+    );
+  
+    localStorage.removeItem(
+      "clientPaymentDialog"
+    );
+  
+    setShowDialog(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
 
   const openEdit = (p) => {
     setEditing(p);
