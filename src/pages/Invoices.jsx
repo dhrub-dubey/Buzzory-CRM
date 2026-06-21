@@ -101,33 +101,34 @@ const emptyItem = { description: '', sub_description: '', quantity: 1, rate: 0, 
 
 
 export default function Invoices() {
-  const [mode, setMode] = useState('list'); // list, create
-  const [form, setForm] = useState({
-    client_name: '', client_email: '', client_phone: '', billing_address: '',
-    invoice_number: '', invoice_date: '', due_date: '', currency: 'INR (₹)',
-    items: [{ ...emptyItem }], gst_percent: 18,
+  const [mode, setMode] = useState(() => {
+    return localStorage.getItem('invoice_mode') || 'list';
+  }); // list, create
+  const defaultForm = {
+    client_name: '',
+    client_email: '',
+    client_phone: '',
+    billing_address: '',
+    invoice_number: '',
+    invoice_date: '',
+    due_date: '',
+    currency: 'INR (₹)',
+    items: [{ ...emptyItem }],
+    gst_percent: 18,
+  };
+  
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem('invoice_form');
+    return saved ? JSON.parse(saved) : defaultForm;
   });
 
-  const modeRef = useRef(mode);
-  const formRef = useRef(form);
-
   useEffect(() => {
-    modeRef.current = mode;
+    localStorage.setItem('invoice_mode', mode);
   }, [mode]);
-  
-  useEffect(() => {
-    formRef.current = form;
-  }, [form]);
 
   useEffect(() => {
-    if (modeRef.current) {
-      setMode(modeRef.current);
-    }
-  
-    if (formRef.current) {
-      setForm(formRef.current);
-    }
-  }, []);
+    localStorage.setItem('invoice_form', JSON.stringify(form));
+  }, [form]);
 
   const queryClient = useQueryClient();
 
@@ -140,7 +141,15 @@ export default function Invoices() {
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Invoice.create(data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['invoices'] }); setMode('list'); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    
+      localStorage.removeItem('invoice_form');
+      localStorage.removeItem('invoice_mode');
+    
+      setForm(defaultForm);
+      setMode('list');
+    },
   });
 
   const deleteMutation = useMutation({
@@ -180,7 +189,8 @@ export default function Invoices() {
   };
 
   const resetForm = () => {
-    setForm({ client_name: '', client_email: '', client_phone: '', billing_address: '', invoice_number: '', invoice_date: '', due_date: '', currency: 'INR (₹)', items: [{ ...emptyItem }], gst_percent: 18 });
+    setForm(defaultForm);
+    localStorage.removeItem('invoice_form');
   };
 
   // List view
@@ -188,12 +198,7 @@ export default function Invoices() {
     return (
       <div>
         <PageHeader icon={FileText} title="Invoices" subtitle="Generate and manage invoices">
-        <Button
-            onClick={() => {
-              if (mode !== 'create') {
-                setMode('create');
-              }
-            }} className="bg-orange-500 hover:bg-orange-600 text-white gap-2"><Plus className="w-4 h-4" /> Create Invoice</Button>
+          <Button onClick={() => { resetForm(); setMode('create'); }} className="bg-orange-500 hover:bg-orange-600 text-white gap-2"><Plus className="w-4 h-4" /> Create Invoice</Button>
         </PageHeader>
 
         {/* <Card className="border border-border/50 overflow-hidden">
@@ -299,12 +304,7 @@ export default function Invoices() {
           <h1 className="text-2xl font-bold">Create Invoice</h1>
           <p className="text-sm text-muted-foreground">Fill the details and generate professional invoice for your client.</p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            resetForm();
-            setMode('list');
-          }} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Dashboard</Button>
+        <Button variant="outline" onClick={() => setMode('list')} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Dashboard</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
