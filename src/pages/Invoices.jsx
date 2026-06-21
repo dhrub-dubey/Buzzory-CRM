@@ -114,7 +114,7 @@ export default function Invoices() {
     due_date: '',
     currency: 'INR (₹)',
     items: [{ ...emptyItem }],
-    gst_percent: 18,
+   // gst_percent: 18,
   };
   
   const [form, setForm] = useState(() => {
@@ -177,13 +177,14 @@ export default function Invoices() {
   const removeItem = (idx) => setForm({ ...form, items: form.items.filter((_, i) => i !== idx) });
 
   const subtotal = form.items.reduce((s, i) => s + (i.amount || 0), 0);
-  const gstAmount = subtotal * (form.gst_percent / 100);
-  const total = subtotal + gstAmount;
+ // const gstAmount = subtotal * (form.gst_percent / 100);
+  // const total = subtotal + gstAmount;
+  const total = subtotal;
 
   const handleSave = () => {
     createMutation.mutate({
       ...form,
-      subtotal, gst_amount: gstAmount, total_amount: total,
+      subtotal, total_amount: total,
       status: 'Draft', type: 'client',
     });
   };
@@ -364,7 +365,7 @@ export default function Invoices() {
             </Table>
             <div className="mt-4 space-y-1 text-right">
               <p className="text-sm">Sub Total: <span className="font-semibold">₹{subtotal.toLocaleString('en-IN')}</span></p>
-              <p className="text-sm">GST ({form.gst_percent}%): <span className="font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p>
+             {/*  <p className="text-sm">GST ({form.gst_percent}%): <span className="font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p> */}
               <p className="text-base font-bold">Total Amount: <span className="text-orange-500">₹{total.toLocaleString('en-IN')}</span></p>
             </div>
           </Card>
@@ -378,7 +379,7 @@ export default function Invoices() {
         </div>
 
         {/* Preview */}
-        <InvoicePreview form={form} subtotal={subtotal} gstAmount={gstAmount} total={total} />
+        <InvoicePreview form={form} subtotal={subtotal} total={total} />
       </div>
     </div>
   );
