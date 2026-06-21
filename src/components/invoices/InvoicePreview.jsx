@@ -4,11 +4,11 @@ import { Card } from '@/components/ui/card';
 export default function InvoicePreview({ form, subtotal, total }) {
   return (
     <div className="sticky top-6">
-      {/* <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">Invoice Preview</h2>
-      </div> */}
+      </div>
       {/* <Card className="p-6 border border-border/50 bg-white text-gray-900 text-xs"> */}
-      <Card className="relative overflow-hidden p-6 border border-border/50 bg-white text-gray-900 text-xs">
+      <Card id="invoice-pdf" className="relative overflow-hidden p-6 border border-border/50 bg-white text-gray-900 text-xs">
       <img
           src="/invoice-watermark.png"
           className="absolute inset-0 m-auto w-64 opacity-[0.08] pointer-events-none"

@@ -199,7 +199,8 @@ export default function Invoices() {
   };
 
   const downloadPDF = async () => {
-    const element = invoiceRef.current;
+    //const element = invoiceRef.current;
+    const element = document.getElementById('invoice-pdf');
   
     const canvas = await html2canvas(element, {
       scale: 2,
@@ -410,12 +411,6 @@ export default function Invoices() {
         </div>
 
         {/* Preview */}
-        <div>
-            <h2 className="text-sm font-semibold mb-3">
-              Invoice Preview
-            </h2>
-        </div>
-        
         <div ref={invoiceRef}>
           <InvoicePreview 
             form={form} 
