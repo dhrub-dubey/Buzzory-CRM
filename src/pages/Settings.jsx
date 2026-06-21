@@ -60,7 +60,7 @@ export default function Settings() {
                 <div><Label className="text-xs">Company Name</Label><Input defaultValue="Buzzory" /></div>
                 <div><Label className="text-xs">Email</Label><Input defaultValue="buzzory@gmail.com" /></div>
                 <div><Label className="text-xs">Phone</Label><Input defaultValue="+91 81709 13636" /></div>
-                <div><Label className="text-xs">Address</Label><Input defaultValue="Baragharia, Dhupguri, <br /> West Bengal - 735210" /></div>
+                <div><Label className="text-xs">Address</Label><Input defaultValue="Baragharia, Dhupguri, West Bengal - 735210" /></div>
               </div>
               <div><Label className="text-xs">Bank Details</Label><Input placeholder="Bank Name, Account No, IFSC" /></div>
               <Button className="bg-orange-500 hover:bg-orange-600 text-white">Save Changes</Button>

@@ -10,10 +10,95 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 import PageHeader from '@/components/shared/PageHeader';
 import InvoicePreview from '@/components/invoices/InvoicePreview';
 
+const DELETE_THRESHOLD = 60;
+
+function SwipeableRow({ children, onDelete }) {
+  const x = useMotionValue(0);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [swiped, setSwiped] = useState(false);
+
+  const deleteOpacity = useTransform(x, [-DELETE_THRESHOLD, -20], [1, 0]);
+  const deleteScale = useTransform(x, [-DELETE_THRESHOLD, -20], [1, 0.7]);
+
+  const handleDragEnd = (_, info) => {
+    if (info.offset.x < -DELETE_THRESHOLD) {
+      animate(x, -DELETE_THRESHOLD, { type: 'spring', stiffness: 300, damping: 30 });
+      setSwiped(true);
+    } else {
+      animate(x, 0, { type: 'spring', stiffness: 300, damping: 30 });
+      setSwiped(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowConfirm(false);
+    animate(x, 0, { type: 'spring', stiffness: 300, damping: 30 });
+    setSwiped(false);
+  };
+
+  return (
+    <>
+      <div className="relative overflow-hidden">
+        <motion.div
+          style={{ opacity: deleteOpacity, scale: deleteScale }}
+          className="absolute right-0 top-0 bottom-0 w-16 flex items-center justify-center bg-red-500"
+        >
+          <button onClick={() => setShowConfirm(true)} className="flex flex-col items-center gap-1">
+            <Trash2 className="h-4 w-4 text-white" />
+            <span className="text-[10px] text-white font-medium">Delete</span>
+          </button>
+        </motion.div>
+
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: -DELETE_THRESHOLD, right: 0 }}
+          dragElastic={0.1}
+          style={{ x }}
+          onDragEnd={handleDragEnd}
+          onClick={() => {
+            if (swiped) {
+              animate(x, 0, { type: 'spring', stiffness: 300, damping: 30 });
+              setSwiped(false);
+            }
+          }}
+          className="relative z-10 cursor-grab active:cursor-grabbing"
+        >
+          {children}
+        </motion.div>
+      </div>
+
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone. This transaction will be permanently deleted.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setShowConfirm(false); onDelete(); }} className="bg-red-500 hover:bg-red-600">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
 const emptyItem = { description: '', sub_description: '', quantity: 1, rate: 0, amount: 0 };
+
 
 export default function Invoices() {
   const [mode, setMode] = useState('list'); // list, create
@@ -24,6 +109,8 @@ export default function Invoices() {
   });
   const queryClient = useQueryClient();
 
+  const [deleteId, setDeleteId] = useState(null);
+
   const { data: invoices = [] } = useQuery({
     queryKey: ['invoices'],
     queryFn: () => base44.entities.Invoice.list('-created_date', 100),
@@ -32,6 +119,18 @@ export default function Invoices() {
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Invoice.create(data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['invoices'] }); setMode('list'); },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) =>
+      base44.entities.Invoice.delete(id),
+  
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['invoices']
+      });
+      setDeleteId(null);
+    },
   });
 
   const updateItem = (idx, field, value) => {
@@ -70,7 +169,7 @@ export default function Invoices() {
           <Button onClick={() => { resetForm(); setMode('create'); }} className="bg-orange-500 hover:bg-orange-600 text-white gap-2"><Plus className="w-4 h-4" /> Create Invoice</Button>
         </PageHeader>
 
-        <Card className="border border-border/50 overflow-hidden">
+        {/* <Card className="border border-border/50 overflow-hidden">
           <Table>
             <TableHeader><TableRow className="bg-muted/50">
               <TableHead className="text-xs">Invoice #</TableHead><TableHead className="text-xs">Client</TableHead><TableHead className="text-xs">Amount</TableHead><TableHead className="text-xs">Date</TableHead><TableHead className="text-xs">Due</TableHead><TableHead className="text-xs">Status</TableHead>
@@ -89,7 +188,78 @@ export default function Invoices() {
               {invoices.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No invoices yet</TableCell></TableRow>}
             </TableBody>
           </Table>
+        </Card> */}
+
+        <Card className="border border-border/50 overflow-hidden">
+
+        <div className="grid grid-cols-[120px_1fr_140px_120px_120px_100px] gap-2 px-4 py-3 bg-muted/50 text-xs font-medium text-muted-foreground border-b">
+          <span>Invoice #</span>
+          <span>Client</span>
+          <span>Amount</span>
+          <span>Date</span>
+          <span>Due</span>
+          <span>Status</span>
+        </div>
+
+        {invoices.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">
+            No invoices yet
+          </div>
+        ) : (
+          invoices.map((inv, i) => (
+            <SwipeableRow
+              key={inv.id}
+              onDelete={() => deleteMutation.mutate(inv.id)}
+            >
+              <div
+                className={`grid grid-cols-[120px_1fr_140px_120px_120px_100px] gap-2 px-4 py-4 items-center border-b border-border/30 ${
+                  i % 2 === 0
+                    ? 'bg-white'
+                    : 'bg-muted/20'
+                }`}
+              >
+                <span className="font-medium text-sm">
+                  {inv.invoice_number}
+                </span>
+
+                <span className="text-sm">
+                  {inv.client_name}
+                </span>
+
+                <span className="font-semibold">
+                  ₹{(inv.total_amount || 0).toLocaleString('en-IN')}
+                </span>
+
+                <span className="text-xs">
+                  {inv.invoice_date || '-'}
+                </span>
+
+                <span className="text-xs">
+                  {inv.due_date || '-'}
+                </span>
+
+                <span>
+                  <Badge
+                    className={`border-0 text-[10px]
+                    ${
+                      inv.status === 'Paid'
+                        ? 'bg-green-100 text-green-600'
+                        : inv.status === 'Sent'
+                        ? 'bg-blue-100 text-blue-600'
+                        : inv.status === 'Overdue'
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {inv.status}
+                  </Badge>
+                </span>
+              </div>
+            </SwipeableRow>
+          ))
+        )}
         </Card>
+
       </div>
     );
   }
