@@ -17,20 +17,32 @@ import PageHeader from '@/components/shared/PageHeader';
 
 //const emptyForm = { employee_name: '', salary: 0, commission: 0, month: '', payment_date: '', status: 'Pending', notes: '' };
 
-const emptyForm = {
-  employee_name: '',
-  salary: 0,
-  commission: 0,
-  month: MONTHS[new Date().getMonth()],
-  year: String(new Date().getFullYear()),
-  payment_date: '',
-  status: 'Pending',
-  notes: ''
-};
+// const emptyForm = {
+//   employee_name: '',
+//   salary: 0,
+//   commission: 0,
+//   month: MONTHS[new Date().getMonth()],
+//   year: String(new Date().getFullYear()),
+//   payment_date: '',
+//   status: 'Pending',
+//   notes: ''
+// };
 
 export default function Salaries() {
   const now = new Date();
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  
+  const emptyForm = {
+    employee_name: '',
+    salary: 0,
+    commission: 0,
+    month: MONTHS[now.getMonth()],
+    year: String(now.getFullYear()),
+    payment_date: '',
+    status: 'Pending',
+    notes: ''
+  };
+
   const currentMonthLabel = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
 
   const YEAR_OPTIONS = Array.from(
