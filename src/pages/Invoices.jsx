@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { FileText, Plus, ArrowLeft, Trash2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -134,6 +136,8 @@ export default function Invoices() {
 
   const [deleteId, setDeleteId] = useState(null);
 
+  const invoiceRef = useRef();
+
   const { data: invoices = [] } = useQuery({
     queryKey: ['invoices'],
     queryFn: () => base44.entities.Invoice.list('-created_date', 100),
@@ -192,6 +196,33 @@ export default function Invoices() {
   const resetForm = () => {
     setForm(defaultForm);
     localStorage.removeItem('invoice_form');
+  };
+
+  const downloadPDF = async () => {
+    const element = invoiceRef.current;
+  
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+    });
+  
+    const imgData = canvas.toDataURL("image/png");
+  
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      0,
+      pdfWidth,
+      pdfHeight
+    );
+  
+    pdf.save(`${form.invoice_number || "invoice"}.pdf`);
   };
 
   // List view
@@ -372,14 +403,20 @@ export default function Invoices() {
 
           <div className="flex gap-3">
             <Button variant="outline" onClick={resetForm} className="flex-1">Reset</Button>
-            <Button onClick={handleSave} disabled={!form.client_name || !form.invoice_number || createMutation.isPending} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white gap-2">
+            <Button onClick={() => { downloadPDF(); handleSave(); }} disabled={!form.client_name || !form.invoice_number || createMutation.isPending} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white gap-2">
               <Download className="w-4 h-4" /> {createMutation.isPending ? 'Saving...' : 'Download PDF'}
             </Button>
           </div>
         </div>
 
         {/* Preview */}
-        <InvoicePreview form={form} subtotal={subtotal} total={total} />
+        <div ref={invoiceRef}>
+          <InvoicePreview 
+            form={form} 
+            subtotal={subtotal} 
+            total={total} 
+          />
+        </div>
       </div>
     </div>
   );

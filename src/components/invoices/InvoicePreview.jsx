@@ -7,7 +7,12 @@ export default function InvoicePreview({ form, subtotal, total }) {
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">Invoice Preview</h2>
       </div>
-      <Card className="p-6 border border-border/50 bg-white text-gray-900 text-xs">
+      {/* <Card className="p-6 border border-border/50 bg-white text-gray-900 text-xs"> */}
+      <Card className="relative overflow-hidden p-6 border border-border/50 bg-white text-gray-900 text-xs">
+      <img
+          src="/invoice-watermark.png"
+          className="absolute inset-0 m-auto w-64 opacity-[0.08] pointer-events-none"
+      />
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
