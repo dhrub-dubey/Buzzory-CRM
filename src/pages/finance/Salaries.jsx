@@ -15,7 +15,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import PageHeader from '@/components/shared/PageHeader';
 
-const emptyForm = { employee_name: '', salary: 0, commission: 0, month: '', payment_date: '', status: 'Pending', notes: '' };
+//const emptyForm = { employee_name: '', salary: 0, commission: 0, month: '', payment_date: '', status: 'Pending', notes: '' };
+
+const emptyForm = {
+  employee_name: '',
+  salary: 0,
+  commission: 0,
+  month: currentMonthLabel,
+  payment_date: '',
+  status: 'Pending',
+  notes: ''
+};
 
 export default function Salaries() {
   const now = new Date();
@@ -168,7 +178,7 @@ export default function Salaries() {
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">Employee Name *</Label><Input value={form.employee_name} onChange={e => setForm({...form, employee_name: e.target.value})} /></div>
-              <div><Label className="text-xs">Month</Label><Input value={form.month} onChange={e => setForm({...form, month: e.target.value})} placeholder="e.g. June 2026" /></div>
+              <div><Label className="text-xs">Month</Label><Input value={form.month} readOnly placeholder="e.g. June 2026" /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">Salary (₹) *</Label><Input type="number" value={form.salary} onChange={e => setForm({...form, salary: Number(e.target.value)})} /></div>
