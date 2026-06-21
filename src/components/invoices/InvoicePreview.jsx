@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 
 export default function InvoicePreview({ form, subtotal, total }) {
   return (
-    <div className="sticky top-6">
+  //  <div className="sticky top-6">
+  <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold">Invoice Preview</h2>
       </div>
