@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 
-export default function InvoicePreview({ form, subtotal, gstAmount, total }) {
+export default function InvoicePreview({ form, subtotal, total }) {
   return (
     <div className="sticky top-6">
       <div className="flex items-center justify-between mb-3">
@@ -65,10 +65,27 @@ export default function InvoicePreview({ form, subtotal, gstAmount, total }) {
         </table>
 
         {/* Totals */}
-        <div className="text-right space-y-1 border-t pt-3">
+        {/* <div className="text-right space-y-1 border-t pt-3">
           <p className="text-xs">Sub Total <span className="ml-4 font-semibold">₹{subtotal.toLocaleString('en-IN')}</span></p>
           <p className="text-xs">GST ({form.gst_percent || 18}%) <span className="ml-4 font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p>
           <p className="text-sm font-bold text-orange-500 mt-2">Total Amount <span className="ml-4">₹{total.toLocaleString('en-IN')}</span></p>
+        </div> */}
+
+        {/* Totals */}
+        <div className="text-right space-y-1 border-t pt-3">
+          <p className="text-xs">
+            Sub Total
+            <span className="ml-4 font-semibold">
+              ₹{(subtotal || 0).toLocaleString('en-IN')}
+            </span>
+          </p>
+
+          <p className="text-sm font-bold text-orange-500 mt-2">
+            Total Amount
+            <span className="ml-4">
+              ₹{(total || 0).toLocaleString('en-IN')}
+            </span>
+          </p>
         </div>
 
         {/* Footer */}

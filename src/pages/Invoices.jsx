@@ -364,9 +364,9 @@ export default function Invoices() {
               </TableBody>
             </Table>
             <div className="mt-4 space-y-1 text-right">
-              <p className="text-sm">Sub Total: <span className="font-semibold">₹{subtotal.toLocaleString('en-IN')}</span></p>
+              <p className="text-sm">Sub Total: <span className="font-semibold">₹{(subtotal || 0).toLocaleString('en-IN')}</span></p>
              {/*  <p className="text-sm">GST ({form.gst_percent}%): <span className="font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p> */}
-              <p className="text-base font-bold">Total Amount: <span className="text-orange-500">₹{total.toLocaleString('en-IN')}</span></p>
+              <p className="text-base font-bold">Total Amount: <span className="text-orange-500">₹{(total || 0).toLocaleString('en-IN')}</span></p>
             </div>
           </Card>
 
