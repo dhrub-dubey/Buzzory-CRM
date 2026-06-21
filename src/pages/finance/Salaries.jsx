@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Plus, Search, Pencil, Trash2, Briefcase } from 'lucide-react';
@@ -25,10 +25,35 @@ export default function Salaries() {
   const [search, setSearch] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
-  const [showDialog, setShowDialog] = useState(false);
+ // const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(
+    () => localStorage.getItem("salaryDialog") === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
+ // const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem(
+      "salaryDraft"
+    );
+
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "salaryDialog",
+      showDialog.toString()
+    );
+  }, [showDialog]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      "salaryDraft",
+      JSON.stringify(form)
+    );
+  }, [form]);
+
   const queryClient = useQueryClient();
 
   const { data: payments = [] } = useQuery({
@@ -51,7 +76,19 @@ export default function Salaries() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['salaryPayments'] }); setDeleteId(null); },
   });
 
-  const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  const closeDialog = () => {
+    localStorage.removeItem(
+      "salaryDraft"
+    );
+  
+    localStorage.removeItem(
+      "salaryDialog"
+    );
+  
+    setShowDialog(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
   const openEdit = (p) => { setEditing(p); setForm({ employee_name: p.employee_name, salary: p.salary, commission: p.commission || 0, month: p.month || '', payment_date: p.payment_date || '', status: p.status, notes: p.notes || '' }); setShowDialog(true); };
   const handleSave = () => { if (editing) updateMutation.mutate({ id: editing.id, data: form }); else createMutation.mutate(form); };
 
