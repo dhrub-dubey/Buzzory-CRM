@@ -101,8 +101,20 @@ export default function ProfitLedger() {
     const matchSearch = e.client_name?.toLowerCase().includes(search.toLowerCase()) || e.campaign?.toLowerCase().includes(search.toLowerCase());
     const entryMonth = e.date?.slice(5,7);
     const entryYear = e.date?.slice(0,4);
-    const matchMonth = !selectedMonth || entryMonth === selectedMonth;
-    const matchYear = !selectedYear || entryYear === selectedYear;
+    // const matchMonth = !selectedMonth || entryMonth === selectedMonth;
+    // const matchYear = !selectedYear || entryYear === selectedYear;
+    const hasNoDate = !e.date;
+
+    const matchMonth =
+        hasNoDate ||
+        !selectedMonth ||
+        entryMonth === selectedMonth;
+
+    const matchYear =
+        hasNoDate ||
+        !selectedYear ||
+        entryYear === selectedYear;
+        
     return matchSearch && matchMonth && matchYear;
   });
 
