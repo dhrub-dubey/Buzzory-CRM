@@ -14,8 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-const CATEGORIES = ['Fashion', 'Lifestyle', 'Beauty', 'Food', 'Fitness', 'Technology', 'Celebrity'];
-const categoryIcons = { Fashion: '👗', Lifestyle: '✨', Beauty: '💄', Food: '🍴', Fitness: '💪', Technology: '💻', Celebrity: '⭐' };
+const CATEGORIES = ['Fashion', 'Lifestyle', 'Beauty', 'Food', 'Fitness', 'Technology', 'Celebrity', 'Gaming', "Travel", "Automobile", "Entertainment", "Education", "Business"];
+const categoryIcons = { Fashion: '👗', Lifestyle: '✨', Beauty: '💄', Food: '🍴', Fitness: '💪', Technology: '💻', Celebrity: '⭐' , Gaming: '🎮', Travel: '✈️', Automobile: '🚗', Entertainment: '🎬', Education: '📚', Business: '💼' };
 
 const emptyForm = { full_name: '', username: '', city: '', category: '', followers: 0, pricing: 0, phone: '', email: '', instagram: '', youtube: '', niche: '', engagement_rate: 0, notes: '', status: 'Active' };
 
