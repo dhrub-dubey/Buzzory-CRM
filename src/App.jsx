@@ -26,6 +26,7 @@ import ClientPayments from '@/pages/finance/ClientPayments';
 import InfluencerPayments from '@/pages/finance/InfluencerPayments';
 import Salaries from '@/pages/finance/Salaries';
 import FundLedger from '@/pages/finance/FundLedger';
+import ProfitLedger from '@/pages/finance/ProfitLedger';
 import Invoices from '@/pages/Invoices';
 import Settings from '@/pages/Settings';
 import PendingApproval from '@/pages/PendingApproval';
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
           <Route path="/finance/influencer-payments" element={<InfluencerPayments />} />
           <Route path="/finance/salaries" element={<Salaries />} />
           <Route path="/finance/fund-ledger" element={<FundLedger />} />
+          <Route path="/finance/profit-ledger" element={<ProfitLedger />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin/approvals" element={<UserApprovals />} />

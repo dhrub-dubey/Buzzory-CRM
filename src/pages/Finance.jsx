@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { DollarSign, CreditCard, Users, Briefcase, Wallet } from 'lucide-react';
+import { DollarSign, CreditCard, Users, Briefcase, Wallet, TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import PageHeader from '@/components/shared/PageHeader';
 
@@ -9,6 +9,7 @@ const folders = [
   { label: 'Influencer Payments', icon: Users, path: '/finance/influencer-payments', color: 'from-purple-500 to-purple-600', desc: 'Manage influencer payouts' },
   { label: 'Employee Salaries', icon: Briefcase, path: '/finance/salaries', color: 'from-green-500 to-green-600', desc: 'Monthly salary management' },
   { label: 'Company Fund', icon: Wallet, path: '/finance/fund-ledger', color: 'from-orange-500 to-orange-600', desc: 'Fund balance & transactions' },
+  { label: 'Total Profit', icon: TrendingUp, path: '/finance/profit-ledger', color: 'from-emerald-500 to-emerald-600', desc: 'Track profit per client & campaign' },
 ];
 
 export default function Finance() {
