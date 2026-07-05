@@ -71,9 +71,15 @@ export default function Dashboard() {
     enabled: showFinancials,
   });
 
-  const { data: influencerPayments = [] } = useQuery({
-    queryKey: ['influencerPayments'],
-    queryFn: () => base44.entities.InfluencerPayment.list('-created_date', 200),
+  // const { data: influencerPayments = [] } = useQuery({
+  //   queryKey: ['influencerPayments'],
+  //   queryFn: () => base44.entities.InfluencerPayment.list('-created_date', 200),
+  //   enabled: showFinancials,
+  // });
+
+  const { data: profitEntries = [] } = useQuery({
+    queryKey: ['profitEntries'],
+    queryFn: () => base44.entities.ProfitEntry.list('-created_date', 200),
     enabled: showFinancials,
   });
 
@@ -99,19 +105,62 @@ export default function Dashboard() {
     ? campaigns.filter(c => c.status === 'completed')
     : [];
 
+  // const totalRevenue = Array.isArray(clientPayments)
+  // ? clientPayments
+  //     .filter(p => p.status === 'Paid')
+  //     .reduce((s, p) => s + (p.amount || 0), 0)
+  // : 0;
+
+  // const totalCosts = Array.isArray(influencerPayments)
+  // ? influencerPayments
+  //     .filter(p => p.status === 'Paid')
+  //     .reduce((s, p) => s + (p.amount || 0), 0)
+  // : 0;
+
+  // const totalProfit = totalRevenue - totalCosts;
+
+  const validMonths = (() => {
+    const now = new Date();
+  
+    if (dateFilter === 'this_month')
+      return new Set([`${now.getFullYear()}-${now.getMonth()}`]);
+  
+    if (dateFilter === 'last_month') {
+      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return new Set([`${lm.getFullYear()}-${lm.getMonth()}`]);
+    }
+  
+    if (dateFilter === 'last_3_months') {
+      return new Set(
+        [0, 1, 2].map(i => {
+          const x = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          return `${x.getFullYear()}-${x.getMonth()}`;
+        })
+      );
+    }
+  
+    return null;
+  })();
+  
+  const inRange = (dateStr) => {
+    if (!validMonths) return true;
+    if (!dateStr) return false;
+  
+    const d = new Date(dateStr + "T00:00:00");
+    return validMonths.has(`${d.getFullYear()}-${d.getMonth()}`);
+  };
+  
   const totalRevenue = Array.isArray(clientPayments)
-  ? clientPayments
-      .filter(p => p.status === 'Paid')
-      .reduce((s, p) => s + (p.amount || 0), 0)
-  : 0;
-
-  const totalCosts = Array.isArray(influencerPayments)
-  ? influencerPayments
-      .filter(p => p.status === 'Paid')
-      .reduce((s, p) => s + (p.amount || 0), 0)
-  : 0;
-
-  const totalProfit = totalRevenue - totalCosts;
+    ? clientPayments
+        .filter(p => p.status === 'Paid' && inRange(p.invoice_date))
+        .reduce((s, p) => s + (p.amount || 0), 0)
+    : 0;
+  
+  const totalProfit = Array.isArray(profitEntries)
+    ? profitEntries
+        .filter(e => inRange(e.date))
+        .reduce((s, e) => s + (e.profit_amount || 0), 0)
+    : 0;
   
   const fundBalance = Array.isArray(fundTransactions)
   ? fundTransactions.reduce(
