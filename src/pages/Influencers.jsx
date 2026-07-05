@@ -107,14 +107,17 @@ export default function Influencers() {
   const deleteCityMutation = useMutation({
     mutationFn: (id) => base44.entities.City.delete(id),
     onSuccess: () => {
+      const deletedName = deleteCity?.name;
+
       queryClient.invalidateQueries({ queryKey: ['cities'] });
-      setDeleteCity(null);
-      setConfirmCityName('');
   
       // if deleted city was currently selected
-      if (selectedCity === deleteCity?.name) {
+      if (selectedCity === deletedName) {
         setSelectedCity(null);
       }
+
+      setDeleteCity(null);
+      setConfirmCityName('');
     },
   });
 
@@ -184,6 +187,7 @@ export default function Influencers() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {cities.map(city => {
             const count = influencers.filter(i => i.city === city).length;
+            const cityRecord = cityRecords.find(c => c.name === city);
             return (
 
               <div key={city} className="relative group">
