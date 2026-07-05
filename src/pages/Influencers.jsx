@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw } from 'lucide-react';
+import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +40,8 @@ export default function Influencers() {
   const [editing, setEditing] = useState(null);
   const [viewing, setViewing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [deleteCity, setDeleteCity] = useState(null);
+  const [confirmCityName, setConfirmCityName] = useState('');
   const [viewMode, setViewMode] = useState('table');
  // const [form, setForm] = useState(emptyForm);
   const [form, setForm] = useState(() => {
@@ -100,6 +102,20 @@ export default function Influencers() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cities'] });
     }
+  });
+
+  const deleteCityMutation = useMutation({
+    mutationFn: (id) => base44.entities.City.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cities'] });
+      setDeleteCity(null);
+      setConfirmCityName('');
+  
+      // if deleted city was currently selected
+      if (selectedCity === deleteCity?.name) {
+        setSelectedCity(null);
+      }
+    },
   });
 
   const { data: influencers = [] } = useQuery({
@@ -169,11 +185,43 @@ export default function Influencers() {
           {cities.map(city => {
             const count = influencers.filter(i => i.city === city).length;
             return (
-              <Card key={city} className="p-6 border border-border/50 hover:border-orange-500/40 hover:shadow-md transition-all cursor-pointer group text-center" onClick={() => { setSelectedCity(city); setCityFilter(city); setPage(1); }}>
-                <span className="text-3xl mb-2 block">{cityEmojiMap[city] || '📍'}</span>
-                <h3 className="text-sm font-semibold group-hover:text-orange-500 transition-colors">{city}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{count} Influencer{count !== 1 ? 's' : ''}</p>
-              </Card>
+
+              <div key={city} className="relative group">
+
+                <Card
+                  className="p-6 border border-border/50 hover:border-orange-500/40 hover:shadow-md transition-all cursor-pointer group text-center"
+                  onClick={() => {
+                    setSelectedCity(city);
+                    setCityFilter(city);
+                    setPage(1);
+                  }}
+                >
+                  <span className="text-3xl mb-2 block">
+                    {cityEmojiMap[city] || '📍'}
+                  </span>
+
+                  <h3 className="text-sm font-semibold group-hover:text-orange-500 transition-colors">
+                    {city}
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {count} Influencer{count !== 1 ? 's' : ''}
+                  </p>
+                </Card>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmCityName('');
+                    setDeleteCity(cityRecord);
+                  }}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 hover:bg-red-50 border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                </button>
+
+              </div>
+             
             );
           })}
           {/* Add City tile */}
@@ -204,6 +252,72 @@ export default function Influencers() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Delete City Dialog */}
+        <AlertDialog
+          open={!!deleteCity}
+          onOpenChange={(v) => {
+              if (!v) {
+                  setDeleteCity(null);
+                  setConfirmCityName('');
+              }
+          }}
+        >
+          <AlertDialogContent>
+              <AlertDialogHeader>
+
+                  <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                      <AlertTriangle className="w-5 h-5" />
+                      Delete City
+                  </AlertDialogTitle>
+
+                  <AlertDialogDescription>
+                      This will permanently delete{" "}
+                      <strong>{deleteCity?.name}</strong>.
+                      <br />
+                      <br />
+                      Type the city name to confirm.
+                  </AlertDialogDescription>
+
+              </AlertDialogHeader>
+
+              <Input
+                  value={confirmCityName}
+                  onChange={(e) => setConfirmCityName(e.target.value)}
+                  placeholder={deleteCity?.name}
+              />
+
+              <AlertDialogFooter>
+
+                  <AlertDialogCancel
+                      onClick={() => {
+                          setDeleteCity(null);
+                          setConfirmCityName('');
+                      }}
+                  >
+                      Cancel
+                  </AlertDialogCancel>
+
+                  <AlertDialogAction
+                      disabled={
+                          confirmCityName !== deleteCity?.name ||
+                          deleteCityMutation.isPending
+                      }
+                      onClick={() =>
+                          deleteCityMutation.mutate(deleteCity.id)
+                      }
+                      className="bg-red-600 hover:bg-red-700"
+                  >
+                      {deleteCityMutation.isPending
+                          ? "Deleting..."
+                          : "Delete City"}
+                  </AlertDialogAction>
+
+              </AlertDialogFooter>
+
+          </AlertDialogContent>
+      </AlertDialog>
+
       </div>
     );
   }
