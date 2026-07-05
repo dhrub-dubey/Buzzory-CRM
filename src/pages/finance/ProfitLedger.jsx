@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Plus, Search, Pencil, Trash2, TrendingUp } from 'lucide-react';
@@ -28,6 +28,14 @@ export default function ProfitLedger() {
   const [deleteId, setDeleteId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    console.log("ProfitLedger mounted");
+  
+    return () => {
+      console.log("ProfitLedger unmounted");
+    };
+  }, []);
 
   const { data: entries = [] } = useQuery({
     queryKey: ['profitEntries'],
