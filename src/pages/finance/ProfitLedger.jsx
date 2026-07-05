@@ -23,10 +23,15 @@ export default function ProfitLedger() {
   const [search, setSearch] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
-  const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(
+    () => localStorage.getItem("showProfitDialog") === "true"
+  );
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem("profitDraft");
+    return saved ? JSON.parse(saved) : emptyForm;
+  });
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -36,6 +41,20 @@ export default function ProfitLedger() {
       console.log("ProfitLedger unmounted");
     };
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "showProfitDialog",
+      showDialog.toString()
+    );
+  }, [showDialog]);
+  
+  useEffect(() => {
+    localStorage.setItem(
+      "profitDraft",
+      JSON.stringify(form)
+    );
+  }, [form]);
 
   const { data: entries = [] } = useQuery({
     queryKey: ['profitEntries'],
@@ -57,7 +76,14 @@ export default function ProfitLedger() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['profitEntries'] }); setDeleteId(null); },
   });
 
-  const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+  const closeDialog = () => {
+    localStorage.removeItem("showProfitDialog");
+    localStorage.removeItem("profitDraft");
+  
+    setShowDialog(false);
+    setEditing(null);
+    setForm(emptyForm);
+  };
 
   const openEdit = (e) => {
     setEditing(e);
