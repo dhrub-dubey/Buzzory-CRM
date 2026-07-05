@@ -114,7 +114,7 @@ export default function ProfitLedger() {
         hasNoDate ||
         !selectedYear ||
         entryYear === selectedYear;
-        
+
     return matchSearch && matchMonth && matchYear;
   });
 
@@ -194,11 +194,11 @@ export default function ProfitLedger() {
               <div><Label className="text-xs">Campaign</Label><Input value={form.campaign} onChange={e => setForm({...form, campaign: e.target.value})} /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">Date</Label><Input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} /></div>
+              <div><Label className="text-xs">Date *</Label><Input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} /></div>
               <div><Label className="text-xs">Profit Amount (₹) *</Label><Input type="number" value={form.profit_amount} onChange={e => setForm({...form, profit_amount: Number(e.target.value)})} /></div>
             </div>
             <div><Label className="text-xs">Notes</Label><Textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
-            <Button onClick={handleSave} disabled={!form.client_name || !form.profit_amount} className="w-full bg-orange-500 hover:bg-orange-600 text-white">{editing ? 'Update' : 'Add Profit'}</Button>
+            <Button onClick={handleSave} disabled={!form.client_name || !form.date || !form.profit_amount} className="w-full bg-orange-500 hover:bg-orange-600 text-white">{editing ? 'Update' : 'Add Profit'}</Button>
           </div>
         </DialogContent>
       </Dialog>
