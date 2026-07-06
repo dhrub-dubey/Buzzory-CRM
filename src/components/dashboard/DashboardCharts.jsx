@@ -161,34 +161,30 @@ function getMonthlyData(records, amountField) {
 }
 
 function getCustomRangeData(records, amountField, dateRange) {
-  const safeRecords = Array.isArray(records) ? records : [];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const fromDate = new Date(dateRange.from + 'T00:00:00');
+  const toDate = new Date(dateRange.to + 'T23:59:59');
+  const inWindow = (d) => d >= fromDate && d <= toDate;
 
-  const months = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
-  ];
+  const labels = [];
+  if (fromDate.getFullYear() === toDate.getFullYear()) {
+    const y = fromDate.getFullYear();
+    for (let i = 0; i < 12; i++) labels.push({ label: months[i], year: y, monthIdx: i });
+  } else {
+    let y = fromDate.getFullYear();
+    let m = fromDate.getMonth();
+    while (y < toDate.getFullYear() || (y === toDate.getFullYear() && m <= toDate.getMonth())) {
+      labels.push({ label: `${months[m]} '${String(y).slice(2)}`, year: y, monthIdx: m });
+      m++;
+      if (m > 11) { m = 0; y++; }
+    }
+  }
 
-  const fromDate = new Date(dateRange.from + "T00:00:00");
-  const toDate = new Date(dateRange.to + "T23:59:59");
-
-  return months.map((month, idx) => {
-    const total = safeRecords.filter(r => {
-      const d = new Date(
-        r.received_date ||
-        r.payment_date ||
-        r.created_date
-      );
-
-      return (
-        d >= fromDate &&
-        d <= toDate &&
-        d.getMonth() === idx
-      );
+  return labels.map(({ label, year, monthIdx }) => {
+    const total = records.filter(r => {
+      const d = new Date(r.received_date || r.payment_date || r.created_date);
+      return d.getFullYear() === year && d.getMonth() === monthIdx && inWindow(d);
     }).reduce((s, r) => s + (r[amountField] || 0), 0);
-
-    return {
-      month,
-      amount: total
-    };
+    return { month: label, amount: total };
   });
 }
