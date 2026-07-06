@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { exportToCSV, exportDataToZip } from '@/lib/exportUtils';
 import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -20,6 +21,23 @@ const categoryIcons = { Fashion: '👗', Lifestyle: '✨', Beauty: '💄', Food:
 const emptyForm = { full_name: '', username: '', city: '', category: '', followers: 0, pricing: 0, phone: '', email: '', instagram: '', youtube: '', niche: '', engagement_rate: 0, notes: '', status: 'Active' };
 
 const ITEMS_PER_PAGE = 10;
+
+const influencerHeaders = [
+  { label: 'Full Name', key: 'full_name' },
+  { label: 'Username', key: 'username' },
+  { label: 'City', key: 'city' },
+  { label: 'Category', key: 'category' },
+  { label: 'Followers', key: 'followers' },
+  { label: 'Pricing', key: 'pricing' },
+  { label: 'Phone', key: 'phone' },
+  { label: 'Email', key: 'email' },
+  { label: 'Instagram', key: 'instagram' },
+  { label: 'YouTube', key: 'youtube' },
+  { label: 'Niche', key: 'niche' },
+  { label: 'Engagement Rate', key: 'engagement_rate' },
+  { label: 'Status', key: 'status' },
+  { label: 'Notes', key: 'notes' },
+];
 
 export default function Influencers() {
   const [showAddCity, setShowAddCity] = useState(false);
@@ -169,6 +187,17 @@ export default function Influencers() {
 
   const resetFilters = () => { setCatFilter('all'); setFollowFilter('all'); setPriceFilter('all'); setCityFilter(selectedCity || ''); setPage(1); };
 
+  const exportCityWise = () => {
+    exportDataToZip(
+      cities.map(city => ({
+        name: `influencers-${city.toLowerCase().replace(/\s+/g, '-')}.csv`,
+        data: influencers.filter(i => i.city === city),
+        headers: influencerHeaders,
+      })),
+      'influencers-city-wise.zip'
+    );
+  };
+
   // City selection view
   if (!selectedCity) {
     return (
@@ -183,6 +212,17 @@ export default function Influencers() {
               <p className="text-sm text-muted-foreground">Browse influencers by city</p>
             </div>
           </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={exportCityWise}
+            disabled={influencers.length === 0}
+          >
+            <Download className="w-4 h-4" />
+            Export All (City-wise)
+          </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {cities.map(city => {
@@ -428,7 +468,7 @@ export default function Influencers() {
           <Badge variant="outline" className="text-[10px] px-2">{allFiltered.length} Results</Badge>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => exportToCSV( allFiltered, influencerHeaders, 'influencers.csv' )}>
             <Download className="w-3.5 h-3.5" /> Export
           </Button>
           <Button
