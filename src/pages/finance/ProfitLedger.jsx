@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Search, Pencil, Trash2, TrendingUp } from 'lucide-react';
+import { exportToCSV } from '@/lib/exportUtils';
+import { ArrowLeft, Plus, Search, Pencil, Trash2, TrendingUp, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -122,8 +123,42 @@ export default function ProfitLedger() {
 
   return (
     <div>
-      <PageHeader icon={TrendingUp} title="Total Profit" subtitle="Track profit entries per client and campaign">
-        <Button onClick={() => setShowDialog(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"><Plus className="w-4 h-4" /> Add Profit</Button>
+      <PageHeader
+        icon={TrendingUp}
+        title="Total Profit"
+        subtitle="Track profit entries per client and campaign"
+      >
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-sm"
+            onClick={() =>
+              exportToCSV(
+                filtered,
+                [
+                  { label: 'Client Name', key: 'client_name' },
+                  { label: 'Campaign', key: 'campaign' },
+                  { label: 'Date', key: 'date' },
+                  { label: 'Profit Amount', key: 'profit_amount' },
+                  { label: 'Notes', key: 'notes' }
+                ],
+                'profit-ledger.csv'
+              )
+            }
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+
+          <Button
+            onClick={() => setShowDialog(true)}
+            className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Profit
+          </Button>
+        </div>
       </PageHeader>
 
       <Link to="/finance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
