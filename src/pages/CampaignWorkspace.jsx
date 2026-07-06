@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Search, Pencil, Trash2, AlertTriangle, Settings } from 'lucide-react';
+import { exportToCSV } from '@/lib/exportUtils';
+import { ArrowLeft, Plus, Search, Pencil, Trash2, AlertTriangle, Settings, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -187,6 +188,38 @@ export default function CampaignWorkspace() {
           <Badge className={campaign?.status === 'active' ? 'bg-green-500/10 text-green-600 border-0' : 'bg-gray-500/10 text-gray-500 border-0'}>
             {campaign?.status === 'active' ? 'Active' : 'Completed'}
           </Badge>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1 text-xs"
+            onClick={() =>
+              exportToCSV(
+                filtered,
+                [
+                  { label: 'Influencer Name', key: 'influencer_name' },
+                  { label: 'Instagram Link', key: 'instagram_link' },
+                  { label: 'Contact Number', key: 'contact_number' },
+                  { label: 'Status', key: 'status' },
+                  { label: 'Pricing', key: 'pricing' },
+                  { label: 'Payment Status', key: 'payment_status' },
+                  { label: 'Posting Date', key: 'posting_date' },
+                  { label: 'Posting Link', key: 'posting_link' },
+                  { label: 'Notes', key: 'notes' },
+                ],
+                `${
+                  campaign?.name
+                    ?.toLowerCase()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^a-z0-9-]/g, '') || 'campaign'
+                }.csv`
+              )
+            }
+          >
+            <Download className="w-3 h-3" />
+            Export
+          </Button>
+
           <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => { setCampaignForm({ name: campaign?.name, client_name: campaign?.client_name, budget: campaign?.budget || 0, assigned_manager: campaign?.assigned_manager || '', start_date: campaign?.start_date || '', end_date: campaign?.end_date || '', brief: campaign?.brief || '', status: campaign?.status || 'active' }); setShowEditCampaign(true); }}>
             <Settings className="w-3 h-3" /> Edit Campaign
           </Button>
