@@ -183,11 +183,22 @@ export default function Dashboard() {
     return validMonths.has(`${d.getFullYear()}-${d.getMonth()}`);
   };
   
-  const totalRevenue = Array.isArray(clientPayments)
-    ? clientPayments
-        .filter(p => p.status === 'Paid' && inRange(p.invoice_date))
-        .reduce((s, p) => s + (p.amount || 0), 0)
-    : 0;
+  // const totalRevenue = Array.isArray(clientPayments)
+  //   ? clientPayments
+  //       .filter(p => p.status === 'Paid' && inRange(p.invoice_date))
+  //       .reduce((s, p) => s + (p.amount || 0), 0)
+  //   : 0;
+
+  const filteredPayments = Array.isArray(clientPayments)
+    ? clientPayments.filter(
+        p => p.status === "Paid" && inRange(p.invoice_date)
+      )
+    : [];
+  
+  const totalRevenue = filteredPayments.reduce(
+    (s, p) => s + (p.amount || 0),
+    0
+  );
   
   const totalProfit = Array.isArray(profitEntries)
     ? profitEntries
@@ -256,7 +267,7 @@ export default function Dashboard() {
         </div>
       ) : (
         /* Revenue Chart for admin/board_member/employee */
-        showFinancials && <RevenueChart payments={clientPayments} fullWidth />
+        showFinancials && <RevenueChart payments={filteredPayments} fullWidth />
       )}
     </div>
   );

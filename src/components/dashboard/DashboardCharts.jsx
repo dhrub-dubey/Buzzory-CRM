@@ -111,31 +111,65 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
 //   });
 // }
 
+// function getMonthlyData(records, amountField) {
+//   const safeRecords = Array.isArray(records) ? records : [];
+
+//   console.log("RevenueChart records:", records);
+//   console.log("RevenueChart isArray:", Array.isArray(records));
+
+//   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+//   const currentYear = new Date().getFullYear();
+
+//   return months.map((month, idx) => {
+//     const total = safeRecords
+//       .filter(r => {
+//         const d = new Date(
+//           r.received_date ||
+//           r.payment_date ||
+//           r.created_date
+//         );
+
+//         return (
+//           d.getMonth() === idx &&
+//           d.getFullYear() === currentYear
+//         );
+//       })
+//       .reduce((s, r) => s + (r[amountField] || 0), 0);
+
+//     return { month, amount: total };
+//   });
+// }
+
 function getMonthlyData(records, amountField) {
   const safeRecords = Array.isArray(records) ? records : [];
 
-  console.log("RevenueChart records:", records);
-  console.log("RevenueChart isArray:", Array.isArray(records));
+  const grouped = {};
 
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const currentYear = new Date().getFullYear();
+  safeRecords.forEach(record => {
+    const date = new Date(
+      record.invoice_date ||
+      record.received_date ||
+      record.payment_date ||
+      record.created_date
+    );
 
-  return months.map((month, idx) => {
-    const total = safeRecords
-      .filter(r => {
-        const d = new Date(
-          r.received_date ||
-          r.payment_date ||
-          r.created_date
-        );
+    if (isNaN(date)) return;
 
-        return (
-          d.getMonth() === idx &&
-          d.getFullYear() === currentYear
-        );
-      })
-      .reduce((s, r) => s + (r[amountField] || 0), 0);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
 
-    return { month, amount: total };
+    if (!grouped[key]) {
+      grouped[key] = {
+        date: new Date(date.getFullYear(), date.getMonth(), 1),
+        month: date.toLocaleString("en-IN", {
+          month: "short",
+          year: "2-digit",
+        }),
+        amount: 0,
+      };
+    }
+
+    grouped[key].amount += record[amountField] || 0;
   });
+
+  return Object.values(grouped).sort((a, b) => a.date - b.date);
 }
