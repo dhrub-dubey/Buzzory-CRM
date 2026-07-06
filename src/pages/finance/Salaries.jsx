@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Search, Pencil, Trash2, Briefcase } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Pencil, Trash2, Briefcase, Download } from 'lucide-react';
+import { exportToCSV } from '@/lib/exportUtils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -169,8 +170,46 @@ export default function Salaries() {
 
   return (
     <div>
-      <PageHeader icon={Briefcase} title="Employee Salaries" subtitle="Monthly salary management">
-        <Button onClick={() => setShowDialog(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"><Plus className="w-4 h-4" /> Add Salary</Button>
+      <PageHeader
+        icon={Briefcase}
+        title="Employee Salaries"
+        subtitle="Monthly salary management"
+      >
+        <div className="flex items-center gap-2">
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-sm"
+            onClick={() =>
+              exportToCSV(
+                filtered,
+                [
+                  { label: 'Employee Name', key: 'employee_name' },
+                  { label: 'Month', key: 'month' },
+                  { label: 'Salary', key: 'salary' },
+                  { label: 'Commission', key: 'commission' },
+                  { label: 'Status', key: 'status' },
+                  { label: 'Payment Date', key: 'payment_date' },
+                  { label: 'Notes', key: 'notes' },
+                ],
+                'salaries.csv'
+              )
+            }
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+
+          <Button
+            onClick={() => setShowDialog(true)}
+            className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Salary
+          </Button>
+
+        </div>
       </PageHeader>
       <Link to="/finance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"><ArrowLeft className="w-4 h-4" /> Back to Finance</Link>
 
