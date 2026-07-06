@@ -1,7 +1,8 @@
 import React, { useState,  useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Search, Pencil, Trash2, CreditCard } from 'lucide-react';
+import { exportToCSV } from '@/lib/exportUtils';
+import { ArrowLeft, Plus, Search, Pencil, Trash2, CreditCard, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,16 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import PageHeader from '@/components/shared/PageHeader';
 
 const emptyForm = { client_name: '', campaign: '', amount: 0, invoice_date: '', received_date: '', status: 'Pending', notes: '' };
+
+const paymentHeaders = [
+  { label: 'Client Name', key: 'client_name' },
+  { label: 'Campaign', key: 'campaign' },
+  { label: 'Amount', key: 'amount' },
+  { label: 'Invoice Date', key: 'invoice_date' },
+  { label: 'Received Date', key: 'received_date' },
+  { label: 'Status', key: 'status' },
+  { label: 'Notes', key: 'notes' },
+];
 
 export default function ClientPayments() {
   const now = new Date();
@@ -119,7 +130,26 @@ export default function ClientPayments() {
   return (
     <div>
       <PageHeader icon={CreditCard} title="Client Payments" subtitle="Track all client payment records">
-        <Button onClick={() => setShowDialog(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"><Plus className="w-4 h-4" /> Add Payment</Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-sm"
+            onClick={() => exportToCSV(filtered, paymentHeaders, 'client-payments.csv')}
+            disabled={filtered.length === 0}
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+
+          <Button
+            onClick={() => setShowDialog(true)}
+            className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Payment
+          </Button>
+        </div>
       </PageHeader>
 
       <Link to="/finance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
