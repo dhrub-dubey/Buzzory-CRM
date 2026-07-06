@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { exportToCSV } from '@/lib/exportUtils';
+import { exportToCSV, exportDataToZip } from '@/lib/exportUtils';
 import { ArrowLeft, Plus, Search, Pencil, Trash2, Users, Calendar, User, ChevronRight, Download } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -130,6 +130,31 @@ export default function InfluencerPayments() {
     return matchMonth && matchYear;
   });
 
+  const handleExportAll = () => {
+    exportDataToZip(
+      filteredCampaigns.map(c => ({
+        name: `${c.name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')}-payments.csv`,
+        data: payments.filter(
+          p =>
+            p.campaign_id === c.id ||
+            p.campaign === c.name
+        ),
+        headers: [
+          { label: 'Influencer Name', key: 'influencer_name' },
+          { label: 'Campaign', key: 'campaign' },
+          { label: 'Amount', key: 'amount' },
+          { label: 'Status', key: 'status' },
+          { label: 'Payment Date', key: 'payment_date' },
+          { label: 'Notes', key: 'notes' },
+        ],
+      })),
+      'influencer-payments.zip'
+    );
+  };
+
   // If a campaign is selected, show its influencer payments
   if (selectedCampaign) {
     const campaignPayments = payments.filter(p =>
@@ -245,6 +270,16 @@ export default function InfluencerPayments() {
   return (
     <div>
       <PageHeader icon={Users} title="Influencer Payments" subtitle="Select a campaign to view payments">
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2"
+        onClick={handleExportAll}
+        disabled={filteredCampaigns.length === 0}
+      >
+        <Download className="w-4 h-4" />
+        Export All
+      </Button>
       </PageHeader>
       <Link to="/finance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Finance
