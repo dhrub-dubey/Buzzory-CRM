@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, DollarSign, Megaphone, Users, FileText, Settings, LogOut, ChevronLeft, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
-//const ADMIN_EMAIL = "buzzory.it@gmail.com";
+const ADMIN_EMAIL = "buzzory.it@gmail.com";
 
 const allNavItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/', roles: ['all'] },
@@ -16,21 +16,7 @@ const allNavItems = [
 ];
 
 function getNavItems(user) {
-  //if (!user) return allNavItems.filter(i => i.roles.includes('all'));
-  function getNavItems(user = {}) {
-    const role = user.role || 'employee';
-  
-    const isAdmin =
-      //user.email === ADMIN_EMAIL ||
-      role === 'admin' ||
-      role === 'super_admin';
-  
-    if (isAdmin) return allNavItems;
-  
-    return allNavItems.filter(
-      i => i.roles.includes('all') || i.roles.includes(role)
-    );
-  }
+  if (!user) return allNavItems.filter(i => i.roles.includes('all'));
   const isAdmin = user.email === ADMIN_EMAIL || user.role === 'admin'||
   user?.role === 'super_admin';
   if (isAdmin) return allNavItems; // admin sees everything
@@ -40,10 +26,6 @@ function getNavItems(user) {
 export default function Sidebar({ user, collapsed, onToggle }) {
   const { logout } = useAuth();
   const location = useLocation();
-  const isAdmin =
-    user?.role === 'admin' ||
-    user?.role === 'super_admin';
-  const safeUser = user || {};
   const navItems = getNavItems(user);
 
   const isActive = (path) => {
@@ -55,8 +37,8 @@ export default function Sidebar({ user, collapsed, onToggle }) {
     logout();
   };
 
-  //const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
- // user?.role === 'super_admin';
+  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
+  user?.role === 'super_admin';
 
   return (
     <aside className={`fixed left-0 top-0 h-screen bg-[hsl(222,47%,11%)] text-white flex flex-col z-50 transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
@@ -108,7 +90,7 @@ export default function Sidebar({ user, collapsed, onToggle }) {
       <div className="border-t border-white/10 px-3 py-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-              {(user?.full_name || user?.email || 'U')?.[0]?.toUpperCase()}
+            {user?.full_name?.[0] || 'U'}
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
