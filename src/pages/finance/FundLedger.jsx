@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Wallet, TrendingUp, TrendingDown, DollarSign, Trash2 } from 'lucide-react';
+import { exportToCSV } from '@/lib/exportUtils';
+import { ArrowLeft, Plus, Wallet, TrendingUp, TrendingDown, DollarSign, Trash2, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -156,9 +157,39 @@ export default function FundLedger() {
   return (
     <div>
       <PageHeader icon={Wallet} title="Company Fund Ledger" subtitle="Track all fund transactions">
-        <Button onClick={() => setShowDialog(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm">
-          <Plus className="w-4 h-4" /> Add Transaction
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-sm"
+            onClick={() =>
+              exportToCSV(
+                transactions,
+                [
+                  { label: 'Date', key: 'date' },
+                  { label: 'Type', key: 'transaction_type' },
+                  { label: 'Description', key: 'description' },
+                  { label: 'Amount Credited', key: 'amount_credited' },
+                  { label: 'Amount Debited', key: 'amount_debited' },
+                  { label: 'Running Balance', key: 'running_balance' },
+                  { label: 'Notes', key: 'notes' }
+                ],
+                'fund-ledger.csv'
+              )
+            }
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
+
+          <Button
+            onClick={() => setShowDialog(true)}
+            className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Transaction
+          </Button>
+        </div>
       </PageHeader>
       <Link to="/finance" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Finance
