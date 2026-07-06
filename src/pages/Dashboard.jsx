@@ -52,7 +52,7 @@ function CampaignOptInCard({ campaign }) {
 
 export default function Dashboard() {
   const { user } = useOutletContext() || {};
-  const [dateFilter, setDateFilter] = useState('this_month');
+  const [dateFilter, setDateFilter] = useState('all');
 
   const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
   user?.role === 'super_admin';
@@ -121,6 +121,12 @@ export default function Dashboard() {
 
   const validMonths = (() => {
     const now = new Date();
+
+    const monthRanges = {
+      last_3_months: 3,
+      last_6_months: 6,
+      last_year: 12,
+    };
   
     if (dateFilter === 'this_month')
       return new Set([`${now.getFullYear()}-${now.getMonth()}`]);
@@ -130,11 +136,38 @@ export default function Dashboard() {
       return new Set([`${lm.getFullYear()}-${lm.getMonth()}`]);
     }
   
-    if (dateFilter === 'last_3_months') {
+    // if (dateFilter === 'last_3_months') {
+    //   return new Set(
+    //     [0, 1, 2].map(i => {
+    //       const x = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    //       return `${x.getFullYear()}-${x.getMonth()}`;
+    //     })
+    //   );
+    // }
+
+    // if (dateFilter === 'last_6_months') {
+    //   return new Set(
+    //     Array.from({ length: 6 }, (_, i) => {
+    //       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    //       return `${d.getFullYear()}-${d.getMonth()}`;
+    //     })
+    //   );
+    // }
+  
+    // if (dateFilter === 'last_year') {
+    //   return new Set(
+    //     Array.from({ length: 12 }, (_, i) => {
+    //       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    //       return `${d.getFullYear()}-${d.getMonth()}`;
+    //     })
+    //   );
+    // }
+
+    if (monthRanges[dateFilter]) {
       return new Set(
-        [0, 1, 2].map(i => {
-          const x = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          return `${x.getFullYear()}-${x.getMonth()}`;
+        Array.from({ length: monthRanges[dateFilter] }, (_, i) => {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          return `${d.getFullYear()}-${d.getMonth()}`;
         })
       );
     }
@@ -179,10 +212,12 @@ export default function Dashboard() {
           <Select value={dateFilter} onValueChange={setDateFilter}>
             <SelectTrigger className="w-40 h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
+            <SelectItem value="all">All Time</SelectItem>
               <SelectItem value="this_month">This Month</SelectItem>
               <SelectItem value="last_month">Last Month</SelectItem>
               <SelectItem value="last_3_months">Last 3 Months</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="last_6_months">Last 6 Months</SelectItem>
+              <SelectItem value="last_year">Last Year</SelectItem>
             </SelectContent>
           </Select>
         )}
