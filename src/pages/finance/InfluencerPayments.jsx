@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, Plus, Search, Pencil, Trash2, Users, Calendar, User, ChevronRight } from 'lucide-react';
+import { exportToCSV } from '@/lib/exportUtils';
+import { ArrowLeft, Plus, Search, Pencil, Trash2, Users, Calendar, User, ChevronRight, Download } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -138,10 +139,43 @@ export default function InfluencerPayments() {
 
     return (
       <div>
-        <PageHeader icon={Users} title={selectedCampaign.name} subtitle={`Influencer payments for ${selectedCampaign.client_name}`}>
-          <Button onClick={() => setShowDialog(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm">
-            <Plus className="w-4 h-4" /> Add Payment
-          </Button>
+        <PageHeader
+          icon={Users}
+          title={selectedCampaign.name}
+          subtitle={`Influencer payments for ${selectedCampaign.client_name}`}
+        >
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-sm"
+              onClick={() =>
+                exportToCSV(
+                  campaignPayments,
+                  [
+                    { label: 'Influencer Name', key: 'influencer_name' },
+                    { label: 'Campaign', key: 'campaign' },
+                    { label: 'Amount', key: 'amount' },
+                    { label: 'Status', key: 'status' },
+                    { label: 'Payment Date', key: 'payment_date' },
+                    { label: 'Notes', key: 'notes' },
+                  ],
+                  'influencer-payments.csv'
+                )
+              }
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+
+            <Button
+              onClick={() => setShowDialog(true)}
+              className="bg-orange-500 hover:bg-orange-600 text-white gap-2 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add Payment
+            </Button>
+          </div>
         </PageHeader>
         <button onClick={() => { setSelectedCampaign(null); setSearch(''); }} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
           <ArrowLeft className="w-4 h-4" /> Back to Campaigns
