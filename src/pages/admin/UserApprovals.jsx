@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/shared/PageHeader";
 
-const ADMIN_EMAIL = "buzzory.it@gmail.com";
+//const ADMIN_EMAIL = "buzzory.it@gmail.com";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-700",
