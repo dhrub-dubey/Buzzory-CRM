@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { exportDataToZip } from '@/lib/exportUtils';
 import { Link } from 'react-router-dom';
-import { Megaphone, Plus, Search, Calendar, User } from 'lucide-react';
+import { Megaphone, Plus, Search, Calendar, User, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -90,12 +91,66 @@ export default function Campaigns() {
   const active = filtered.filter(c => c.status === 'active');
   const completed = filtered.filter(c => c.status === 'completed');
 
+  const handleExportAll = async () => {
+    const allCIs = await base44.entities.CampaignInfluencer.list(
+      '-created_date',
+      500
+    );
+  
+    exportDataToZip(
+      campaigns.map(c => ({
+        name: `${c.name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')}.csv`,
+        data: allCIs.filter(
+          ci =>
+            ci.campaign_id === c.id ||
+            ci.campaign_name === c.name
+        ),
+        headers: [
+          { label: 'Influencer Name', key: 'influencer_name' },
+          { label: 'Instagram Link', key: 'instagram_link' },
+          { label: 'Contact Number', key: 'contact_number' },
+          { label: 'Status', key: 'status' },
+          { label: 'Pricing', key: 'pricing' },
+          { label: 'Payment Status', key: 'payment_status' },
+          { label: 'Posting Date', key: 'posting_date' },
+          { label: 'Posting Link', key: 'posting_link' },
+          { label: 'Notes', key: 'notes' },
+        ],
+      })),
+      'campaigns.zip'
+    );
+  };
+
   return (
     <div>
-      <PageHeader icon={Megaphone} title="Campaigns" subtitle="Manage all your influencer marketing campaigns">
-        <Button onClick={() => setShowDialog(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2">
-          <Plus className="w-4 h-4" /> New Campaign
-        </Button>
+      <PageHeader
+        icon={Megaphone}
+        title="Campaigns"
+        subtitle="Manage all your influencer marketing campaigns"
+      >
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleExportAll}
+            disabled={campaigns.length === 0}
+          >
+            <Download className="w-4 h-4" />
+            Export All
+          </Button>
+
+          <Button
+            onClick={() => setShowDialog(true)}
+            className="bg-orange-500 hover:bg-orange-600 text-white gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Campaign
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="relative mb-6 max-w-md">
