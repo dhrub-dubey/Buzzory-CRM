@@ -143,25 +143,18 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
 function getMonthlyData(records, amountField) {
   const safeRecords = Array.isArray(records) ? records : [];
 
-  // Create the last 12 months (oldest → newest)
-  const months = [];
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
 
-  const today = new Date();
+  // Create Jan-Dec with 0 values
+  const data = months.map(month => ({
+    month,
+    amount: 0
+  }));
 
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-
-    months.push({
-      key: `${d.getFullYear()}-${d.getMonth()}`,
-      month: d.toLocaleString("en-IN", {
-        month: "short",
-        year: "2-digit",
-      }),
-      amount: 0,
-    });
-  }
-
-  // Add revenue into the matching month
+  // Fill the months that have revenue
   safeRecords.forEach(record => {
     const date = new Date(
       record.invoice_date ||
@@ -172,14 +165,10 @@ function getMonthlyData(records, amountField) {
 
     if (isNaN(date)) return;
 
-    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    const monthIndex = date.getMonth();
 
-    const month = months.find(m => m.key === key);
-
-    if (month) {
-      month.amount += record[amountField] || 0;
-    }
+    data[monthIndex].amount += record[amountField] || 0;
   });
 
-  return months;
+  return data;
 }
