@@ -32,8 +32,11 @@ export function CampaignPerformanceChart({ campaigns }) {
   );
 }
 
-export function RevenueChart({ payments, fullWidth }) {
-  const monthlyData = getMonthlyData(payments, 'amount');
+export function RevenueChart({ payments, fullWidth, dateRange }) {
+  //const monthlyData = getMonthlyData(payments, 'amount');
+  const monthlyData = dateRange
+  ? getCustomRangeData(payments, 'amount', dateRange)
+  : getMonthlyData(payments, 'amount');
 
   return (
     <Card className="border border-border/50">
@@ -100,75 +103,92 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
 }
 
 // function getMonthlyData(records, amountField) {
-//   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-//   const currentYear = new Date().getFullYear();
-//   return months.map((month, idx) => {
-//     const total = records.filter(r => {
-//       const d = new Date(r.received_date || r.payment_date || r.created_date);
-//       return d.getMonth() === idx && d.getFullYear() === currentYear;
-//     }).reduce((s, r) => s + (r[amountField] || 0), 0);
-//     return { month, amount: total };
-//   });
-// }
-
-// function getMonthlyData(records, amountField) {
 //   const safeRecords = Array.isArray(records) ? records : [];
 
-//   console.log("RevenueChart records:", records);
-//   console.log("RevenueChart isArray:", Array.isArray(records));
+//   const months = [
+//     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+//     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+//   ];
 
-//   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-//   const currentYear = new Date().getFullYear();
+//   // Create Jan-Dec with 0 values
+//   const data = months.map(month => ({
+//     month,
+//     amount: 0
+//   }));
 
-//   return months.map((month, idx) => {
-//     const total = safeRecords
-//       .filter(r => {
-//         const d = new Date(
-//           r.received_date ||
-//           r.payment_date ||
-//           r.created_date
-//         );
+//   // Fill the months that have revenue
+//   safeRecords.forEach(record => {
+//     const date = new Date(
+//       record.invoice_date ||
+//       record.received_date ||
+//       record.payment_date ||
+//       record.created_date
+//     );
 
-//         return (
-//           d.getMonth() === idx &&
-//           d.getFullYear() === currentYear
-//         );
-//       })
-//       .reduce((s, r) => s + (r[amountField] || 0), 0);
+//     if (isNaN(date)) return;
 
-//     return { month, amount: total };
+//     const monthIndex = date.getMonth();
+
+//     data[monthIndex].amount += record[amountField] || 0;
 //   });
+
+//   return data;
 // }
 
 function getMonthlyData(records, amountField) {
   const safeRecords = Array.isArray(records) ? records : [];
 
   const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
   ];
 
-  // Create Jan-Dec with 0 values
-  const data = months.map(month => ({
-    month,
-    amount: 0
-  }));
+  const currentYear = new Date().getFullYear();
 
-  // Fill the months that have revenue
-  safeRecords.forEach(record => {
-    const date = new Date(
-      record.invoice_date ||
-      record.received_date ||
-      record.payment_date ||
-      record.created_date
-    );
+  return months.map((month, idx) => {
+    const total = safeRecords.filter(r => {
+      const d = new Date(
+        r.received_date ||
+        r.payment_date ||
+        r.created_date
+      );
 
-    if (isNaN(date)) return;
+      return d.getMonth() === idx && d.getFullYear() === currentYear;
+    }).reduce((s, r) => s + (r[amountField] || 0), 0);
 
-    const monthIndex = date.getMonth();
-
-    data[monthIndex].amount += record[amountField] || 0;
+    return { month, amount: total };
   });
+}
 
-  return data;
+function getCustomRangeData(records, amountField, dateRange) {
+  const safeRecords = Array.isArray(records) ? records : [];
+
+  const months = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+  ];
+
+  const fromDate = new Date(dateRange.from + "T00:00:00");
+  const toDate = new Date(dateRange.to + "T23:59:59");
+
+  return months.map((month, idx) => {
+    const total = safeRecords.filter(r => {
+      const d = new Date(
+        r.received_date ||
+        r.payment_date ||
+        r.created_date
+      );
+
+      return (
+        d >= fromDate &&
+        d <= toDate &&
+        d.getMonth() === idx
+      );
+    }).reduce((s, r) => s + (r[amountField] || 0), 0);
+
+    return {
+      month,
+      amount: total
+    };
+  });
 }
