@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, DollarSign, Megaphone, Users, FileText, Settings, LogOut, ChevronLeft, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
-const ADMIN_EMAIL = "buzzory.it@gmail.com";
+//const ADMIN_EMAIL = "buzzory.it@gmail.com";
 
 const allNavItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/', roles: ['all'] },
