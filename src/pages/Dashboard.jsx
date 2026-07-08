@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Megaphone, CheckCircle, DollarSign, TrendingUp, Wallet, Calendar, Users } from 'lucide-react';
+import { LayoutDashboard, Megaphone, CheckCircle, DollarSign, TrendingUp, Wallet, Calendar, Users, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -255,6 +255,7 @@ export default function Dashboard() {
       <PageHeader icon={LayoutDashboard} title="Dashboard" subtitle={`Welcome back, ${user?.full_name?.split(' ')[0] || 'there'}!`}>
         {showFinancials && (
           <>
+          <div className="flex items-center gap-2">
           <Select
             value={dateFilter}
             onValueChange={(v) => {
@@ -279,6 +280,22 @@ export default function Dashboard() {
               <SelectItem value="custom">Custom Range</SelectItem>
             </SelectContent>
           </Select>
+
+          {dateFilter === 'custom' && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => {
+                  setTempFrom(customRange?.from || '');
+                  setTempTo(customRange?.to || '');
+                  setCustomDialogOpen(true);
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
 
           <Dialog open={customDialogOpen} onOpenChange={setCustomDialogOpen}>
           <DialogContent>
