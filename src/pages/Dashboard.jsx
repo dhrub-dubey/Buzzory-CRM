@@ -5,6 +5,9 @@ import { base44 } from '@/api/base44Client';
 import { LayoutDashboard, Megaphone, CheckCircle, DollarSign, TrendingUp, Wallet, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import StatCard from '@/components/shared/StatCard';
@@ -53,6 +56,11 @@ function CampaignOptInCard({ campaign }) {
 export default function Dashboard() {
   const { user } = useOutletContext() || {};
   const [dateFilter, setDateFilter] = useState('all');
+
+  const [customRange, setCustomRange] = useState(null);
+  const [customDialogOpen, setCustomDialogOpen] = useState(false);
+  const [tempFrom, setTempFrom] = useState('');
+  const [tempTo, setTempTo] = useState('');
 
   const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
   user?.role === 'super_admin';
@@ -172,6 +180,32 @@ export default function Dashboard() {
       );
     }
   
+    if (dateFilter === 'custom' && customRange) {
+      const set = new Set();
+    
+      const from = new Date(customRange.from + 'T00:00:00');
+      const to = new Date(customRange.to + 'T23:59:59');
+    
+      let y = from.getFullYear();
+      let m = from.getMonth();
+    
+      while (
+        y < to.getFullYear() ||
+        (y === to.getFullYear() && m <= to.getMonth())
+      ) {
+        set.add(`${y}-${m}`);
+    
+        m++;
+    
+        if (m > 11) {
+          m = 0;
+          y++;
+        }
+      }
+    
+      return set;
+    }
+
     return null;
   })();
   
@@ -220,7 +254,20 @@ export default function Dashboard() {
     <div>
       <PageHeader icon={LayoutDashboard} title="Dashboard" subtitle={`Welcome back, ${user?.full_name?.split(' ')[0] || 'there'}!`}>
         {showFinancials && (
-          <Select value={dateFilter} onValueChange={setDateFilter}>
+          <>
+          <Select
+            value={dateFilter}
+            onValueChange={(v) => {
+              if (v === 'custom') {
+                setTempFrom(customRange?.from || '');
+                setTempTo(customRange?.to || '');
+                setCustomDialogOpen(true);
+              } else {
+                setCustomRange(null);
+                setDateFilter(v);
+              }
+            }}
+          >
             <SelectTrigger className="w-40 h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
             <SelectItem value="all">All Time</SelectItem>
@@ -229,8 +276,68 @@ export default function Dashboard() {
               <SelectItem value="last_3_months">Last 3 Months</SelectItem>
               <SelectItem value="last_6_months">Last 6 Months</SelectItem>
               <SelectItem value="last_year">Last Year</SelectItem>
+              <SelectItem value="custom">Custom Range</SelectItem>
             </SelectContent>
           </Select>
+
+          <Dialog open={customDialogOpen} onOpenChange={setCustomDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Custom Date Range</DialogTitle>
+            </DialogHeader>
+
+            <div className="flex flex-col gap-4 py-2">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">
+                  From Date
+                </label>
+
+                <Input
+                  type="date"
+                  value={tempFrom}
+                  onChange={(e) => setTempFrom(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">
+                  To Date
+                </label>
+
+                <Input
+                  type="date"
+                  value={tempTo}
+                  onChange={(e) => setTempTo(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setCustomDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                disabled={!tempFrom || !tempTo}
+                onClick={() => {
+                  setCustomRange({
+                    from: tempFrom,
+                    to: tempTo
+                  });
+
+                  setDateFilter('custom');
+                  setCustomDialogOpen(false);
+                }}
+              >
+                Apply
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+          </Dialog>
+        </>
         )}
       </PageHeader>
 
@@ -267,7 +374,7 @@ export default function Dashboard() {
         </div>
       ) : (
         /* Revenue Chart for admin/board_member/employee */
-        showFinancials && <RevenueChart payments={filteredPayments} fullWidth />
+        showFinancials && <RevenueChart payments={filteredPayments} fullWidth dateRange={dateFilter === 'custom' ? customRange : null} />
       )}
     </div>
   );
