@@ -14,9 +14,15 @@ export const AuthProvider = ({ children }) => {
   const [authChecked, setAuthChecked] = useState(false);
   const [authError, setAuthError] = useState(null);
 
-  const loadUser = async () => {
+  // const loadUser = async () => {
+  //   try {
+  //     setIsLoadingAuth(true);
+
+  const loadUser = async (showLoader = false) => {
     try {
-      setIsLoadingAuth(true);
+      if (showLoader) {
+        setIsLoadingAuth(true);
+      }
 
       const {
         data: { session },
@@ -107,7 +113,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Initial app load
-    loadUser();
+    loadUser(true);
   
     const {
       data: { subscription },
@@ -116,7 +122,7 @@ export const AuthProvider = ({ children }) => {
   
       switch (event) {
         case "SIGNED_IN":
-          loadUser();
+          loadUser(false);
           break;
   
         case "SIGNED_OUT":
