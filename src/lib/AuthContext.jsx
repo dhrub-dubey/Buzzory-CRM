@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }) => {
           loadUser();
           break;
   
-        case "SIGNED_OUT":`git`
+        case "SIGNED_OUT":
           setUser(null);
           setProfile(null);
           setIsAuthenticated(false);
