@@ -93,15 +93,49 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    loadUser();
+  // useEffect(() => {
+  //   loadUser();
 
+  //   const {
+  //     data: { subscription },
+  //   } = supabase.auth.onAuthStateChange(() => {
+  //     loadUser();
+  //   });
+
+  //   return () => subscription.unsubscribe();
+  // }, []);
+
+  useEffect(() => {
+    // Initial app load
+    loadUser();
+  
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      loadUser();
+    } = supabase.auth.onAuthStateChange((event) => {
+      console.log("Supabase Auth Event:", event);
+  
+      switch (event) {
+        case "SIGNED_IN":
+          loadUser();
+          break;
+  
+        case "SIGNED_OUT":`git`
+          setUser(null);
+          setProfile(null);
+          setIsAuthenticated(false);
+          setAuthError({ type: "auth_required" });
+          break;
+  
+        // Ignore these because they don't require reloading the whole app
+        case "TOKEN_REFRESHED":
+        case "INITIAL_SESSION":
+        case "USER_UPDATED":
+        case "PASSWORD_RECOVERY":
+        default:
+          break;
+      }
     });
-
+  
     return () => subscription.unsubscribe();
   }, []);
 
