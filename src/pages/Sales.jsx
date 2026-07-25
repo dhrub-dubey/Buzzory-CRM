@@ -88,8 +88,7 @@ export default function Sales() {
         if (statusFilter === 'approached' && !approached) return false;
         if (statusFilter === 'not_approached' && approached) return false;
         if (!['approached', 'not_approached'].includes(statusFilter)) {
-          const status = CONVERTED_REPLIES.has(l.reply) ? 'Converted' : REJECTED_REPLIES.has(l.reply) ? 'Rejected' : 'Pending';
-          if (status !== statusFilter) return false;
+          if ((l.status || 'Pending') !== statusFilter) return false;
         }
       }
       if (teamFilter !== 'all' && l.contacted_by !== teamFilter) return false;
@@ -106,9 +105,9 @@ export default function Sales() {
   const approachedLeads = filtered.filter(isApproached);
   const totalLeads = filtered.length;
   const approached = approachedLeads.length;
-  const converted = approachedLeads.filter(l => CONVERTED_REPLIES.has(l.reply)).length;
-  const rejected = approachedLeads.filter(l => REJECTED_REPLIES.has(l.reply)).length;
-  const pending = approached - converted - rejected;
+  const converted = filtered.filter(l => l.status === 'Converted').length;
+  const rejected = filtered.filter(l => l.status === 'Rejected').length;
+  const pending = filtered.filter(l => !l.status || l.status === 'Pending').length;
   const conversionRate = approached > 0 ? ((converted / approached) * 100).toFixed(1) : '0.0';
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
