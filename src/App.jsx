@@ -32,6 +32,7 @@ import Settings from '@/pages/Settings';
 import PendingApproval from '@/pages/PendingApproval';
 import OAuthCallback from '@/pages/OAuthCallback';
 import UserApprovals from '@/pages/admin/UserApprovals';
+import Sales from '@/pages/Sales';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -73,6 +74,7 @@ const AuthenticatedApp = () => {
           <Route path="/finance/fund-ledger" element={<FundLedger />} />
           <Route path="/finance/profit-ledger" element={<ProfitLedger />} />
           <Route path="/invoices" element={<Invoices />} />
+          <Route path="/sales" element={<Sales />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin/approvals" element={<UserApprovals />} />
         </Route>
