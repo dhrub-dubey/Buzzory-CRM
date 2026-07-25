@@ -27,6 +27,12 @@ function getReplyBadgeClass(reply) {
   return 'bg-orange-500/10 text-orange-600 border-0';
 }
 
+function getStatusBadgeClass(status) {
+  if (status === 'Converted') return 'bg-green-500/10 text-green-600 border-0';
+  if (status === 'Rejected') return 'bg-red-500/10 text-red-600 border-0';
+  return 'bg-orange-500/10 text-orange-600 border-0';
+}
+
 function fmtDate(dateStr) {
   if (!dateStr) return '-';
   try { return format(new Date(dateStr + 'T00:00:00'), 'MMM d, yyyy'); } catch { return '-'; }
@@ -210,6 +216,7 @@ export default function Sales() {
                   <TableHead className="text-xs whitespace-nowrap">Contacted By</TableHead>
                   <TableHead className="text-xs whitespace-nowrap">Contacted On</TableHead>
                   <TableHead className="text-xs whitespace-nowrap">Reply</TableHead>
+                  <TableHead className="text-xs whitespace-nowrap">Status</TableHead>
                   <TableHead className="text-xs whitespace-nowrap">Follow Up</TableHead>
                   <TableHead className="text-xs whitespace-nowrap">Status/Response</TableHead>
                   <TableHead className="text-xs whitespace-nowrap">Notes</TableHead>
@@ -227,6 +234,7 @@ export default function Sales() {
                     <TableCell className="text-xs whitespace-nowrap">{lead.contacted_by || '-'}</TableCell>
                     <TableCell className="text-xs whitespace-nowrap">{fmtDate(lead.contacted_on)}</TableCell>
                     <TableCell className="whitespace-nowrap"><Badge className={getReplyBadgeClass(lead.reply)}>{lead.reply || 'No Response'}</Badge></TableCell>
+                    <TableCell className="whitespace-nowrap"><Badge className={getStatusBadgeClass(lead.status)}>{lead.status || 'Pending'}</Badge></TableCell>
                     <TableCell className="text-xs whitespace-nowrap">{fmtDate(lead.follow_up_date)}</TableCell>
                     <TableCell className="text-xs max-w-[200px] truncate" title={lead.status_response}>{lead.status_response || '-'}</TableCell>
                     <TableCell className="text-xs max-w-[150px] truncate" title={lead.notes}>{lead.notes || '-'}</TableCell>
