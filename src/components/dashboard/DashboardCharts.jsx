@@ -223,13 +223,15 @@ function getMonthlyData(records, amountField) {
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
 
-  // Create Jan-Dec with 0 values
+  const currentYear = new Date().getFullYear();
+
+  // Create Jan-Dec for the current year only
   const data = months.map(month => ({
     month,
     amount: 0
   }));
 
-  // Fill the months that have revenue
+  // Add revenue only from the current year
   safeRecords.forEach(record => {
     const date = new Date(
       record.invoice_date ||
@@ -239,6 +241,9 @@ function getMonthlyData(records, amountField) {
     );
 
     if (isNaN(date)) return;
+
+    // Ignore payments from previous years
+    if (date.getFullYear() !== currentYear) return;
 
     const monthIndex = date.getMonth();
 
