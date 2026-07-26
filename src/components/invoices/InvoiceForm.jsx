@@ -26,13 +26,13 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
   const removeItem = (idx) => setForm({ ...form, items: form.items.filter((_, i) => i !== idx) });
 
   const subtotal = form.items.reduce((s, i) => s + (i.amount || 0), 0);
-  const gstAmount = subtotal * ((form.gst_percent || 0) / 100);
-  const total = subtotal + gstAmount;
+  //const gstAmount = subtotal * ((form.gst_percent || 0) / 100);
+  const total = subtotal ;
 
   const handleSave = () => {
     onSave({
       ...form,
-      subtotal, gst_amount: gstAmount, total_amount: total,
+      subtotal, gst_amount: 0, total_amount: total,
     });
   };
 
@@ -102,7 +102,7 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
             </Table>
             <div className="mt-4 space-y-1 text-right">
               <p className="text-sm">Sub Total: <span className="font-semibold">₹{subtotal.toLocaleString('en-IN')}</span></p>
-              <p className="text-sm">GST ({form.gst_percent}%): <span className="font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p>
+              {/* <p className="text-sm">GST ({form.gst_percent}%): <span className="font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p> */}
               <p className="text-base font-bold">Total Amount: <span className="text-orange-500">₹{total.toLocaleString('en-IN')}</span></p>
             </div>
           </Card>
@@ -115,7 +115,7 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
           </div>
         </div>
 
-        <InvoicePreview form={form} subtotal={subtotal} gstAmount={gstAmount} total={total} />
+        <InvoicePreview form={form} subtotal={subtotal} total={total} />
       </div>
     </div>
   );
