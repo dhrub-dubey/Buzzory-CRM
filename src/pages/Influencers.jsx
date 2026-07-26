@@ -223,7 +223,8 @@ export default function Influencers() {
   };
 
   // City selection view
-  if (!selectedCity) {
+  //if (!selectedCity) {
+  if (!selectedCity && !urlCity && !urlCategory) {
     return (
       <div>
         <div className="flex items-center justify-between mb-6">
@@ -488,7 +489,13 @@ export default function Influencers() {
       {/* Results Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-semibold">{cityFilter || selectedCity} Influencers</h2>
+          <h2 className="text-base font-semibold"><h2>
+            {cityFilter
+              ? `${cityFilter} Influencers`
+              : catFilter !== "all"
+                ? `${catFilter} Influencers`
+                : "All Influencers"}
+          </h2>
           <Badge variant="outline" className="text-[10px] px-2">{allFiltered.length} Results</Badge>
         </div>
         <div className="flex items-center gap-2">
