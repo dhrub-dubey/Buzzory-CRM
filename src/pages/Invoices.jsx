@@ -80,12 +80,13 @@ export default function Invoices() {
         try {
           await downloadPreviewPDF(downloadInvoice);
   
-          toast.dismiss(downloadInvoice.toastId);
-
           toast.success(
-            `${downloadInvoice.invoice_number}.pdf downloaded`
-          );
-
+            `${downloadInvoice.invoice_number}.pdf downloaded`,
+            {
+              id: downloadInvoice.toastId,
+            }
+          );        
+          
         } finally {
           setDownloadInvoice(null);
         }
