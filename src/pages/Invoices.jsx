@@ -58,9 +58,7 @@ export default function Invoices() {
   const selectedInvoice = invoices.find(i => i.id === selectedId);
 
   useEffect(() => {
-    if (!downloadInvoice || isDownloading) return;
-  
-    setIsDownloading(true);
+    if (!downloadInvoice) return;
   
     requestAnimationFrame(() => {
       requestAnimationFrame(async () => {
@@ -68,11 +66,10 @@ export default function Invoices() {
           await downloadPreviewPDF(downloadInvoice);
         } finally {
           setDownloadInvoice(null);
-          setIsDownloading(false);
         }
       });
     });
-  }, [downloadInvoice, isDownloading]);
+  }, [downloadInvoice]);
 
   const downloadPreviewPDF = async (invoice) => {
     const element = document.getElementById("invoice-pdf");
