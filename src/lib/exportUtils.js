@@ -127,3 +127,10 @@ function generateCSV(data, headers) {
     const zip = createZip(files);
     downloadBlob(new Blob([zip], { type: 'application/zip' }), zipFilename);
   }
+
+  export function exportFilesToZip(files, zipFilename) {
+    const valid = files.filter(f => f.data && f.data.length > 0);
+    if (valid.length === 0) return;
+    const zip = createZip(valid);
+    downloadBlob(new Blob([zip], { type: 'application/zip' }), zipFilename);
+  }
