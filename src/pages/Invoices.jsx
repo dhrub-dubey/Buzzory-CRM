@@ -5,7 +5,7 @@ import { FileText, Plus, Download, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CircleCheck } from "lucide-react";
 import jsPDF from "jspdf";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { getInvoicePdfBytes } from '@/lib/invoicePdf';
@@ -130,7 +130,7 @@ export default function Invoices() {
     const toastId = toast(
       `${invoice.invoice_number}.pdf is being downloaded...`,
       {
-        icon: <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />,
+        icon: <LoaderCircle className="w-5 h-5 text-orange-500 animate-spin" />,
       }
     );
   
