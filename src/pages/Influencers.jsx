@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { exportToCSV, exportDataToZip } from '@/lib/exportUtils';
 import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -40,14 +41,19 @@ const influencerHeaders = [
 ];
 
 export default function Influencers() {
+  const [searchParams] = useSearchParams();
+  const urlCity = searchParams.get("city");
+  const urlCategory = searchParams.get("category");
   const [showAddCity, setShowAddCity] = useState(false);
   const [newCityName, setNewCityName] = useState('');
   const [newCityEmoji, setNewCityEmoji] = useState('📍');
- // const [selectedCity, setSelectedCity] = useState(null);
+ 
   const [selectedCity, setSelectedCity] = useState(
-    () => localStorage.getItem("selectedCity") || null
+    () => urlCity || localStorage.getItem("selectedCity") || null
   );
-  const [catFilter, setCatFilter] = useState('all');
+  const [catFilter, setCatFilter] = useState(
+    () => urlCategory || "all"
+  );
   const [followFilter, setFollowFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('');
@@ -75,6 +81,24 @@ export default function Influencers() {
       localStorage.removeItem("selectedCity");
     }
   }, [selectedCity]);
+
+  useEffect(() => {
+    if (urlCity) {
+      setSelectedCity(urlCity);
+      setCityFilter(urlCity);
+    } else {
+      setSelectedCity(null);
+      setCityFilter("");
+    }
+  
+    if (urlCategory) {
+      setCatFilter(urlCategory);
+    } else {
+      setCatFilter("all");
+    }
+  
+    setPage(1);
+  }, [urlCity, urlCategory]);
   
   useEffect(() => {
     localStorage.setItem(

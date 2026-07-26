@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { fetchUsers } from '@/lib/supabase';
@@ -17,6 +17,9 @@ import PageHeader from '@/components/shared/PageHeader';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialCity = searchParams.get("city");
+  const initialCategory = searchParams.get("category");
   const [user, setUser] = useState(null);
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
