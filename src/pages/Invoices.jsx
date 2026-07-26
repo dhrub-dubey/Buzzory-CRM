@@ -3,6 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { FileText, Plus, Download, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { getInvoicePdfBytes } from '@/lib/invoicePdf';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +55,38 @@ export default function Invoices() {
 
   const selectedInvoice = invoices.find(i => i.id === selectedId);
 
+  const downloadPreviewPDF = async (invoice) => {
+    const element = document.getElementById("invoice-pdf");
+  
+    if (!element) {
+      console.log("Invoice preview not found");
+      return;
+    }
+  
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+    });
+  
+    const imgData = canvas.toDataURL("image/png");
+  
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      0,
+      pdfWidth,
+      pdfHeight
+    );
+  
+    pdf.save(`${invoice.invoice_number || "invoice"}.pdf`);
+  };
+
   const handleDownloadZip = async () => {
     if (invoices.length === 0) return;
     setDownloadingZip(true);
@@ -95,7 +130,15 @@ export default function Invoices() {
                   <TableCell><Badge className={`border-0 text-[10px] ${inv.status === 'Paid' ? 'bg-green-100 text-green-600' : inv.status === 'Sent' ? 'bg-blue-100 text-blue-600' : inv.status === 'Overdue' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>{inv.status}</Badge></TableCell>
                   <TableCell>
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-orange-500" onClick={() => downloadInvoicePdf(inv)} title="Download PDF"><Download className="w-3.5 h-3.5" /></Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-orange-500" onClick={() => {
+                          setSelectedId(inv.id);
+                          setMode('detail');
+
+                          setTimeout(() => {
+                            downloadPreviewPDF(inv);
+                          }, 500);
+                        }} title="Download PDF"><Download className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -116,7 +159,7 @@ export default function Invoices() {
           invoice={selectedInvoice}
           onEdit={() => setMode('edit')}
           onDelete={() => setShowDelete(true)}
-          onDownload={() => downloadInvoicePdf(selectedInvoice)}
+          onDownload={() => downloadPreviewPDF(selectedInvoice)}
           onBack={() => setMode('list')}
         />
         <DeleteInvoiceDialog
