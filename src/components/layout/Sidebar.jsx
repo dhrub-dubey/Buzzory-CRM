@@ -12,7 +12,7 @@ const allNavItems = [
   { label: 'Finance', icon: DollarSign, path: '/finance', roles: ['admin', 'board_member'] },
   { label: 'Invoices', icon: FileText, path: '/invoices', roles: ['admin', 'board_member'] },
   { label: 'Sales', icon: BarChart3, path: '/sales', roles: ['all'] },
-  { label: 'Settings', icon: Settings, path: '/settings', roles: ['admin'] },
+  { label: 'Settings', icon: Settings, path: '/settings', roles: ['all'] },
   { label: 'User Approvals', icon: Shield, path: '/admin/approvals', roles: ['admin'] },
 ];
 
