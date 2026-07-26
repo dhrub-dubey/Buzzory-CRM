@@ -11,6 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import InvoiceDetail from "@/components/invoices/InvoiceDetail";
+import InvoiceForm from "@/components/invoices/InvoiceForm";
+import DeleteInvoiceDialog from "@/components/invoices/DeleteInvoiceDialog";
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import {
@@ -106,6 +109,8 @@ export default function Invoices() {
   const [mode, setMode] = useState(() => {
     return localStorage.getItem('invoice_mode') || 'list';
   }); // list, create
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
   const defaultForm = {
     client_name: '',
     client_email: '',
@@ -136,6 +141,11 @@ export default function Invoices() {
 
   const [deleteId, setDeleteId] = useState(null);
 
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
+  //const [showInvoiceDetail, setShowInvoiceDetail] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   const invoiceRef = useRef();
 
   const { data: invoices = [] } = useQuery({
@@ -156,6 +166,22 @@ export default function Invoices() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) =>
+      base44.entities.Invoice.update(id, data),
+  
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+  
+      localStorage.removeItem('invoice_form');
+      localStorage.removeItem('invoice_mode');
+  
+      setEditingInvoice(null);
+      setForm(defaultForm);
+      setMode('list');
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id) =>
       base44.entities.Invoice.delete(id),
@@ -165,6 +191,24 @@ export default function Invoices() {
         queryKey: ['invoices']
       });
       setDeleteId(null);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) =>
+      base44.entities.Invoice.update(id, data),
+  
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["invoices"],
+      });
+  
+      setEditingInvoice(null);
+      setMode("list");
+      setForm(defaultForm);
+  
+      localStorage.removeItem("invoice_form");
+      localStorage.removeItem("invoice_mode");
     },
   });
 
@@ -186,14 +230,26 @@ export default function Invoices() {
   const total = subtotal;
 
   const handleSave = () => {
-    createMutation.mutate({
+    const data = {
       ...form,
-      subtotal, total_amount: total,
-      status: 'Draft', type: 'client',
-    });
+      subtotal,
+      total_amount: total,
+      status: 'Draft',
+      type: 'client',
+    };
+  
+    if (editingInvoice) {
+      updateMutation.mutate({
+        id: editingInvoice.id,
+        data,
+      });
+    } else {
+      createMutation.mutate(data);
+    }
   };
 
   const resetForm = () => {
+    setEditingInvoice(null);
     setForm(defaultForm);
     localStorage.removeItem('invoice_form');
   };
@@ -282,6 +338,11 @@ export default function Invoices() {
                     ? 'bg-white'
                     : 'bg-muted/20'
                 }`}
+                onClick={() => {
+                  setSelectedInvoice(inv);
+                  setMode("detail");
+                }
+              }
               >
                 <span className="font-medium text-sm">
                   {inv.invoice_number}
@@ -326,6 +387,47 @@ export default function Invoices() {
         </Card>
 
       </div>
+    );
+  }
+
+  if (mode === "detail") {
+    return (
+      <>
+        <InvoiceDetail
+          invoice={selectedInvoice}
+  
+          onBack={() => setMode("list")}
+  
+          onEdit={() => {
+            setForm(selectedInvoice);
+            setEditingInvoice(selectedInvoice);
+            setMode("create");
+          }}
+  
+          onDelete={() => {
+            setShowDeleteDialog(true);
+          }}
+  
+          onDownload={() => {
+            setTimeout(() => {
+                downloadPDF();
+            }, 100);
+        }}
+        />
+  
+        <DeleteInvoiceDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          invoice={selectedInvoice}
+          isPending={deleteMutation.isPending}
+  
+          onConfirm={() => {
+            deleteMutation.mutate(selectedInvoice.id);
+            setShowDeleteDialog(false);
+            setMode("list");
+          }}
+        />
+      </>
     );
   }
 
@@ -404,8 +506,12 @@ export default function Invoices() {
 
           <div className="flex gap-3">
             <Button variant="outline" onClick={resetForm} className="flex-1">Reset</Button>
-            <Button onClick={() => { downloadPDF(); handleSave(); }} disabled={!form.client_name || !form.invoice_number || createMutation.isPending} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white gap-2">
-              <Download className="w-4 h-4" /> {createMutation.isPending ? 'Saving...' : 'Download PDF'}
+            <Button onClick={() => { downloadPDF(); handleSave(); }} disabled={!form.client_name || !form.invoice_number || createMutation.isPending || updateMutation.isPending} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white gap-2">
+              <Download className="w-4 h-4" /> {createMutation.isPending || updateMutation.isPending
+                                              ? 'Saving...'
+                                              : editingInvoice
+                                                ? 'Update Invoice'
+                                                : 'Download PDF'}
             </Button>
           </div>
         </div>
