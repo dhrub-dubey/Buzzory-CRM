@@ -127,12 +127,10 @@ export default function Invoices() {
   };
 
   const downloadInvoiceWithToast = (invoice) => {
-    const toastId = toast.loading(
+    const toastId = toast(
       `${invoice.invoice_number}.pdf is being downloaded...`,
       {
-        icon: (
-          <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
-        ),
+        icon: <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />,
       }
     );
   
@@ -190,14 +188,6 @@ export default function Invoices() {
                           onClick={(e) => {
                             e.stopPropagation();
                             downloadInvoiceWithToast(inv);
-                            // const toastId = toast.loading(
-                            //   `${inv.invoice_number}.pdf is being downloaded...`
-                            // );
-                            
-                            // setDownloadInvoice({
-                            //   ...inv,
-                            //   toastId,
-                            // });
                           }}
 
                           title="Download PDF"><Download className="w-3.5 h-3.5" />
