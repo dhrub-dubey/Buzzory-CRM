@@ -169,7 +169,14 @@ export default function Invoices() {
     setDownloadingZip(true);
   
     try {
-      const toastId = toast.loading("Grab a coke! Invoices.zip is being generated...");
+      const toastId = toast.loading("Grab a coke while Invoices.zip is being generated..."
+        {
+          icon: (
+            <LoaderCircle className="w-5 h-5 text-orange-500 animate-spin" />
+          ),
+        }
+
+      );
   
       const files = [];
   
@@ -193,7 +200,7 @@ export default function Invoices() {
   
       exportFilesToZip(files, "Invoices.zip");
   
-      toast.success("Invoices ZIP downloaded", {
+      toast.success("Invoices.zip downloaded succesfully 🎉", {
         id: toastId,
         icon: <CircleCheck className="w-5 h-5 text-orange-500" />,
       });
