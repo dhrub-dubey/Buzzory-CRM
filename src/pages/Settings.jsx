@@ -39,8 +39,8 @@ export default function Settings() {
     setInviteEmail('');
   };
 
-  const roleLabels = { super_admin: 'Super Admin', board_member: 'Board Member', campaign_manager: 'Campaign Manager', finance_team: 'Finance Team', employee: 'Employee' };
-  const roleColors = { super_admin: 'bg-red-100 text-red-600', board_member: 'bg-purple-100 text-purple-600', campaign_manager: 'bg-blue-100 text-blue-600', finance_team: 'bg-green-100 text-green-600', employee: 'bg-gray-100 text-gray-600' };
+  const roleLabels = { super_admin: 'Super Admin', board_member: 'Board Member', employee: 'Employee' };
+  const roleColors = { super_admin: 'bg-orange-100 text-orange-600', board_member: 'bg-purple-100 text-purple-600', employee: 'bg-green-100 text-green-600' };
 
   return (
     <div>
