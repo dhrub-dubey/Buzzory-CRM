@@ -126,6 +126,17 @@ export default function Invoices() {
     pdf.save(`${invoice.invoice_number || "invoice"}.pdf`);
   };
 
+  const downloadInvoiceWithToast = (invoice) => {
+    const toastId = toast.loading(
+      `${invoice.invoice_number}.pdf is being downloaded...`
+    );
+  
+    setDownloadInvoice({
+      ...invoice,
+      toastId,
+    });
+  };
+
   const handleDownloadZip = async () => {
     if (invoices.length === 0) return;
     setDownloadingZip(true);
@@ -173,15 +184,15 @@ export default function Invoices() {
                           
                           onClick={(e) => {
                             e.stopPropagation();
-                          
-                            const toastId = toast.loading(
-                              `${inv.invoice_number}.pdf is being downloaded...`
-                            );
+                            downloadInvoiceWithToast(inv);
+                            // const toastId = toast.loading(
+                            //   `${inv.invoice_number}.pdf is being downloaded...`
+                            // );
                             
-                            setDownloadInvoice({
-                              ...inv,
-                              toastId,
-                            });
+                            // setDownloadInvoice({
+                            //   ...inv,
+                            //   toastId,
+                            // });
                           }}
 
                           title="Download PDF"><Download className="w-3.5 h-3.5" />
@@ -225,7 +236,7 @@ export default function Invoices() {
           invoice={selectedInvoice}
           onEdit={() => setMode('edit')}
           onDelete={() => setShowDelete(true)}
-          onDownload={() => downloadPreviewPDF(selectedInvoice)}
+          onDownload={() => downloadInvoiceWithToast(selectedInvoice)}
           onBack={() => setMode('list')}
         />
         <DeleteInvoiceDialog
