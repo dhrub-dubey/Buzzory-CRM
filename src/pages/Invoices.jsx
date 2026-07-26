@@ -8,7 +8,7 @@ import jsPDF from "jspdf";
 import { LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
-import { getInvoicePdfBytes } from '@/lib/invoicePdf';
+import { downloadInvoicePdf, getInvoicePdfBytes } from '@/lib/invoicePdf';
 import InvoicePreview from "@/components/invoices/InvoicePreview";
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -32,6 +32,7 @@ export default function Invoices() {
   const [showDelete, setShowDelete] = useState(false);
   const [downloadingZip, setDownloadingZip] = useState(false);
   const [downloadInvoice, setDownloadInvoice] = useState(false);
+  const [zipInvoices, setZipInvoices] = useState([]);
   const queryClient = useQueryClient();
 
   const { data: invoices = [] } = useQuery({
@@ -94,37 +95,45 @@ export default function Invoices() {
     });
   }, [downloadInvoice]);
 
+  // const downloadPreviewPDF = async (invoice) => {
+  //   const element = document.getElementById("invoice-pdf");
+  
+  //   if (!element) {
+  //     console.log("Invoice preview not found");
+  //     return;
+  //   }
+  
+  //   const canvas = await html2canvas(element, {
+  //     scale: 2,
+  //     backgroundColor: "#ffffff",
+  //   });
+  
+  //   const imgData = canvas.toDataURL("image/png");
+  
+  //   const pdf = new jsPDF("p", "mm", "a4");
+  
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+  //   pdf.addImage(
+  //     imgData,
+  //     "PNG",
+  //     0,
+  //     0,
+  //     pdfWidth,
+  //     pdfHeight
+  //   );
+  
+  //   pdf.save(`${invoice.invoice_number || "invoice"}.pdf`);
+  // };
+
   const downloadPreviewPDF = async (invoice) => {
     const element = document.getElementById("invoice-pdf");
   
-    if (!element) {
-      console.log("Invoice preview not found");
-      return;
-    }
+    if (!element) return;
   
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      backgroundColor: "#ffffff",
-    });
-  
-    const imgData = canvas.toDataURL("image/png");
-  
-    const pdf = new jsPDF("p", "mm", "a4");
-  
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-  
-    pdf.addImage(
-      imgData,
-      "PNG",
-      0,
-      0,
-      pdfWidth,
-      pdfHeight
-    );
-  
-    pdf.save(`${invoice.invoice_number || "invoice"}.pdf`);
-  };
+    await downloadInvoicePdf(element, invoice);
+  };  
 
   const downloadInvoiceWithToast = (invoice) => {
     const toastId = toast(
@@ -140,16 +149,54 @@ export default function Invoices() {
     });
   };
 
+  // const handleDownloadZip = async () => {
+  //   if (invoices.length === 0) return;
+  //   setDownloadingZip(true);
+  //   try {
+  //     const files = invoices.map(inv => ({
+  //       name: `${inv.invoice_number || 'invoice'}.pdf`,
+  //       data: getInvoicePdfBytes(inv),
+  //     }));
+  //     exportFilesToZip(files, 'invoices.zip');
+  //   } finally {
+  //     setDownloadingZip(false);
+  //   }
+  // };
+
   const handleDownloadZip = async () => {
     if (invoices.length === 0) return;
+  
     setDownloadingZip(true);
+  
     try {
-      const files = invoices.map(inv => ({
-        name: `${inv.invoice_number || 'invoice'}.pdf`,
-        data: getInvoicePdfBytes(inv),
-      }));
-      exportFilesToZip(files, 'invoices.zip');
+      toast.loading("Preparing invoices ZIP...");
+  
+      const files = [];
+  
+      for (const inv of invoices) {
+  
+        setZipInvoices([inv]);
+  
+        await new Promise(resolve =>
+          setTimeout(resolve, 300)
+        );
+  
+        const element = document.getElementById("invoice-pdf");
+  
+        const data = await getInvoicePdfBytes(element);
+  
+        files.push({
+          name: `${inv.invoice_number || "invoice"}.pdf`,
+          data,
+        });
+      }
+  
+      exportFilesToZip(files, "invoices.zip");
+  
+      toast.success("Invoices ZIP downloaded");
+  
     } finally {
+      setZipInvoices([]);
       setDownloadingZip(false);
     }
   };
@@ -210,6 +257,24 @@ export default function Invoices() {
             width: "800px",
             zIndex: -1,
           }}
+
+          {zipInvoices.length > 0 && (
+            <div
+              style={{
+                position: "fixed",
+                left: "-10000px",
+                top: 0,
+                width: "800px",
+              }}
+            >
+              <InvoicePreview
+                form={zipInvoices[0]}
+                subtotal={zipInvoices[0].subtotal || 0}
+                total={zipInvoices[0].total_amount || 0}
+              />
+            </div>
+          )}
+          
         >
           <InvoicePreview
             form={downloadInvoice}

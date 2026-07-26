@@ -1,10 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-export async function downloadInvoicePdf(invoice) {
-
-  const element = document.getElementById("invoice-pdf");
-
+export async function generateInvoicePdf(element) {
   const canvas = await html2canvas(element, {
     scale: 2,
     backgroundColor: "#ffffff",
@@ -26,11 +23,22 @@ export async function downloadInvoicePdf(invoice) {
     pdfHeight
   );
 
+  return pdf;
+}
+
+
+export async function downloadInvoicePdf(element, invoice) {
+  const pdf = await generateInvoicePdf(element);
+
   pdf.save(`${invoice.invoice_number || "invoice"}.pdf`);
 }
 
 
-export function getInvoicePdfBytes(invoice) {
-  // temporarily remove ZIP support
-  return null;
+// NEW: returns bytes for ZIP
+export async function getInvoicePdfBytes(element) {
+  const pdf = await generateInvoicePdf(element);
+
+  return new Uint8Array(
+    pdf.output("arraybuffer")
+  );
 }
