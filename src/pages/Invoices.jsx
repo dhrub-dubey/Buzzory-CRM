@@ -172,6 +172,7 @@ export default function Invoices() {
       const toastId = toast(
         "Grab a coke while Invoices.zip is being generated...",
         {
+          duration: Infinity,
           icon: (
             <LoaderCircle className="w-5 h-5 text-orange-500 animate-spin" />
           ),
