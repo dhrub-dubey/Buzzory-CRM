@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { fetchUsers } from '@/lib/supabase';
-import { Settings as SettingsIcon, Building2, Users, Layers } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Users, Layers, MapPin, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PageHeader from '@/components/shared/PageHeader';
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -29,6 +31,20 @@ export default function Settings() {
     queryKey: ['users'],
     queryFn: fetchUsers,
   });
+
+  const { data: influencers = [] } = useQuery({
+    queryKey: ['influencers'],
+    queryFn: () => base44.entities.Influencer.list('-created_date', 500),
+  });
+  
+  const { data: leads = [] } = useQuery({
+    queryKey: ['leads'],
+    queryFn: () => base44.entities.Lead.list('-created_date', 500),
+  });
+  
+  const cities = [...new Set(influencers.map(i => i.city).filter(Boolean))];
+  const categories = [...new Set(influencers.map(i => i.category).filter(Boolean))];
+  const salesStatuses = [...new Set(leads.map(l => l.status).filter(Boolean))];
 
   const handleInvite = async () => {
     setInviting(true);
@@ -105,36 +121,138 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="crm">
-          <Card className="border border-border/50">
-            <CardHeader><CardTitle className="text-sm">CRM Configuration</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-xs font-semibold">Cities</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['Kolkata', 'Siliguri', 'Assam', 'Guwahati', 'Delhi', 'Northeast', 'Celebrity'].map(c => (
-                    <Badge key={c} variant="outline" className="text-xs">{c}</Badge>
-                  ))}
+            <Card className="border border-border/50">
+              <CardHeader>
+                <div>
+                  <CardTitle className="text-sm">CRM Configuration</CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Live values pulled from your Influencers and Sales Tracker. Click any item to jump to the filtered list.
+                  </p>
                 </div>
-              </div>
-              <div>
-                <Label className="text-xs font-semibold">Influencer Statuses</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['Not Contacted', 'Contacted', 'Confirmed', 'Mail Done', 'Brief Given', 'Shoot Done', 'Content Received', 'Approved', 'Posted'].map(s => (
-                    <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
-                  ))}
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+
+                {/* Cities */}
+                <div>
+                  <Label className="text-xs font-semibold flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-orange-500" />
+                    Cities
+                    <span className="text-muted-foreground font-normal">
+                      ({cities.length})
+                    </span>
+                  </Label>
+
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {cities.length === 0 && (
+                      <p className="text-xs text-muted-foreground italic">
+                        No cities from influencers yet.
+                      </p>
+                    )}
+
+                    {cities.map(c => {
+                      const count = influencers.filter(i => i.city === c).length;
+
+                      return (
+                        <Badge
+                          key={c}
+                          variant="outline"
+                          className="text-xs cursor-pointer hover:bg-orange-500/10 hover:border-orange-500/40 hover:text-orange-600 transition-colors"
+                          onClick={() =>
+                            navigate(`/influencers?city=${encodeURIComponent(c)}`)
+                          }
+                        >
+                          {c}
+                          <span className="ml-1 text-muted-foreground">
+                            {count}
+                          </span>
+                        </Badge>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label className="text-xs font-semibold">Categories</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['Fashion', 'Lifestyle', 'Beauty', 'Food', 'Fitness', 'Technology', 'Celebrity'].map(c => (
-                    <Badge key={c} variant="outline" className="text-xs">{c}</Badge>
-                  ))}
+
+                {/* Sales Statuses */}
+                <div>
+                  <Label className="text-xs font-semibold flex items-center gap-2">
+                    <Tag className="w-3.5 h-3.5 text-orange-500" />
+                    Sales Statuses
+                    <span className="text-muted-foreground font-normal">
+                      ({salesStatuses.length})
+                    </span>
+                  </Label>
+
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {salesStatuses.length === 0 && (
+                      <p className="text-xs text-muted-foreground italic">
+                        No statuses from sales tracker yet.
+                      </p>
+                    )}
+
+                    {salesStatuses.map(s => {
+                      const count = leads.filter(l => l.status === s).length;
+
+                      return (
+                        <Badge
+                          key={s}
+                          variant="outline"
+                          className="text-xs cursor-pointer hover:bg-orange-500/10 hover:border-orange-500/40 hover:text-orange-600 transition-colors"
+                          onClick={() =>
+                            navigate(`/sales?status=${encodeURIComponent(s)}`)
+                          }
+                        >
+                          {s}
+                          <span className="ml-1 text-muted-foreground">
+                            {count}
+                          </span>
+                        </Badge>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+
+                {/* Categories */}
+                <div>
+                  <Label className="text-xs font-semibold flex items-center gap-2">
+                    <Layers className="w-3.5 h-3.5 text-orange-500" />
+                    Categories
+                    <span className="text-muted-foreground font-normal">
+                      ({categories.length})
+                    </span>
+                  </Label>
+
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {categories.length === 0 && (
+                      <p className="text-xs text-muted-foreground italic">
+                        No categories from influencers yet.
+                      </p>
+                    )}
+
+                    {categories.map(c => {
+                      const count = influencers.filter(i => i.category === c).length;
+
+                      return (
+                        <Badge
+                          key={c}
+                          variant="outline"
+                          className="text-xs cursor-pointer hover:bg-orange-500/10 hover:border-orange-500/40 hover:text-orange-600 transition-colors"
+                          onClick={() =>
+                            navigate(`/influencers?category=${encodeURIComponent(c)}`)
+                          }
+                        >
+                          {c}
+                          <span className="ml-1 text-muted-foreground">
+                            {count}
+                          </span>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </CardContent>
+            </Card>
+          </TabsContent>
       </Tabs>
 
       <Dialog open={showInvite} onOpenChange={setShowInvite}>
