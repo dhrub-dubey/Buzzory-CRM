@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { FileText, Plus, Download, Archive } from 'lucide-react';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { getInvoicePdfBytes } from '@/lib/invoicePdf';
+import InvoicePreview from "@/components/invoices/InvoicePreview";
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,7 @@ export default function Invoices() {
   const [selectedId, setSelectedId] = useState(null);
   const [showDelete, setShowDelete] = useState(false);
   const [downloadingZip, setDownloadingZip] = useState(false);
+  const [downloadInvoice, setDownloadInvoice] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: invoices = [] } = useQuery({
@@ -54,6 +56,23 @@ export default function Invoices() {
   });
 
   const selectedInvoice = invoices.find(i => i.id === selectedId);
+
+  useEffect(() => {
+    if (!downloadInvoice || isDownloading) return;
+  
+    setIsDownloading(true);
+  
+    requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        try {
+          await downloadPreviewPDF(downloadInvoice);
+        } finally {
+          setDownloadInvoice(null);
+          setIsDownloading(false);
+        }
+      });
+    });
+  }, [downloadInvoice, isDownloading]);
 
   const downloadPreviewPDF = async (invoice) => {
     const element = document.getElementById("invoice-pdf");
@@ -130,14 +149,14 @@ export default function Invoices() {
                   <TableCell><Badge className={`border-0 text-[10px] ${inv.status === 'Paid' ? 'bg-green-100 text-green-600' : inv.status === 'Sent' ? 'bg-blue-100 text-blue-600' : inv.status === 'Overdue' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>{inv.status}</Badge></TableCell>
                   <TableCell>
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-orange-500" onClick={() => {
-                          setSelectedId(inv.id);
-                          setMode('detail');
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-orange-500" 
+                          
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDownloadInvoice(inv);
+                        }}
 
-                          setTimeout(() => {
-                            downloadPreviewPDF(inv);
-                          }, 500);
-                        }} title="Download PDF"><Download className="w-3.5 h-3.5" />
+                          title="Download PDF"><Download className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </TableCell>
@@ -147,6 +166,25 @@ export default function Invoices() {
             </TableBody>
           </Table>
         </Card>
+
+        {downloadInvoice && (
+        <div
+          style={{
+            position: "fixed",
+            left: "-10000px",
+            top: 0,
+            width: "800px",
+            zIndex: -1,
+          }}
+        >
+          <InvoicePreview
+            form={downloadInvoice}
+            subtotal={downloadInvoice.subtotal || 0}
+            total={downloadInvoice.total_amount || 0}
+          />
+        </div>
+      )}
+
       </div>
     );
   }
