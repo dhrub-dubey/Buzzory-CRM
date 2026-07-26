@@ -10,7 +10,6 @@ import PageHeader from '@/components/shared/PageHeader';
 import InvoiceForm from '@/components/invoices/InvoiceForm';
 import InvoiceDetail from '@/components/invoices/InvoiceDetail';
 import DeleteInvoiceDialog from '@/components/invoices/DeleteInvoiceDialog';
-import { downloadInvoicePdf, getInvoicePdfBytes } from '@/lib/invoicePdf';
 import { exportFilesToZip } from '@/lib/exportUtils';
 
 const emptyItem = { description: '', sub_description: '', quantity: 1, rate: 0, amount: 0 };

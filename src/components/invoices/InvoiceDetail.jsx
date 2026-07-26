@@ -5,7 +5,7 @@ import InvoicePreview from '@/components/invoices/InvoicePreview';
 
 export default function InvoiceDetail({ invoice, onEdit, onDelete, onDownload, onBack }) {
   const subtotal = invoice.subtotal || 0;
-  const gstAmount = invoice.gst_amount || 0;
+  //const gstAmount = invoice.gst_amount || 0;
   const total = invoice.total_amount || 0;
 
   return (
@@ -25,7 +25,7 @@ export default function InvoiceDetail({ invoice, onEdit, onDelete, onDownload, o
       </div>
 
       <div className="max-w-2xl">
-        <InvoicePreview form={invoice} subtotal={subtotal} gstAmount={gstAmount} total={total} />
+        <InvoicePreview form={invoice} subtotal={subtotal} total={total} />
       </div>
     </div>
   );
