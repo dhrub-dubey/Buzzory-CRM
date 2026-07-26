@@ -141,10 +141,10 @@ export default function Invoices() {
 
   const [deleteId, setDeleteId] = useState(null);
 
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [editingInvoice, setEditingInvoice] = useState(null);
+ 
+  
   //const [showInvoiceDetail, setShowInvoiceDetail] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
 
   const invoiceRef = useRef();
 
@@ -191,24 +191,6 @@ export default function Invoices() {
         queryKey: ['invoices']
       });
       setDeleteId(null);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) =>
-      base44.entities.Invoice.update(id, data),
-  
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["invoices"],
-      });
-  
-      setEditingInvoice(null);
-      setMode("list");
-      setForm(defaultForm);
-  
-      localStorage.removeItem("invoice_form");
-      localStorage.removeItem("invoice_mode");
     },
   });
 
