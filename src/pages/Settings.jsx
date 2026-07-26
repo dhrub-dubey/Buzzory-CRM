@@ -81,7 +81,17 @@ export default function Settings() {
                   <TableHead className="text-xs">Name</TableHead><TableHead className="text-xs">Email</TableHead><TableHead className="text-xs">Role</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {users.map(u => (
+                  {[...users]
+                      .sort((a, b) => {
+                        const order = {
+                          super_admin: 1,
+                          board_member: 2,
+                          employee: 3,
+                        };
+
+                        return (order[a.role] || 99) - (order[b.role] || 99);
+                      })
+                      .map(u => (
                     <TableRow key={u.id}>
                       <TableCell className="text-sm font-medium">{u.full_name || 'User'}</TableCell>
                       <TableCell className="text-xs">{u.email}</TableCell>
