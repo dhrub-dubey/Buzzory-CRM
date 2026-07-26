@@ -80,11 +80,12 @@ export default function Invoices() {
         try {
           await downloadPreviewPDF(downloadInvoice);
   
-          toast.dismiss();
-  
+          toast.dismiss(downloadInvoice.toastId);
+
           toast.success(
             `${downloadInvoice.invoice_number}.pdf downloaded`
           );
+
         } finally {
           setDownloadInvoice(null);
         }
@@ -172,9 +173,14 @@ export default function Invoices() {
                           onClick={(e) => {
                             e.stopPropagation();
                           
-                            toast.loading(`${inv.invoice_number}.pdf is being downloaded...`);
-                          
-                            setDownloadInvoice(inv);
+                            const toastId = toast.loading(
+                              `${inv.invoice_number}.pdf is being downloaded...`
+                            );
+                            
+                            setDownloadInvoice({
+                              ...inv,
+                              toastId,
+                            });
                           }}
 
                           title="Download PDF"><Download className="w-3.5 h-3.5" />
