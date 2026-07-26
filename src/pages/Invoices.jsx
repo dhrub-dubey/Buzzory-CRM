@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { FileText, Plus, Download, Archive } from 'lucide-react';
-import { LoaderCircle } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { CircleCheck } from "lucide-react";
 import jsPDF from "jspdf";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { getInvoicePdfBytes } from '@/lib/invoicePdf';
@@ -131,7 +131,7 @@ export default function Invoices() {
       `${invoice.invoice_number}.pdf is being downloaded...`,
       {
         icon: (
-          <LoaderCircle className="w-5 h-5 text-orange-500 animate-spin" />
+          <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />
         ),
       }
     );
