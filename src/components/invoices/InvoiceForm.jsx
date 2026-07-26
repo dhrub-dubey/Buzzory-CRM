@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ArrowLeft, Trash2, Download } from 'lucide-react';
+import { Plus, ArrowLeft, Trash2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -110,7 +110,7 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
           <div className="flex gap-3">
             <Button variant="outline" onClick={onCancel} className="flex-1">Cancel</Button>
             <Button onClick={handleSave} disabled={!form.client_name || !form.invoice_number || isPending} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white gap-2">
-              <Download className="w-4 h-4" /> {isPending ? 'Saving...' : (isEdit ? 'Update Invoice' : 'Save Invoice')}
+              <Check className="w-4 h-4" /> {isPending ? 'Saving...' : (isEdit ? 'Update Invoice' : 'Save Invoice')}
             </Button>
           </div>
         </div>
