@@ -257,6 +257,14 @@ export default function Invoices() {
             width: "800px",
             zIndex: -1,
           }}
+        >
+          <InvoicePreview
+            form={downloadInvoice}
+            subtotal={downloadInvoice.subtotal || 0}
+            total={downloadInvoice.total_amount || 0}
+          />
+        </div>
+      )}
 
           {zipInvoices.length > 0 && (
             <div
@@ -274,15 +282,6 @@ export default function Invoices() {
               />
             </div>
           )}
-          
-        >
-          <InvoicePreview
-            form={downloadInvoice}
-            subtotal={downloadInvoice.subtotal || 0}
-            total={downloadInvoice.total_amount || 0}
-          />
-        </div>
-      )}
 
       </div>
     );
