@@ -43,7 +43,7 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
           <h1 className="text-2xl font-bold">{isEdit ? 'Edit Invoice' : 'Create Invoice'}</h1>
           <p className="text-sm text-muted-foreground">Fill the details and generate professional invoice for your client.</p>
         </div>
-        <Button variant="outline" onClick={onCancel} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Dashboard</Button>
+        <Button variant="outline" onClick={onCancel} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Invoices</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { FileText, Plus, Download, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import jsPDF from "jspdf";
+import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { getInvoicePdfBytes } from '@/lib/invoicePdf';
 import InvoicePreview from "@/components/invoices/InvoicePreview";
@@ -57,6 +58,20 @@ export default function Invoices() {
 
   const selectedInvoice = invoices.find(i => i.id === selectedId);
 
+  // useEffect(() => {
+  //   if (!downloadInvoice) return;
+  
+  //   requestAnimationFrame(() => {
+  //     requestAnimationFrame(async () => {
+  //       try {
+  //         await downloadPreviewPDF(downloadInvoice);
+  //       } finally {
+  //         setDownloadInvoice(null);
+  //       }
+  //     });
+  //   });
+  // }, [downloadInvoice]);
+
   useEffect(() => {
     if (!downloadInvoice) return;
   
@@ -64,6 +79,12 @@ export default function Invoices() {
       requestAnimationFrame(async () => {
         try {
           await downloadPreviewPDF(downloadInvoice);
+  
+          toast.dismiss();
+  
+          toast.success(
+            `${downloadInvoice.invoice_number}.pdf downloaded`
+          );
         } finally {
           setDownloadInvoice(null);
         }
@@ -150,8 +171,11 @@ export default function Invoices() {
                           
                           onClick={(e) => {
                             e.stopPropagation();
+                          
+                            toast.loading(`${inv.invoice_number}.pdf is being downloaded...`);
+                          
                             setDownloadInvoice(inv);
-                        }}
+                          }}
 
                           title="Download PDF"><Download className="w-3.5 h-3.5" />
                       </Button>
