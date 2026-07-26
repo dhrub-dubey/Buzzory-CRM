@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { FileText, Plus, Download, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CircleCheck } from "lucide-react";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -80,12 +81,10 @@ export default function Invoices() {
         try {
           await downloadPreviewPDF(downloadInvoice);
   
-          toast.success(
-            `${downloadInvoice.invoice_number}.pdf downloaded`,
-            {
-              id: downloadInvoice.toastId,
-            }
-          );        
+          toast.success(`${downloadInvoice.invoice_number}.pdf downloaded`, {
+            id: downloadInvoice.toastId,
+            icon: <CircleCheck className="w-5 h-5 text-orange-500" />,
+          });        
           
         } finally {
           setDownloadInvoice(null);
