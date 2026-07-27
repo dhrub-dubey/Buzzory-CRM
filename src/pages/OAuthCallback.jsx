@@ -40,6 +40,11 @@ export default function OAuthCallback() {
             profile?.full_name ||
             session.user.user_metadata?.full_name ||
             session.user.email,
+          avatar_url:
+            session.user.user_metadata?.avatar_url ||
+            session.user.user_metadata?.picture ||
+            profile?.avatar_url ||
+            "",
           role: profile?.role || requestedRole,
           sign_in_method: "google",
           status:
@@ -47,6 +52,8 @@ export default function OAuthCallback() {
             (session.user.email === ADMIN_EMAIL ? "approved" : "pending"),
           admin_message: profile?.admin_message || "",
         };
+
+        
 
         //await supabase.from("profiles").upsert(profilePayload, { onConflict: "id" });
 
