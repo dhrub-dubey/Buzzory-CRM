@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { fetchUsers } from '@/lib/supabase';
-import { Settings as SettingsIcon, Building2, Users, Layers, MapPin, Tag } from 'lucide-react';
+import { fetchUsers, deleteUser } from '@/lib/supabase';
+import { Settings as SettingsIcon, Building2, Users, Layers, MapPin, Tag, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,8 @@ import PageHeader from '@/components/shared/PageHeader';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const initialCity = searchParams.get("city");
   const initialCategory = searchParams.get("category");
@@ -34,6 +37,12 @@ export default function Settings() {
     queryKey: ['users'],
     queryFn: fetchUsers,
   });
+
+  const mySupabaseUser = users.find(
+    u => u.email === user?.email
+  );
+  
+  const myRole = mySupabaseUser?.role;
 
   const { data: influencers = [] } = useQuery({
     queryKey: ['influencers'],
@@ -60,6 +69,58 @@ export default function Settings() {
 
   const roleLabels = { super_admin: 'Super Admin', board_member: 'Board Member', employee: 'Employee' };
   const roleColors = { super_admin: 'bg-orange-100 text-orange-600', board_member: 'bg-purple-100 text-purple-600', employee: 'bg-green-100 text-green-600' };
+
+  const canDeleteUser = (targetUser) => {
+    if (!myRole || !targetUser) return false;
+  
+    // don't allow deleting yourself
+    if (targetUser.email === user?.email) return false;
+  
+    if (myRole === 'super_admin') {
+      return (
+        targetUser.role === 'board_member' ||
+        targetUser.role === 'employee'
+      );
+    }
+  
+    if (myRole === 'board_member') {
+      return targetUser.role === 'employee';
+    }
+  
+    return false;
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+  
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['users'],
+      });
+  
+      toast({
+        title: 'User deleted',
+      });
+    },
+  
+    onError: (err) => {
+      toast({
+        title: err.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleDelete = (targetUser) => {
+    if (
+      !window.confirm(
+        `Delete ${targetUser.full_name || targetUser.email}?`
+      )
+    )
+      return;
+  
+    deleteMutation.mutate(targetUser.id);
+  };
 
   return (
     <div>
@@ -97,7 +158,11 @@ export default function Settings() {
             <CardContent>
               <Table>
                 <TableHeader><TableRow className="bg-muted/50">
-                  <TableHead className="text-xs">Name</TableHead><TableHead className="text-xs">Email</TableHead><TableHead className="text-xs">Role</TableHead>
+                  <TableHead className="text-xs">Name</TableHead><TableHead className="text-xs">Email</TableHead>
+                  <TableHead className="text-xs">Role</TableHead>
+                  <TableHead className="text-xs text-right">
+                    Actions
+                  </TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
                   {[...users]
@@ -115,6 +180,18 @@ export default function Settings() {
                       <TableCell className="text-sm font-medium">{u.full_name || 'User'}</TableCell>
                       <TableCell className="text-xs">{u.email}</TableCell>
                       <TableCell><Badge className={`${roleColors[u.role] || roleColors.employee} border-0 text-[10px]`}>{roleLabels[u.role] || 'Employee'}</Badge></TableCell>
+                      <TableCell className="text-right">
+                        {canDeleteUser(u) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(u)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

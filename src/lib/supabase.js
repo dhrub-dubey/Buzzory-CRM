@@ -79,3 +79,17 @@ export async function fetchUsers() {
 
   return data
 }
+
+
+export async function deleteUser(id) {
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw error;
+  }
+
+  return true;
+}
