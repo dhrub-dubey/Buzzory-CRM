@@ -69,6 +69,15 @@ export const AuthProvider = ({ children }) => {
       // }
 
       if (!profileData) {
+        // Let OAuthCallback create the profile first
+        if (window.location.pathname === "/oauth-callback") {
+          setUser(session.user);
+          setProfile(null);
+          setIsAuthenticated(false);
+          setAuthChecked(true);
+          return;
+        }
+      
         await supabase.auth.signOut();
       
         setUser(null);
