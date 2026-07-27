@@ -18,7 +18,7 @@ const result = dotenv.config({
 });
 
 console.log(result);
-console.log("TOKEN =", process.env.APIFY_TOKEN);
+//console.log("TOKEN =", process.env.APIFY_TOKEN);
 
 const app = express();
 

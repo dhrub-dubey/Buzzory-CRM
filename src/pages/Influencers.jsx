@@ -41,6 +41,8 @@ const influencerHeaders = [
   { label: 'Notes', key: 'notes' },
 ];
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function Influencers() {
   const [searchParams] = useSearchParams();
   const [fetchingInstagram, setFetchingInstagram] = useState(false);
@@ -215,8 +217,15 @@ export default function Influencers() {
     try {
       setFetchingInstagram(true);
   
+      // const response = await axios.post(
+      //   'http://localhost:5000/api/instagram',
+      //   {
+      //     instagramUrl: form.instagram.trim(),
+      //   }
+      // );
+
       const response = await axios.post(
-        'http://localhost:5000/api/instagram',
+        `${API_BASE}/api/instagram`,
         {
           instagramUrl: form.instagram.trim(),
         }
