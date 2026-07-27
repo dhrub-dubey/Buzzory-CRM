@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { fetchUsers, deleteUser } from '@/lib/supabase';
+import { supabase, fetchUsers, deleteUser } from '@/lib/supabase';
 import { Settings as SettingsIcon, Building2, Users, Layers, MapPin, Tag, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,15 +34,16 @@ export default function Settings() {
   // }, []);
 
   useEffect(() => {
-    base44.auth
-      .me()
-      .then((u) => {
-        console.log("CURRENT USER", u);
-        setUser(u);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const loadUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+  
+      console.log("SUPABASE USER:", user);
+      setUser(user);
+    };
+  
+    loadUser();
   }, []);
 
   const { data: users = [] } = useQuery({
@@ -51,7 +52,7 @@ export default function Settings() {
   });
 
   const mySupabaseUser = users.find(
-    u => u.email === user?.email
+    u => u.email === user?.email.toLowerCase()
   );
   
   const myRole = mySupabaseUser?.role;
@@ -89,7 +90,7 @@ export default function Settings() {
       targetEmail: targetUser.email,
       targetRole: targetUser.role,
     });
-    
+
     if (!myRole || !targetUser) return false;
   
     // don't allow deleting yourself
