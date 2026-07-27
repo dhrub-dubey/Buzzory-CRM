@@ -110,7 +110,7 @@ export default function Sidebar({ user, collapsed, onToggle }) {
             <div className="overflow-hidden">
               <p className="text-xs font-medium text-white truncate">{user?.full_name || 'User'}</p>
               <p className="text-[10px] text-gray-500 truncate">
-                {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? 'Board Member' : user?.role === 'employee' ? 'Employee' : user?.role || ''}
+                {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? '🎯 Board Member' : user?.role === 'employee' ? '✅ Employee' : user?.role || ''}
               </p>
             </div>
           )}
