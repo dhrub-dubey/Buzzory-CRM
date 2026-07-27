@@ -90,9 +90,6 @@ export default function Sidebar({ user, collapsed, onToggle }) {
       {/* User Profile */}
       <div className="border-t border-white/10 px-3 py-3">
         <div className="flex items-center gap-3">
-          {/* <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            {user?.full_name?.[0] || 'U'}
-          </div> */}
           {user?.avatar_url ? (
             <img
               src={user.avatar_url}

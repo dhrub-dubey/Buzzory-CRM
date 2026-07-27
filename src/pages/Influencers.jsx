@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -42,6 +43,7 @@ const influencerHeaders = [
 
 export default function Influencers() {
   const [searchParams] = useSearchParams();
+  const [fetchingInstagram, setFetchingInstagram] = useState(false);
   const urlCity = searchParams.get("city");
   const urlCategory = searchParams.get("category");
   const [showAddCity, setShowAddCity] = useState(false);
@@ -202,6 +204,45 @@ export default function Influencers() {
   const openAdd = () => {
     setForm({ ...emptyForm, city: selectedCity || '' });
     setShowDialog(true);
+  };
+
+  const fetchInstagramProfile = async () => {
+    if (!form.instagram?.trim()) {
+      alert('Please enter an Instagram URL');
+      return;
+    }
+  
+    try {
+      setFetchingInstagram(true);
+  
+      const response = await axios.post(
+        'http://localhost:5000/api/instagram',
+        {
+          instagramUrl: form.instagram.trim(),
+        }
+      );
+  
+      const data = response.data;
+  
+      setForm(prev => ({
+        ...prev,
+        username: data.username || prev.username,
+        followers: data.followers || 0,
+        profile_photo: data.profile_photo || '',
+      }));
+  
+      console.log('INSTAGRAM PROFILE FETCHED:', data);
+  
+    } catch (error) {
+      console.error('Instagram fetch error:', error);
+  
+      alert(
+        error.response?.data?.error ||
+        'Unable to fetch Instagram profile'
+      );
+    } finally {
+      setFetchingInstagram(false);
+    }
   };
 
   const handleSave = () => {
@@ -787,10 +828,53 @@ export default function Influencers() {
               <div><Label className="text-xs">Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
               <div><Label className="text-xs">Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            {/* <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">Instagram URL</Label><Input value={form.instagram} onChange={e => setForm({ ...form, instagram: e.target.value })} /></div>
               <div><Label className="text-xs">YouTube URL</Label><Input value={form.youtube} onChange={e => setForm({ ...form, youtube: e.target.value })} /></div>
+            </div> */}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Instagram URL</Label>
+
+                <div className="flex gap-2">
+                  <Input
+                    value={form.instagram}
+                    onChange={e =>
+                      setForm({
+                        ...form,
+                        instagram: e.target.value
+                      })
+                    }
+                    placeholder="https://www.instagram.com/username"
+                  />
+
+                  <Button
+                    type="button"
+                    onClick={fetchInstagramProfile}
+                    disabled={!form.instagram?.trim() || fetchingInstagram}
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    {fetchingInstagram ? 'Fetching...' : 'Fetch'}
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs">YouTube URL</Label>
+                <Input
+                  value={form.youtube}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      youtube: e.target.value
+                    })
+                  }
+                  placeholder="https://youtube.com/..."
+                />
+              </div>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div><Label className="text-xs">Niche</Label><Input value={form.niche} onChange={e => setForm({ ...form, niche: e.target.value })} /></div>
               <div><Label className="text-xs">Engagement Rate %</Label><Input type="number" value={form.engagement_rate} onChange={e => setForm({ ...form, engagement_rate: Number(e.target.value) })} /></div>
