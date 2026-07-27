@@ -41,18 +41,24 @@ export default function PendingApproval() {
           }
         }
 
+        // if (!profile) {
+        //   console.error("Error loading profile:", idError);
+        //   setUser({
+        //     full_name:
+        //       session.user.user_metadata?.full_name ||
+        //       session.user.user_metadata?.fullName ||
+        //       session.user.email,
+        //     email: session.user.email,
+        //     role: null,
+        //     status: "pending",
+        //     admin_message: "",
+        //   });
+        //   return;
+        // }
+
         if (!profile) {
-          console.error("Error loading profile:", idError);
-          setUser({
-            full_name:
-              session.user.user_metadata?.full_name ||
-              session.user.user_metadata?.fullName ||
-              session.user.email,
-            email: session.user.email,
-            role: null,
-            status: "pending",
-            admin_message: "",
-          });
+          await supabase.auth.signOut();
+          navigate("/login", { replace: true });
           return;
         }
 

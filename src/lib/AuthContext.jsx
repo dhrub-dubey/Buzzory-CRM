@@ -58,13 +58,26 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      // if (!profileData) {
+      //   setUser(session.user);
+      //   setProfile(null);
+      //   setIsAuthenticated(false);
+      //   setAuthError({ type: "pending_approval" });
+      //   setAuthChecked(true);
+      //   setIsLoadingAuth(false);
+      //   return;
+      // }
+
       if (!profileData) {
-        setUser(session.user);
+        await supabase.auth.signOut();
+      
+        setUser(null);
         setProfile(null);
         setIsAuthenticated(false);
-        setAuthError({ type: "pending_approval" });
+        setAuthError({ type: "auth_required" });
         setAuthChecked(true);
-        setIsLoadingAuth(false);
+      
+        window.location.replace("/login");
         return;
       }
 
