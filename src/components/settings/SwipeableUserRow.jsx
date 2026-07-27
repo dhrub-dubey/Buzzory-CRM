@@ -34,7 +34,7 @@ export default function SwipeableUserRow({ user, canDelete, onDelete, roleLabels
   const nameMatch = confirmTarget !== '' && confirmName === confirmTarget;
 
   const handleConfirm = () => {
-    onDelete(user.id);
+    onDelete();
     setShowConfirm(false);
     setConfirmName('');
     resetSwipe();

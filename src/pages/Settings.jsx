@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import SwipeableUserRow from '@/components/settings/SwipeableUserRow';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -175,7 +176,7 @@ export default function Settings() {
               <CardTitle className="text-sm">User Management</CardTitle>
               <Button onClick={() => setShowInvite(true)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs">Invite User</Button>
             </CardHeader>
-            <CardContent>
+            {/* <CardContent>
               <Table>
                 <TableHeader><TableRow className="bg-muted/50">
                   <TableHead className="text-xs">Name</TableHead><TableHead className="text-xs">Email</TableHead>
@@ -216,7 +217,43 @@ export default function Settings() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent> */}
+
+            <CardContent>
+              <p className="text-[11px] text-muted-foreground mb-3">
+                Swipe a row left to reveal the delete option.
+              </p>
+
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-[1fr_1fr_140px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 min-w-[480px]">
+                  <span>Name</span>
+                  <span>Email</span>
+                  <span>Role</span>
+                </div>
+
+                {[...users]
+                  .sort((a, b) => {
+                    const order = {
+                      super_admin: 1,
+                      board_member: 2,
+                      employee: 3,
+                    };
+
+                    return (order[a.role] || 99) - (order[b.role] || 99);
+                  })
+                  .map((u) => (
+                    <SwipeableUserRow
+                      key={u.id}
+                      user={u}
+                      canDelete={canDeleteUser(u)}
+                      onDelete={() => handleDelete(u)}
+                      roleLabels={roleLabels}
+                      roleColors={roleColors}
+                    />
+                  ))}
+              </div>
             </CardContent>
+
           </Card>
         </TabsContent>
 
