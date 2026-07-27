@@ -223,7 +223,9 @@ export default function Influencers() {
       //     instagramUrl: form.instagram.trim(),
       //   }
       // );
-
+      console.log("ENV:", import.meta.env);
+      console.log("API_BASE:", API_BASE);
+      
       const response = await axios.post(
         `${API_BASE}/api/instagram`,
         {
