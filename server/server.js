@@ -9,16 +9,28 @@ import { ApifyClient } from "apify-client";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const envPath = path.resolve(__dirname, "../.env.local");
+// const envPath = path.resolve(__dirname, "../.env.local");
 
-console.log("Loading env from:", envPath);
+// console.log("Loading env from:", envPath);
 
-const result = dotenv.config({
-    path: envPath,
-});
+// const result = dotenv.config({
+//     path: envPath,
+// });
 
-console.log(result);
+// console.log(result);
 //console.log("TOKEN =", process.env.APIFY_TOKEN);
+
+if (process.env.RENDER) {
+    dotenv.config();
+} else {
+    const envPath = path.resolve(__dirname, "../.env.local");
+
+    console.log("Loading env from:", envPath);
+
+    dotenv.config({
+        path: envPath,
+    });
+}
 
 const app = express();
 
@@ -100,8 +112,14 @@ app.post("/api/instagram", async (req, res) => {
         console.log("IMAGE ID:", imageId);
         console.log("CACHED IMAGE URL:", originalImageUrl);
 
-        // This is YOUR server URL, not Instagram's CDN URL
-        const serverUrl = `http://localhost:${process.env.PORT || 5000}`;
+        // // This is YOUR server URL, not Instagram's CDN URL
+        // const serverUrl = `http://localhost:${process.env.PORT || 5000}`;
+
+        // const profilePhotoUrl =
+        //     `${serverUrl}/api/instagram/image/${encodeURIComponent(imageId)}`;
+
+        // Build the correct URL for both local development and production
+        const serverUrl = `${req.protocol}://${req.get("host")}`;
 
         const profilePhotoUrl =
             `${serverUrl}/api/instagram/image/${encodeURIComponent(imageId)}`;
