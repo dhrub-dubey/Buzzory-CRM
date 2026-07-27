@@ -29,8 +29,20 @@ export default function Settings() {
   const [inviteRole, setInviteRole] = useState('employee');
   const [inviting, setInviting] = useState(false);
 
+  // useEffect(() => {
+  //   base44.auth.me().then(setUser).catch(() => {});
+  // }, []);
+
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth
+      .me()
+      .then((u) => {
+        console.log("CURRENT USER", u);
+        setUser(u);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, []);
 
   const { data: users = [] } = useQuery({
@@ -71,6 +83,13 @@ export default function Settings() {
   const roleColors = { super_admin: 'bg-orange-100 text-orange-600', board_member: 'bg-purple-100 text-purple-600', employee: 'bg-green-100 text-green-600' };
 
   const canDeleteUser = (targetUser) => {
+    console.log({
+      myRole,
+      myEmail: user?.email,
+      targetEmail: targetUser.email,
+      targetRole: targetUser.role,
+    });
+    
     if (!myRole || !targetUser) return false;
   
     // don't allow deleting yourself
