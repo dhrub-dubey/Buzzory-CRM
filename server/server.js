@@ -316,13 +316,6 @@ const BATCH_SIZE = 20;
 app.post("/api/sync-instagram", async (req, res) => {
     try {
 
-        const syncSecret = req.get("x-sync-secret");
-
-        if (syncSecret !== BASE44_API_KEY) {
-            return res.status(403).json({
-                error: "Forbidden"
-            });
-        }
 
         const ip = (req.headers["x-forwarded-for"]?.split(",")[0] || req.ip || req.socket.remoteAddress || "unknown").trim();
         const now = Date.now();
@@ -431,7 +424,7 @@ app.post("/api/sync-instagram", async (req, res) => {
                                 processed++;
 
                                 console.log(
-                                    `⏭ ${influencer.full_name} (${processed}/${influencers.length}) - No Instagram`
+                                    `⏭ ${influencer.username || influencer.instagram || influencer.full_name} (${processed}/${influencers.length}) - No Instagram`
                                 );
                                 return;
                             }
@@ -450,7 +443,7 @@ app.post("/api/sync-instagram", async (req, res) => {
                             //     processed++;
                 
                             //     console.log(
-                            //         `✓ ${influencer.full_name} (${processed}/${influencers.length})`
+                            //         `✓ ${influencer.username || influencer.instagram || influencer.full_name} (${processed}/${influencers.length})`
                             //     );
                 
                             // } catch (err) {
@@ -459,23 +452,23 @@ app.post("/api/sync-instagram", async (req, res) => {
                             //     processed++;
                 
                             //     console.log(
-                            //         `✗ ${influencer.full_name} (${processed}/${influencers.length})`
+                            //         `✗ ${influencer.username || influencer.instagram || influencer.full_name} (${processed}/${influencers.length})`
                             //     );
                 
                             // }
 
                             try {
 
-                                await syncInstagramProfile(
+                                const result = await syncInstagramProfile(
                                     influencer.instagram,
                                     influencer.id
                                 );
-                            
+                                
                                 updated++;
                                 processed++;
-                            
+                                
                                 console.log(
-                                    `✓ ${influencer.username} (${processed}/${influencers.length})`
+                                    `✓ ${result.username} (${processed}/${influencers.length})`
                                 );
                             
                             } catch (err) {
@@ -484,7 +477,7 @@ app.post("/api/sync-instagram", async (req, res) => {
                                 processed++;
                             
                                 console.log(
-                                    `✗ ${influencer.full_name} (${processed}/${influencers.length})`
+                                    `✗ ${influencer.username || influencer.instagram || influencer.full_name} (${processed}/${influencers.length})`
                                 );
                             
                             }
@@ -500,7 +493,9 @@ app.post("/api/sync-instagram", async (req, res) => {
                 `Updated: ${updated} | Skipped: ${skipped} | Failed: ${failed}`
             );
 
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            if (batchIndex + BATCH_SIZE < influencers.length) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
 
         res.json({
