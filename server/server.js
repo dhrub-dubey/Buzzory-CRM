@@ -243,6 +243,21 @@ async function syncInstagramProfile(instagramUrl, influencerId) {
 
 app.post("/api/instagram", async (req, res) => {
 
+    const authHeader = req.headers.authorization;
+
+    // Allow internal/manual requests
+    const isAutomatedRequest =
+        authHeader === `Bearer ${process.env.SYNC_SECRET}`;
+
+    const isManualRequest =
+        req.headers["x-manual-sync"] === "true";
+
+    if (!isAutomatedRequest && !isManualRequest) {
+        return res.status(401).json({
+            error: "Unauthorized"
+        });
+    }    
+
     try {
 
         const {
