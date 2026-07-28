@@ -146,7 +146,9 @@ app.post("/api/instagram", async (req, res) => {
                 ? "png"
                 : "jpg";
 
-        const filePath = `instagram/${profile.username}.${extension}`;
+        // const filePath = `instagram/${profile.username}.${extension}`;
+
+        const filePath = `instagram/${influencerId}/${profile.username}.${extension}`;
 
         const { error: uploadError } =
             await supabase.storage
