@@ -49,21 +49,12 @@ const syncRequestLog = new Map();
 const SYNC_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const SYNC_RATE_LIMIT_MAX_REQUESTS = 1;
 
-// Store fresh Instagram image URLs temporarily
-// const imageCache = new Map();
-
 async function syncInstagramProfile(instagramUrl, influencerId) {
 
     
     let username = "unknown";
 
     try {
-       // const { instagramUrl } = req.body;
-
-    //    const {
-    //     instagramUrl,
-    //     influencerId
-    //    } = req.body;
 
     if (!instagramUrl) {
         throw new Error("Instagram URL required");
@@ -90,19 +81,10 @@ async function syncInstagramProfile(instagramUrl, influencerId) {
             includeAboutSection: false,
         });
 
-        // console.log("RUN:");
-        // console.log(run);
 
         const { items } = await client
             .dataset(run.defaultDatasetId)
             .listItems();
-
-        // console.log("ITEMS:");
-        // console.dir(items, { depth: null });
-
-        // console.log("Fetching:", username);
-        // console.log("Run ID:", run.id);
-        // console.log("Status:", run.status);
 
         const profile = items[0];
 
@@ -174,35 +156,6 @@ async function syncInstagramProfile(instagramUrl, influencerId) {
 
         const profilePhotoUrl = data.publicUrl;
 
-      // // console.log(profilePhotoUrl);
-
-        // if (!originalImageUrl) {
-        //     return res.status(404).json({
-        //         error: "Profile picture not found"
-        //     });
-        // }
-
-        // // Create a unique ID for this image
-        // const imageId = `${profile.username}-${Date.now()}`;
-
-        // // Store the fresh Instagram URL temporarily
-        // imageCache.set(imageId, originalImageUrl);
-
-        // console.log("IMAGE ID:", imageId);
-        // console.log("CACHED IMAGE URL:", originalImageUrl);
-
-
-      
-        // const serverUrl = `${req.protocol}://${req.get("host")}`;
-
-        // const profilePhotoUrl =
-        //     `${serverUrl}/api/instagram/image/${encodeURIComponent(imageId)}`;
-
-        // console.log("PROFILE PHOTO URL SENT TO CRM:");
-        // console.log(profilePhotoUrl);
-
-
-
         if (influencerId) {
 
             await axios.put(
@@ -241,22 +194,7 @@ async function syncInstagramProfile(instagramUrl, influencerId) {
 
 }
 
-app.post("/api/instagram", async (req, res) => {
-
-    const authHeader = req.headers.authorization;
-
-    // Allow internal/manual requests
-    const isAutomatedRequest =
-        authHeader === `Bearer ${process.env.SYNC_SECRET}`;
-
-    const isManualRequest =
-        req.headers["x-manual-sync"] === "true";
-
-    if (!isAutomatedRequest && !isManualRequest) {
-        return res.status(401).json({
-            error: "Unauthorized"
-        });
-    }    
+app.post("/api/instagram", async (req, res) => { 
 
     try {
 
@@ -282,53 +220,25 @@ app.post("/api/instagram", async (req, res) => {
 
 });
 
-
-// // Serve the actual profile image
-// app.get("/api/instagram/image/:imageId", async (req, res) => {
-//     try {
-//         const imageId = decodeURIComponent(req.params.imageId);
-
-//         console.log("IMAGE REQUEST RECEIVED:", imageId);
-
-//         const originalImageUrl = imageCache.get(imageId);
-
-//         if (!originalImageUrl) {
-//             return res.status(404).json({
-//                 error: "Image not found or expired"
-//             });
-//         }
-
-//         console.log("FETCHING FRESH INSTAGRAM IMAGE:");
-//         console.log(originalImageUrl);
-
-//         const response = await axios.get(originalImageUrl, {
-//             responseType: "arraybuffer",
-//             headers: {
-//                 "User-Agent": "Mozilla/5.0",
-//                 "Referer": "https://www.instagram.com/"
-//             }
-//         });
-
-//         const contentType =
-//             response.headers["content-type"] || "image/jpeg";
-
-//         res.setHeader("Content-Type", contentType);
-//         res.setHeader("Cache-Control", "public, max-age=3600");
-
-//         res.send(response.data);
-
-//     } catch (err) {
-//         console.error("IMAGE FETCH ERROR:", err.message);
-
-//         res.status(500).json({
-//             error: "Unable to load profile image"
-//         });
-//     }
-// });
-
 const BATCH_SIZE = 20;
 
 app.post("/api/sync-instagram", async (req, res) => {
+
+    const authHeader = req.headers.authorization;
+
+    // Allow internal/manual requests
+    const isAutomatedRequest =
+        authHeader === `Bearer ${process.env.SYNC_SECRET}`;
+
+    const isManualRequest =
+        req.headers["x-manual-sync"] === "true";
+
+    if (!isAutomatedRequest && !isManualRequest) {
+        return res.status(401).json({
+            error: "Unauthorized"
+        });
+    }   
+
     try {
 
 
@@ -375,41 +285,6 @@ app.post("/api/sync-instagram", async (req, res) => {
         let failed = 0;
         let processed = 0;
 
-        // for (const influencer of influencers) {
-
-        //     if (!influencer.instagram) {
-        //         skipped++;
-        //         continue;
-        //     }
-
-        //     try {
-
-        //         await axios.post(
-        //             `${req.protocol}://${req.get("host")}/api/instagram`,
-        //             {
-        //                 instagramUrl: influencer.instagram,
-        //                 influencerId: influencer.id
-        //             }
-        //         );
-
-        //         updated++;
-
-        //         console.log(
-        //             `✓ ${influencer.full_name}`
-        //         );
-
-        //     } catch (err) {
-
-        //         failed++;
-
-        //         console.log(
-        //             `✗ ${influencer.full_name}`
-        //         );
-
-        //     }
-
-        // }
-
         const totalBatches = Math.ceil(
             influencers.length / BATCH_SIZE
         );
@@ -443,34 +318,6 @@ app.post("/api/sync-instagram", async (req, res) => {
                                 );
                                 return;
                             }
-                
-                            // try {
-                
-                            //     await axios.post(
-                            //         `${req.protocol}://${req.get("host")}/api/instagram`,
-                            //         {
-                            //             instagramUrl: influencer.instagram,
-                            //             influencerId: influencer.id
-                            //         }
-                            //     );
-                
-                            //     updated++;
-                            //     processed++;
-                
-                            //     console.log(
-                            //         `✓ ${influencer.username || influencer.instagram || influencer.full_name} (${processed}/${influencers.length})`
-                            //     );
-                
-                            // } catch (err) {
-                
-                            //     failed++;
-                            //     processed++;
-                
-                            //     console.log(
-                            //         `✗ ${influencer.username || influencer.instagram || influencer.full_name} (${processed}/${influencers.length})`
-                            //     );
-                
-                            // }
 
                             try {
 
