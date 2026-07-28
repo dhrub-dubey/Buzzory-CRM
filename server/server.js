@@ -215,6 +215,80 @@ app.get("/api/instagram/image/:imageId", async (req, res) => {
 });
 
 
+app.post("/api/sync-instagram", async (req, res) => {
+    try {
+
+        console.log("Starting Instagram sync...");
+
+        // Get every influencer
+        const response = await axios.get(BASE44_URL, {
+            headers: {
+                api_key: BASE44_API_KEY
+            }
+        });
+
+        const influencers = response.data || [];
+
+        console.log(`Found ${influencers.length} influencers`);
+
+        let updated = 0;
+        let skipped = 0;
+        let failed = 0;
+
+        for (const influencer of influencers) {
+
+            if (!influencer.instagram) {
+                skipped++;
+                continue;
+            }
+
+            try {
+
+                await axios.post(
+                    `${req.protocol}://${req.get("host")}/api/instagram`,
+                    {
+                        instagramUrl: influencer.instagram,
+                        influencerId: influencer.id
+                    }
+                );
+
+                updated++;
+
+                console.log(
+                    `✓ ${influencer.full_name}`
+                );
+
+            } catch (err) {
+
+                failed++;
+
+                console.log(
+                    `✗ ${influencer.full_name}`
+                );
+
+            }
+
+        }
+
+        res.json({
+            success: true,
+            updated,
+            skipped,
+            failed
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            error: "Sync failed"
+        });
+
+    }
+});
+
+
 app.listen(process.env.PORT || 5000, () => {
     console.log(
         `Server running on port ${process.env.PORT || 5000}`
