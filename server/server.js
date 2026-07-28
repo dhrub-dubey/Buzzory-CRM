@@ -45,33 +45,31 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const syncRequestLog = new Map();
+const SYNC_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const SYNC_RATE_LIMIT_MAX_REQUESTS = 1;
+
 // Store fresh Instagram image URLs temporarily
 // const imageCache = new Map();
 
-app.post("/api/instagram", async (req, res) => {
+async function syncInstagramProfile(instagramUrl, influencerId) {
+
+    
+    let username = "unknown";
+
     try {
        // const { instagramUrl } = req.body;
 
-       const {
-        instagramUrl,
-        influencerId
-       } = req.body;
+    //    const {
+    //     instagramUrl,
+    //     influencerId
+    //    } = req.body;
 
-        if (!instagramUrl) {
-            return res.status(400).json({
-                error: "Instagram URL required"
-            });
-        }
+    if (!instagramUrl) {
+        throw new Error("Instagram URL required");
+    }
 
-        // const username = instagramUrl
-        //     .trim()
-        //     .replace("https://www.instagram.com/", "")
-        //     .replace("https://instagram.com/", "")
-        //     .replace("http://instagram.com/", "")
-        //     .replace("http://www.instagram.com/", "")
-        //     .replace(/\/$/, "");
-
-        let username = instagramUrl.trim();
+         username = instagramUrl.trim();
 
         // Remove domain
         username = username.replace(
@@ -102,23 +100,26 @@ app.post("/api/instagram", async (req, res) => {
         // console.log("ITEMS:");
         // console.dir(items, { depth: null });
 
-        console.log("Fetching:", username);
-        console.log("Run ID:", run.id);
-        console.log("Status:", run.status);
+        // console.log("Fetching:", username);
+        // console.log("Run ID:", run.id);
+        // console.log("Status:", run.status);
 
         const profile = items[0];
 
         if (!profile) {
-            return res.status(404).json({
-                error: "Profile not found"
-            });
+            throw new Error("Profile not found");
         }
 
-        console.log("PROFILE IMAGE FIELDS:");
-        console.log("profilePicUrlHD:", profile.profilePicUrlHD);
-        console.log("profilePicUrl:", profile.profilePicUrl);
-        console.log(profile);
+        console.log({
+            username: profile.username,
+            fullName: profile.fullName,
+            followers: profile.followersCount,
+            following: profile.followsCount,
+            posts: profile.postsCount,
+            hasProfilePic: !!(profile.profilePicUrlHD || profile.profilePicUrl),
+        });
 
+        
     
 
         const originalImageUrl =
@@ -127,9 +128,7 @@ app.post("/api/instagram", async (req, res) => {
 
         // Check first
         if (!originalImageUrl) {
-            return res.status(404).json({
-                error: "Profile picture not found"
-            });
+            throw new Error("Profile picture not found");
         }
 
         // Only download if it exists
@@ -148,7 +147,8 @@ app.post("/api/instagram", async (req, res) => {
 
         // const filePath = `instagram/${profile.username}.${extension}`;
 
-        const filePath = `instagram/${influencerId}/${profile.username}.${extension}`;
+        const storageScope = influencerId || profile.username || "unlinked";
+        const filePath = `instagram/${storageScope}/${profile.username}.${extension}`;
 
         const { error: uploadError } =
             await supabase.storage
@@ -174,7 +174,7 @@ app.post("/api/instagram", async (req, res) => {
 
         const profilePhotoUrl = data.publicUrl;
 
-        console.log(profilePhotoUrl);
+      // // console.log(profilePhotoUrl);
 
         // if (!originalImageUrl) {
         //     return res.status(404).json({
@@ -222,21 +222,49 @@ app.post("/api/instagram", async (req, res) => {
             console.log("Influencer updated in Base44");
         }
         
-        res.json({
+        return {
             success: true,
             username: profile.username,
             followers: profile.followersCount,
             profile_photo: profilePhotoUrl
-        });
+        };
 
     } catch (err) {
-        console.error("INSTAGRAM ERROR:", err.message);
-        console.error(err);
+        console.error(`INSTAGRAM ERROR (${username}):`, err.message);
+
+        if (err.response?.data) {
+            console.error(err.response.data);
+        }
+
+        throw err;
+    }
+
+}
+
+app.post("/api/instagram", async (req, res) => {
+
+    try {
+
+        const {
+            instagramUrl,
+            influencerId
+        } = req.body;
+
+        const result = await syncInstagramProfile(
+            instagramUrl,
+            influencerId
+        );
+
+        res.json(result);
+
+    } catch (err) {
 
         res.status(500).json({
-            error: "Unable to fetch profile."
+            error: err.message || "Unable to fetch profile."
         });
+
     }
+
 });
 
 
@@ -283,9 +311,43 @@ app.post("/api/instagram", async (req, res) => {
 //     }
 // });
 
+const BATCH_SIZE = 20;
 
 app.post("/api/sync-instagram", async (req, res) => {
     try {
+
+        const syncSecret = req.get("x-sync-secret");
+
+        if (syncSecret !== BASE44_API_KEY) {
+            return res.status(403).json({
+                error: "Forbidden"
+            });
+        }
+
+        const ip = (req.headers["x-forwarded-for"]?.split(",")[0] || req.ip || req.socket.remoteAddress || "unknown").trim();
+        const now = Date.now();
+        const currentWindow = syncRequestLog.get(ip);
+
+        if (currentWindow && now - currentWindow.startedAt < SYNC_RATE_LIMIT_WINDOW_MS) {
+            if (currentWindow.count >= SYNC_RATE_LIMIT_MAX_REQUESTS) {
+                return res.status(429).json({
+                    error: "Too many sync requests. Please wait before retrying."
+                });
+            }
+
+            currentWindow.count += 1;
+        } else {
+            syncRequestLog.set(ip, {
+                startedAt: now,
+                count: 1
+            });
+        }
+
+        for (const [key, value] of syncRequestLog.entries()) {
+            if (now - value.startedAt >= SYNC_RATE_LIMIT_WINDOW_MS) {
+                syncRequestLog.delete(key);
+            }
+        }
 
         console.log("Starting Instagram sync...");
 
@@ -303,40 +365,142 @@ app.post("/api/sync-instagram", async (req, res) => {
         let updated = 0;
         let skipped = 0;
         let failed = 0;
+        let processed = 0;
 
-        for (const influencer of influencers) {
+        // for (const influencer of influencers) {
 
-            if (!influencer.instagram) {
-                skipped++;
-                continue;
-            }
+        //     if (!influencer.instagram) {
+        //         skipped++;
+        //         continue;
+        //     }
 
-            try {
+        //     try {
 
-                await axios.post(
-                    `${req.protocol}://${req.get("host")}/api/instagram`,
-                    {
-                        instagramUrl: influencer.instagram,
-                        influencerId: influencer.id
-                    }
-                );
+        //         await axios.post(
+        //             `${req.protocol}://${req.get("host")}/api/instagram`,
+        //             {
+        //                 instagramUrl: influencer.instagram,
+        //                 influencerId: influencer.id
+        //             }
+        //         );
 
-                updated++;
+        //         updated++;
 
-                console.log(
-                    `✓ ${influencer.full_name}`
-                );
+        //         console.log(
+        //             `✓ ${influencer.full_name}`
+        //         );
 
-            } catch (err) {
+        //     } catch (err) {
 
-                failed++;
+        //         failed++;
 
-                console.log(
-                    `✗ ${influencer.full_name}`
-                );
+        //         console.log(
+        //             `✗ ${influencer.full_name}`
+        //         );
 
-            }
+        //     }
 
+        // }
+
+        const totalBatches = Math.ceil(
+            influencers.length / BATCH_SIZE
+        );
+        
+        for (
+            let batchIndex = 0;
+            batchIndex < influencers.length;
+            batchIndex += BATCH_SIZE
+        ) {
+            const batch = influencers.slice(
+                batchIndex,
+                batchIndex + BATCH_SIZE
+            );
+        
+            console.log(
+                `\n========== Batch ${
+                    batchIndex / BATCH_SIZE + 1
+                }/${totalBatches} (${batch.length} influencers) ==========\n`
+            );
+        
+            await Promise.allSettled(
+                batch.map(async (influencer) => {
+        
+                    // existing sync logic
+                    if (!influencer.instagram) {
+                                skipped++;
+                                processed++;
+
+                                console.log(
+                                    `⏭ ${influencer.full_name} (${processed}/${influencers.length}) - No Instagram`
+                                );
+                                return;
+                            }
+                
+                            // try {
+                
+                            //     await axios.post(
+                            //         `${req.protocol}://${req.get("host")}/api/instagram`,
+                            //         {
+                            //             instagramUrl: influencer.instagram,
+                            //             influencerId: influencer.id
+                            //         }
+                            //     );
+                
+                            //     updated++;
+                            //     processed++;
+                
+                            //     console.log(
+                            //         `✓ ${influencer.full_name} (${processed}/${influencers.length})`
+                            //     );
+                
+                            // } catch (err) {
+                
+                            //     failed++;
+                            //     processed++;
+                
+                            //     console.log(
+                            //         `✗ ${influencer.full_name} (${processed}/${influencers.length})`
+                            //     );
+                
+                            // }
+
+                            try {
+
+                                await syncInstagramProfile(
+                                    influencer.instagram,
+                                    influencer.id
+                                );
+                            
+                                updated++;
+                                processed++;
+                            
+                                console.log(
+                                    `✓ ${influencer.username} (${processed}/${influencers.length})`
+                                );
+                            
+                            } catch (err) {
+                            
+                                failed++;
+                                processed++;
+                            
+                                console.log(
+                                    `✗ ${influencer.full_name} (${processed}/${influencers.length})`
+                                );
+                            
+                            }
+                
+                })
+            );
+        
+            console.log(
+                `Batch Complete (${Math.min(batchIndex + BATCH_SIZE, influencers.length)}/${influencers.length})`
+            );
+        
+            console.log(
+                `Updated: ${updated} | Skipped: ${skipped} | Failed: ${failed}`
+            );
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         res.json({

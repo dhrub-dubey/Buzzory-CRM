@@ -230,6 +230,7 @@ export default function Influencers() {
         `${API_BASE}/api/instagram`,
         {
           instagramUrl: form.instagram.trim(),
+          influencerId: editing?.id || null,
         }
       );
   
