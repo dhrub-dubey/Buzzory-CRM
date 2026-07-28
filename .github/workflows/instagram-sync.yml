@@ -1,0 +1,19 @@
+name: Instagram Sync
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "30 20 * * *" # Runs daily at 2:00 AM IST
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Instagram Sync
+        run: |
+          curl --fail \
+            -X POST \
+            "${{ secrets.SYNC_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.SYNC_SECRET }}"
