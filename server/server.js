@@ -9,16 +9,6 @@ import { ApifyClient } from "apify-client";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// const envPath = path.resolve(__dirname, "../.env.local");
-
-// console.log("Loading env from:", envPath);
-
-// const result = dotenv.config({
-//     path: envPath,
-// });
-
-// console.log(result);
-//console.log("TOKEN =", process.env.APIFY_TOKEN);
 
 if (process.env.RENDER) {
     dotenv.config();
@@ -39,6 +29,12 @@ app.use(express.json());
 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
+const BASE44_APP_ID = process.env.BASE44_APP_ID;
+const BASE44_API_KEY = process.env.BASE44_API_KEY;
+
+const BASE44_URL =
+    `https://buzzory-crm.base44.app/api/apps/${BASE44_APP_ID}/entities/Influencer`;
+
 const client = new ApifyClient({
     token: APIFY_TOKEN,
 });
@@ -48,7 +44,12 @@ const imageCache = new Map();
 
 app.post("/api/instagram", async (req, res) => {
     try {
-        const { instagramUrl } = req.body;
+       // const { instagramUrl } = req.body;
+
+       const {
+        instagramUrl,
+        influencerId
+       } = req.body;
 
         if (!instagramUrl) {
             return res.status(400).json({
@@ -127,7 +128,33 @@ app.post("/api/instagram", async (req, res) => {
         console.log("PROFILE PHOTO URL SENT TO CRM:");
         console.log(profilePhotoUrl);
 
+        // res.json({
+        //     username: profile.username,
+        //     followers: profile.followersCount,
+        //     profile_photo: profilePhotoUrl
+        // });
+
+        if (influencerId) {
+
+            await axios.put(
+                `${BASE44_URL}/${influencerId}`,
+                {
+                    username: profile.username,
+                    followers: profile.followersCount,
+                    profile_photo: profilePhotoUrl
+                },
+                {
+                    headers: {
+                        api_key: BASE44_API_KEY
+                    }
+                }
+            );
+        
+            console.log("Influencer updated in Base44");
+        }
+        
         res.json({
+            success: true,
             username: profile.username,
             followers: profile.followersCount,
             profile_photo: profilePhotoUrl
