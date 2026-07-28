@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import axios from "axios";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createClient } from "@supabase/supabase-js";
 import { ApifyClient } from "apify-client";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -39,8 +40,13 @@ const client = new ApifyClient({
     token: APIFY_TOKEN,
 });
 
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
 // Store fresh Instagram image URLs temporarily
-const imageCache = new Map();
+// const imageCache = new Map();
 
 app.post("/api/instagram", async (req, res) => {
     try {
@@ -113,45 +119,87 @@ app.post("/api/instagram", async (req, res) => {
         console.log("profilePicUrl:", profile.profilePicUrl);
         console.log(profile);
 
+    
+
         const originalImageUrl =
             profile.profilePicUrlHD ||
             profile.profilePicUrl;
 
+        // Check first
         if (!originalImageUrl) {
             return res.status(404).json({
                 error: "Profile picture not found"
             });
         }
 
-        // Create a unique ID for this image
-        const imageId = `${profile.username}-${Date.now()}`;
+        // Only download if it exists
+        const imageResponse = await axios.get(originalImageUrl, {
+            responseType: "arraybuffer",
+            headers: {
+                "User-Agent": "Mozilla/5.0",
+                Referer: "https://www.instagram.com/",
+            },
+        });
 
-        // Store the fresh Instagram URL temporarily
-        imageCache.set(imageId, originalImageUrl);
+        const extension =
+            imageResponse.headers["content-type"]?.includes("png")
+                ? "png"
+                : "jpg";
 
-        console.log("IMAGE ID:", imageId);
-        console.log("CACHED IMAGE URL:", originalImageUrl);
+        const filePath = `instagram/${profile.username}.${extension}`;
 
-        // // This is YOUR server URL, not Instagram's CDN URL
-        // const serverUrl = `http://localhost:${process.env.PORT || 5000}`;
+        const { error: uploadError } =
+            await supabase.storage
+                .from("influencer-pfps")
+                .upload(
+                    filePath,
+                    imageResponse.data,
+                    {
+                        contentType:
+                            imageResponse.headers["content-type"],
+                        upsert: true,
+                    }
+                );
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const { data } =
+            supabase.storage
+                .from("influencer-pfps")
+                .getPublicUrl(filePath);
+
+        const profilePhotoUrl = data.publicUrl;
+
+        console.log(profilePhotoUrl);
+
+        // if (!originalImageUrl) {
+        //     return res.status(404).json({
+        //         error: "Profile picture not found"
+        //     });
+        // }
+
+        // // Create a unique ID for this image
+        // const imageId = `${profile.username}-${Date.now()}`;
+
+        // // Store the fresh Instagram URL temporarily
+        // imageCache.set(imageId, originalImageUrl);
+
+        // console.log("IMAGE ID:", imageId);
+        // console.log("CACHED IMAGE URL:", originalImageUrl);
+
+
+      
+        // const serverUrl = `${req.protocol}://${req.get("host")}`;
 
         // const profilePhotoUrl =
         //     `${serverUrl}/api/instagram/image/${encodeURIComponent(imageId)}`;
 
-        // Build the correct URL for both local development and production
-        const serverUrl = `${req.protocol}://${req.get("host")}`;
+        // console.log("PROFILE PHOTO URL SENT TO CRM:");
+        // console.log(profilePhotoUrl);
 
-        const profilePhotoUrl =
-            `${serverUrl}/api/instagram/image/${encodeURIComponent(imageId)}`;
 
-        console.log("PROFILE PHOTO URL SENT TO CRM:");
-        console.log(profilePhotoUrl);
-
-        // res.json({
-        //     username: profile.username,
-        //     followers: profile.followersCount,
-        //     profile_photo: profilePhotoUrl
-        // });
 
         if (influencerId) {
 
@@ -190,48 +238,48 @@ app.post("/api/instagram", async (req, res) => {
 });
 
 
-// Serve the actual profile image
-app.get("/api/instagram/image/:imageId", async (req, res) => {
-    try {
-        const imageId = decodeURIComponent(req.params.imageId);
+// // Serve the actual profile image
+// app.get("/api/instagram/image/:imageId", async (req, res) => {
+//     try {
+//         const imageId = decodeURIComponent(req.params.imageId);
 
-        console.log("IMAGE REQUEST RECEIVED:", imageId);
+//         console.log("IMAGE REQUEST RECEIVED:", imageId);
 
-        const originalImageUrl = imageCache.get(imageId);
+//         const originalImageUrl = imageCache.get(imageId);
 
-        if (!originalImageUrl) {
-            return res.status(404).json({
-                error: "Image not found or expired"
-            });
-        }
+//         if (!originalImageUrl) {
+//             return res.status(404).json({
+//                 error: "Image not found or expired"
+//             });
+//         }
 
-        console.log("FETCHING FRESH INSTAGRAM IMAGE:");
-        console.log(originalImageUrl);
+//         console.log("FETCHING FRESH INSTAGRAM IMAGE:");
+//         console.log(originalImageUrl);
 
-        const response = await axios.get(originalImageUrl, {
-            responseType: "arraybuffer",
-            headers: {
-                "User-Agent": "Mozilla/5.0",
-                "Referer": "https://www.instagram.com/"
-            }
-        });
+//         const response = await axios.get(originalImageUrl, {
+//             responseType: "arraybuffer",
+//             headers: {
+//                 "User-Agent": "Mozilla/5.0",
+//                 "Referer": "https://www.instagram.com/"
+//             }
+//         });
 
-        const contentType =
-            response.headers["content-type"] || "image/jpeg";
+//         const contentType =
+//             response.headers["content-type"] || "image/jpeg";
 
-        res.setHeader("Content-Type", contentType);
-        res.setHeader("Cache-Control", "public, max-age=3600");
+//         res.setHeader("Content-Type", contentType);
+//         res.setHeader("Cache-Control", "public, max-age=3600");
 
-        res.send(response.data);
+//         res.send(response.data);
 
-    } catch (err) {
-        console.error("IMAGE FETCH ERROR:", err.message);
+//     } catch (err) {
+//         console.error("IMAGE FETCH ERROR:", err.message);
 
-        res.status(500).json({
-            error: "Unable to load profile image"
-        });
-    }
-});
+//         res.status(500).json({
+//             error: "Unable to load profile image"
+//         });
+//     }
+// });
 
 
 app.post("/api/sync-instagram", async (req, res) => {
