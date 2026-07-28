@@ -57,13 +57,27 @@ app.post("/api/instagram", async (req, res) => {
             });
         }
 
-        const username = instagramUrl
-            .trim()
-            .replace("https://www.instagram.com/", "")
-            .replace("https://instagram.com/", "")
-            .replace("http://instagram.com/", "")
-            .replace("http://www.instagram.com/", "")
-            .replace(/\/$/, "");
+        // const username = instagramUrl
+        //     .trim()
+        //     .replace("https://www.instagram.com/", "")
+        //     .replace("https://instagram.com/", "")
+        //     .replace("http://instagram.com/", "")
+        //     .replace("http://www.instagram.com/", "")
+        //     .replace(/\/$/, "");
+
+        let username = instagramUrl.trim();
+
+        // Remove domain
+        username = username.replace(
+            /^https?:\/\/(www\.)?instagram\.com\//,
+            ""
+        );
+
+        // Remove everything after ? (utm params, igsh, etc.)
+        username = username.split("?")[0];
+
+        // Remove trailing slash
+        username = username.replace(/\/$/, "");
 
         console.log("Fetching Instagram profile:", username);
 
@@ -72,15 +86,19 @@ app.post("/api/instagram", async (req, res) => {
             includeAboutSection: false,
         });
 
-        console.log("RUN:");
-        console.log(run);
+        // console.log("RUN:");
+        // console.log(run);
 
         const { items } = await client
             .dataset(run.defaultDatasetId)
             .listItems();
 
-        console.log("ITEMS:");
-        console.dir(items, { depth: null });
+        // console.log("ITEMS:");
+        // console.dir(items, { depth: null });
+
+        console.log("Fetching:", username);
+        console.log("Run ID:", run.id);
+        console.log("Status:", run.status);
 
         const profile = items[0];
 
@@ -93,6 +111,7 @@ app.post("/api/instagram", async (req, res) => {
         console.log("PROFILE IMAGE FIELDS:");
         console.log("profilePicUrlHD:", profile.profilePicUrlHD);
         console.log("profilePicUrl:", profile.profilePicUrl);
+        console.log(profile);
 
         const originalImageUrl =
             profile.profilePicUrlHD ||
