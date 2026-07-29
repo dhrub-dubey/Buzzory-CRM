@@ -224,6 +224,10 @@ const BATCH_SIZE = 20;
 
 app.post("/api/sync-instagram", async (req, res) => {
 
+    console.log("Authorization:", req.headers.authorization);
+console.log("SYNC_SECRET:", process.env.SYNC_SECRET);
+console.log("RENDER:", process.env.RENDER);
+
     const authHeader = req.headers.authorization;
 
     // Allow internal/manual requests
