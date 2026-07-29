@@ -224,16 +224,6 @@ const BATCH_SIZE = 20;
 
 app.post("/api/sync-instagram", async (req, res) => {
 
-    console.log("Authorization:", JSON.stringify(req.headers.authorization));
-console.log("Expected:", JSON.stringify(`Bearer ${process.env.SYNC_SECRET}`));
-console.log(
-  "Equal?",
-  req.headers.authorization === `Bearer ${process.env.SYNC_SECRET}`
-);
-console.log(
-  "Secret length:",
-  process.env.SYNC_SECRET?.length
-);
 
     const authHeader = req.headers.authorization;
 
