@@ -317,7 +317,7 @@ export default function Campaigns() {
                   <SelectValue placeholder="Month" />
                 </SelectTrigger>
 
-                <SelectContent>
+                <SelectContent className="max-h-[280px]">
                   <SelectItem value="all">
                     All Months
                   </SelectItem>
