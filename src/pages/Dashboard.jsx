@@ -2,10 +2,32 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, Megaphone, CheckCircle, DollarSign, TrendingUp, Wallet, Calendar, Users, Pencil } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Megaphone,
+  CheckCircle,
+  DollarSign,
+  TrendingUp,
+  Wallet,
+  Calendar,
+  Users,
+  Pencil
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -13,6 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import StatCard from '@/components/shared/StatCard';
 import PageHeader from '@/components/shared/PageHeader';
 import { RevenueChart } from '@/components/dashboard/DashboardCharts';
+import CalendarView from '@/components/calendar/CalendarView';
 
 const ADMIN_EMAIL = "buzzory.it@gmail.com";
 
@@ -21,14 +44,25 @@ function CampaignOptInCard({ campaign }) {
     <Card className="p-4 hover:shadow-md transition-shadow border border-border/50">
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-gray-900 truncate">{campaign.name}</p>
-          <p className="text-xs text-gray-500 mt-0.5">{campaign.client_name}</p>
+          <p className="font-semibold text-sm text-gray-900 truncate">
+            {campaign.name}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {campaign.client_name}
+          </p>
         </div>
-        <Badge className="bg-green-100 text-green-700 border-0 text-[10px] flex-shrink-0">Active</Badge>
+
+        <Badge className="bg-green-100 text-green-700 border-0 text-[10px] flex-shrink-0">
+          Active
+        </Badge>
       </div>
+
       {campaign.brief && (
-        <p className="text-xs text-gray-500 mb-3 line-clamp-2">{campaign.brief}</p>
+        <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+          {campaign.brief}
+        </p>
       )}
+
       <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
         {campaign.start_date && (
           <span className="flex items-center gap-1">
@@ -36,6 +70,7 @@ function CampaignOptInCard({ campaign }) {
             {campaign.start_date}
           </span>
         )}
+
         {campaign.assigned_manager && (
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" />
@@ -43,6 +78,7 @@ function CampaignOptInCard({ campaign }) {
           </span>
         )}
       </div>
+
       <Link
         to={`/campaigns/${campaign.id}`}
         className="block w-full text-center text-xs font-semibold text-orange-500 border border-orange-200 rounded-lg py-2 hover:bg-orange-50 transition-colors"
@@ -55,6 +91,7 @@ function CampaignOptInCard({ campaign }) {
 
 export default function Dashboard() {
   const { user } = useOutletContext() || {};
+
   const [dateFilter, setDateFilter] = useState('all');
 
   const [customRange, setCustomRange] = useState(null);
@@ -62,11 +99,33 @@ export default function Dashboard() {
   const [tempFrom, setTempFrom] = useState('');
   const [tempTo, setTempTo] = useState('');
 
-  const isAdmin = user?.email === ADMIN_EMAIL || user?.role === 'admin' ||
-  user?.role === 'super_admin';
+  // Added from AI version: remember whether dashboard is showing
+  // revenue or calendar.
+  const [dashView, setDashViewState] = useState(
+    () => localStorage.getItem('dashboardView') || 'revenue'
+  );
+
+  const setDashView = (v) => {
+    setDashViewState(v);
+    localStorage.setItem('dashboardView', v);
+  };
+
+  const isAdmin =
+    user?.email === ADMIN_EMAIL ||
+    user?.role === 'admin' ||
+    user?.role === 'super_admin';
+
   const isBoardMember = user?.role === 'board_member';
   const isInfluencer = user?.role === 'influencer';
+
   const showFinancials = isAdmin || isBoardMember;
+
+  // Added from AI version.
+  // Admin, board member and employee can access the calendar.
+  const canSeeCalendar =
+    isAdmin ||
+    isBoardMember ||
+    user?.role === 'employee';
 
   const { data: campaigns = [] } = useQuery({
     queryKey: ['campaigns'],
@@ -97,35 +156,13 @@ export default function Dashboard() {
     enabled: showFinancials,
   });
 
-  //const activeCampaigns = campaigns.filter(c => c.status === 'active');
-  //const completedCampaigns = campaigns.filter(c => c.status === 'completed');
-
-  // const totalRevenue = clientPayments.filter(p => p.status === 'Paid').reduce((s, p) => s + (p.amount || 0), 0);
-  // const totalCosts = influencerPayments.filter(p => p.status === 'Paid').reduce((s, p) => s + (p.amount || 0), 0);
-  // const totalProfit = totalRevenue - totalCosts;
-  // const fundBalance = fundTransactions.reduce((s, t) => s + (t.amount_credited || 0) - (t.amount_debited || 0), 0);
-  
   const activeCampaigns = Array.isArray(campaigns)
-  ? campaigns.filter(c => c.status === 'active')
-  : [];
+    ? campaigns.filter(c => c.status === 'active')
+    : [];
 
   const completedCampaigns = Array.isArray(campaigns)
     ? campaigns.filter(c => c.status === 'completed')
     : [];
-
-  // const totalRevenue = Array.isArray(clientPayments)
-  // ? clientPayments
-  //     .filter(p => p.status === 'Paid')
-  //     .reduce((s, p) => s + (p.amount || 0), 0)
-  // : 0;
-
-  // const totalCosts = Array.isArray(influencerPayments)
-  // ? influencerPayments
-  //     .filter(p => p.status === 'Paid')
-  //     .reduce((s, p) => s + (p.amount || 0), 0)
-  // : 0;
-
-  // const totalProfit = totalRevenue - totalCosts;
 
   const validMonths = (() => {
     const now = new Date();
@@ -135,263 +172,421 @@ export default function Dashboard() {
       last_6_months: 6,
       last_year: 12,
     };
-  
-    if (dateFilter === 'this_month')
-      return new Set([`${now.getFullYear()}-${now.getMonth()}`]);
-  
-    if (dateFilter === 'last_month') {
-      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      return new Set([`${lm.getFullYear()}-${lm.getMonth()}`]);
-    }
-  
-    // if (dateFilter === 'last_3_months') {
-    //   return new Set(
-    //     [0, 1, 2].map(i => {
-    //       const x = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    //       return `${x.getFullYear()}-${x.getMonth()}`;
-    //     })
-    //   );
-    // }
 
-    // if (dateFilter === 'last_6_months') {
-    //   return new Set(
-    //     Array.from({ length: 6 }, (_, i) => {
-    //       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    //       return `${d.getFullYear()}-${d.getMonth()}`;
-    //     })
-    //   );
-    // }
-  
-    // if (dateFilter === 'last_year') {
-    //   return new Set(
-    //     Array.from({ length: 12 }, (_, i) => {
-    //       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    //       return `${d.getFullYear()}-${d.getMonth()}`;
-    //     })
-    //   );
-    // }
+    if (dateFilter === 'this_month')
+      return new Set([
+        `${now.getFullYear()}-${now.getMonth()}`
+      ]);
+
+    if (dateFilter === 'last_month') {
+      const lm = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        1
+      );
+
+      return new Set([
+        `${lm.getFullYear()}-${lm.getMonth()}`
+      ]);
+    }
 
     if (monthRanges[dateFilter]) {
       return new Set(
-        Array.from({ length: monthRanges[dateFilter] }, (_, i) => {
-          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-          return `${d.getFullYear()}-${d.getMonth()}`;
-        })
+        Array.from(
+          { length: monthRanges[dateFilter] },
+          (_, i) => {
+            const d = new Date(
+              now.getFullYear(),
+              now.getMonth() - i,
+              1
+            );
+
+            return `${d.getFullYear()}-${d.getMonth()}`;
+          }
+        )
       );
     }
-  
+
     if (dateFilter === 'custom' && customRange) {
       const set = new Set();
-    
-      const from = new Date(customRange.from + 'T00:00:00');
-      const to = new Date(customRange.to + 'T23:59:59');
-    
+
+      const from = new Date(
+        customRange.from + 'T00:00:00'
+      );
+
+      const to = new Date(
+        customRange.to + 'T23:59:59'
+      );
+
       let y = from.getFullYear();
       let m = from.getMonth();
-    
+
       while (
         y < to.getFullYear() ||
-        (y === to.getFullYear() && m <= to.getMonth())
+        (y === to.getFullYear() &&
+          m <= to.getMonth())
       ) {
         set.add(`${y}-${m}`);
-    
+
         m++;
-    
+
         if (m > 11) {
           m = 0;
           y++;
         }
       }
-    
+
       return set;
     }
 
     return null;
   })();
-  
+
   const inRange = (dateStr) => {
     if (!validMonths) return true;
     if (!dateStr) return false;
-  
+
     const d = new Date(dateStr + "T00:00:00");
-    return validMonths.has(`${d.getFullYear()}-${d.getMonth()}`);
+
+    return validMonths.has(
+      `${d.getFullYear()}-${d.getMonth()}`
+    );
   };
-  
-  // const totalRevenue = Array.isArray(clientPayments)
-  //   ? clientPayments
-  //       .filter(p => p.status === 'Paid' && inRange(p.invoice_date))
-  //       .reduce((s, p) => s + (p.amount || 0), 0)
-  //   : 0;
 
   const filteredPayments = Array.isArray(clientPayments)
     ? clientPayments.filter(
-        p => p.status === "Paid" && inRange(p.invoice_date)
+        p =>
+          p.status === "Paid" &&
+          inRange(p.invoice_date)
       )
     : [];
-  
+
   const totalRevenue = filteredPayments.reduce(
     (s, p) => s + (p.amount || 0),
     0
   );
-  
+
   const totalProfit = Array.isArray(profitEntries)
     ? profitEntries
         .filter(e => inRange(e.date))
-        .reduce((s, e) => s + (e.profit_amount || 0), 0)
+        .reduce(
+          (s, e) => s + (e.profit_amount || 0),
+          0
+        )
     : 0;
-  
-  const fundBalance = Array.isArray(fundTransactions)
-  ? fundTransactions.reduce(
-      (s, t) =>
-        s + (t.amount_credited || 0) - (t.amount_debited || 0),
-      0
-    )
-  : 0;
 
-  const formatCurrency = (v) => `₹${v.toLocaleString('en-IN')}`;
+  const fundBalance = Array.isArray(fundTransactions)
+    ? fundTransactions.reduce(
+        (s, t) =>
+          s +
+          (t.amount_credited || 0) -
+          (t.amount_debited || 0),
+        0
+      )
+    : 0;
+
+  const formatCurrency = (v) =>
+    `₹${v.toLocaleString('en-IN')}`;
 
   return (
     <div>
-      <PageHeader icon={LayoutDashboard} title="Dashboard" subtitle={`Welcome back, ${user?.full_name?.split(' ')[0] || 'there'}!`}>
+      <PageHeader
+        icon={LayoutDashboard}
+        title="Dashboard"
+        subtitle={`Welcome back, ${
+          user?.full_name?.split(' ')[0] || 'there'
+        }!`}
+      >
         {showFinancials && (
           <>
-          <div className="flex items-center gap-2">
-          <Select
-            value={dateFilter}
-            onValueChange={(v) => {
-              if (v === 'custom') {
-                setTempFrom(customRange?.from || '');
-                setTempTo(customRange?.to || '');
-                setCustomDialogOpen(true);
-              } else {
-                setCustomRange(null);
-                setDateFilter(v);
-              }
-            }}
-          >
-            <SelectTrigger className="w-40 h-9 text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-            <SelectItem value="all">All Time</SelectItem>
-              <SelectItem value="this_month">This Month</SelectItem>
-              <SelectItem value="last_month">Last Month</SelectItem>
-              <SelectItem value="last_3_months">Last 3 Months</SelectItem>
-              <SelectItem value="last_6_months">Last 6 Months</SelectItem>
-              <SelectItem value="last_year">Last Year</SelectItem>
-              <SelectItem value="custom">Custom Range</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {dateFilter === 'custom' && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setTempFrom(customRange?.from || '');
-                  setTempTo(customRange?.to || '');
-                  setCustomDialogOpen(true);
+            <div className="flex items-center gap-2">
+              <Select
+                value={dateFilter}
+                onValueChange={(v) => {
+                  if (v === 'custom') {
+                    setTempFrom(customRange?.from || '');
+                    setTempTo(customRange?.to || '');
+                    setCustomDialogOpen(true);
+                  } else {
+                    setCustomRange(null);
+                    setDateFilter(v);
+                  }
                 }}
               >
-                <Pencil className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+                <SelectTrigger className="w-40 h-9 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
 
-          <Dialog open={customDialogOpen} onOpenChange={setCustomDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Custom Date Range</DialogTitle>
-            </DialogHeader>
+                <SelectContent>
+                  <SelectItem value="all">
+                    All Time
+                  </SelectItem>
 
-            <div className="flex flex-col gap-4 py-2">
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">
-                  From Date
-                </label>
+                  <SelectItem value="this_month">
+                    This Month
+                  </SelectItem>
 
-                <Input
-                  type="date"
-                  value={tempFrom}
-                  onChange={(e) => setTempFrom(e.target.value)}
-                />
-              </div>
+                  <SelectItem value="last_month">
+                    Last Month
+                  </SelectItem>
 
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">
-                  To Date
-                </label>
+                  <SelectItem value="last_3_months">
+                    Last 3 Months
+                  </SelectItem>
 
-                <Input
-                  type="date"
-                  value={tempTo}
-                  onChange={(e) => setTempTo(e.target.value)}
-                />
-              </div>
+                  <SelectItem value="last_6_months">
+                    Last 6 Months
+                  </SelectItem>
+
+                  <SelectItem value="last_year">
+                    Last Year
+                  </SelectItem>
+
+                  <SelectItem value="custom">
+                    Custom Range
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              {dateFilter === 'custom' && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={() => {
+                    setTempFrom(
+                      customRange?.from || ''
+                    );
+
+                    setTempTo(
+                      customRange?.to || ''
+                    );
+
+                    setCustomDialogOpen(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              )}
             </div>
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setCustomDialogOpen(false)}
-              >
-                Cancel
-              </Button>
+            <Dialog
+              open={customDialogOpen}
+              onOpenChange={setCustomDialogOpen}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
+                    Custom Date Range
+                  </DialogTitle>
+                </DialogHeader>
 
-              <Button
-                disabled={!tempFrom || !tempTo}
-                onClick={() => {
-                  setCustomRange({
-                    from: tempFrom,
-                    to: tempTo
-                  });
+                <div className="flex flex-col gap-4 py-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">
+                      From Date
+                    </label>
 
-                  setDateFilter('custom');
-                  setCustomDialogOpen(false);
-                }}
-              >
-                Apply
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-          </Dialog>
-        </>
+                    <Input
+                      type="date"
+                      value={tempFrom}
+                      onChange={(e) =>
+                        setTempFrom(e.target.value)
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">
+                      To Date
+                    </label>
+
+                    <Input
+                      type="date"
+                      value={tempTo}
+                      onChange={(e) =>
+                        setTempTo(e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      setCustomDialogOpen(false)
+                    }
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    disabled={!tempFrom || !tempTo}
+                    onClick={() => {
+                      setCustomRange({
+                        from: tempFrom,
+                        to: tempTo
+                      });
+
+                      setDateFilter('custom');
+                      setCustomDialogOpen(false);
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
         )}
       </PageHeader>
 
       {/* Stat Cards */}
-      <div className={`grid gap-4 mb-6 ${showFinancials ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 md:grid-cols-3'}`}>
-        <StatCard title="Total Campaigns" value={campaigns.length} icon={Megaphone} color="orange" />
-        <StatCard title="Active" value={activeCampaigns.length} icon={Megaphone} color="blue" />
-        <StatCard title="Completed" value={completedCampaigns.length} icon={CheckCircle} color="green" />
+      <div
+        className={`grid gap-4 mb-6 ${
+          showFinancials
+            ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'
+            : 'grid-cols-2 md:grid-cols-3'
+        }`}
+      >
+        <StatCard
+          title="Total Campaigns"
+          value={campaigns.length}
+          icon={Megaphone}
+          color="orange"
+        />
+
+        <StatCard
+          title="Active"
+          value={activeCampaigns.length}
+          icon={Megaphone}
+          color="blue"
+        />
+
+        <StatCard
+          title="Completed"
+          value={completedCampaigns.length}
+          icon={CheckCircle}
+          color="green"
+        />
+
         {showFinancials && (
           <>
-            <StatCard title="Total Revenue" value={formatCurrency(totalRevenue)} icon={DollarSign} color="purple" />
-            <StatCard title="Total Profit" value={formatCurrency(totalProfit)} icon={TrendingUp} color="pink" />
-            <StatCard title="Fund Balance" value={formatCurrency(fundBalance)} icon={Wallet} color="indigo" />
+            <StatCard
+              title="Total Revenue"
+              value={formatCurrency(totalRevenue)}
+              icon={DollarSign}
+              color="purple"
+            />
+
+            <StatCard
+              title="Total Profit"
+              value={formatCurrency(totalProfit)}
+              icon={TrendingUp}
+              color="pink"
+            />
+
+            <StatCard
+              title="Fund Balance"
+              value={formatCurrency(fundBalance)}
+              icon={Wallet}
+              color="indigo"
+            />
           </>
         )}
       </div>
 
-      {/* Influencer view: show active campaigns to opt into */}
+      {/* Influencer view */}
       {isInfluencer ? (
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Megaphone className="w-4 h-4 text-orange-500" />
-            <h2 className="text-sm font-semibold text-gray-700">Active Campaigns — Available to Opt In</h2>
+
+            <h2 className="text-sm font-semibold text-gray-700">
+              Active Campaigns — Available to Opt In
+            </h2>
           </div>
+
           {activeCampaigns.length === 0 ? (
             <Card className="p-10 text-center text-sm text-muted-foreground">
               No active campaigns available at the moment.
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {activeCampaigns.map(c => <CampaignOptInCard key={c.id} campaign={c} />)}
+              {activeCampaigns.map(c => (
+                <CampaignOptInCard
+                  key={c.id}
+                  campaign={c}
+                />
+              ))}
             </div>
           )}
         </div>
+      ) : canSeeCalendar ? (
+        <div>
+          {/* Revenue / Calendar toggle */}
+          {showFinancials && (
+            <div className="flex justify-end mb-4">
+              <div className="inline-flex rounded-lg border border-border/60 p-0.5 bg-muted/40">
+                <button
+                  onClick={() =>
+                    setDashView('revenue')
+                  }
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    dashView === 'revenue'
+                      ? 'bg-white shadow-sm text-gray-800'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Revenue
+                </button>
+
+                <button
+                  onClick={() =>
+                    setDashView('calendar')
+                  }
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    dashView === 'calendar'
+                      ? 'bg-white shadow-sm text-gray-800'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Calendar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Admin / board member */}
+          {showFinancials &&
+          dashView === 'revenue' ? (
+            <RevenueChart
+              payments={filteredPayments}
+              fullWidth
+              dateRange={
+                dateFilter === 'custom'
+                  ? customRange
+                  : null
+              }
+            />
+          ) : (
+            <CalendarView user={user} />
+          )}
+        </div>
       ) : (
-        /* Revenue Chart for admin/board_member/employee */
-        showFinancials && <RevenueChart payments={filteredPayments} fullWidth dateRange={dateFilter === 'custom' ? customRange : null} />
+        /* Revenue Chart for users without calendar access */
+        showFinancials && (
+          <RevenueChart
+            payments={filteredPayments}
+            fullWidth
+            dateRange={
+              dateFilter === 'custom'
+                ? customRange
+                : null
+            }
+          />
+        )
       )}
     </div>
   );
