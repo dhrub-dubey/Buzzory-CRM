@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import InfluencerPicker from '@/components/campaigns/InfluencerPicker';
 
 const STATUSES = ['Not Contacted', 'Contacted', 'Confirmed', 'Mail Done', 'Brief Given', 'Shoot Done', 'Content Received', 'Approved', 'Posted'];
 const statusColors = {
@@ -63,6 +64,9 @@ export default function CampaignWorkspace() {
     return saved ? JSON.parse(saved) : {};
   });
 
+  const [addMode, setAddMode] = useState('database');
+  const [selectedIds, setSelectedIds] = useState([]);
+
   useEffect(() => {
     localStorage.setItem(
       `campaign_${id}_influencerDialog`,
@@ -105,9 +109,32 @@ export default function CampaignWorkspace() {
     enabled: !!id,
   });
 
+  const { data: dbInfluencers = [] } = useQuery({
+    queryKey: ['influencerDatabase'],
+    queryFn: () => base44.entities.Influencer.list('-created_date', 500),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.CampaignInfluencer.create({ ...data, campaign_id: id, campaign_name: campaign?.name }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaignInfluencers', id] }); closeDialog(); },
+  });
+
+  const bulkAddMutation = useMutation({
+    mutationFn: async ({ add, removeIds }) => {
+      if (add.length) {
+        await base44.entities.CampaignInfluencer.bulkCreate(add);
+      }
+  
+      for (const rid of removeIds) {
+        await base44.entities.CampaignInfluencer.delete(rid);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['campaignInfluencers', id],
+      });
+      closeDialog();
+    },
   });
 
   const updateMutation = useMutation({
@@ -163,6 +190,58 @@ export default function CampaignWorkspace() {
     setShowEditCampaign(false);
     setCampaignForm({});
   };
+
+  const linkedRecords = influencers.filter(i => i.influencer_id);
+const linkedIds = linkedRecords.map(i => i.influencer_id);
+
+const newIds = selectedIds.filter(
+  x => !linkedIds.includes(x)
+);
+
+const removedRecords = linkedRecords.filter(
+  r => !selectedIds.includes(r.influencer_id)
+);
+
+const openAddDialog = () => {
+  setEditing(null);
+  setForm(emptyForm);
+  setAddMode('database');
+  setSelectedIds(linkedIds);
+  setShowDialog(true);
+};
+
+const toggleSelected = (iid) => {
+  setSelectedIds(prev =>
+    prev.includes(iid)
+      ? prev.filter(x => x !== iid)
+      : [...prev, iid]
+  );
+};
+
+const handleBulkAdd = () => {
+  const add = dbInfluencers
+    .filter(i => newIds.includes(i.id))
+    .map(i => ({
+      campaign_id: id,
+      campaign_name: campaign?.name,
+      influencer_id: i.id,
+      influencer_name: i.full_name,
+      contact_number: i.phone || '',
+      instagram_link:
+        i.instagram ||
+        (i.username
+          ? `https://instagram.com/${i.username.replace(/^@/, '')}`
+          : ''),
+      status: 'Not Contacted',
+      pricing: 0,
+      payment_status: 'Pending',
+    }));
+
+  bulkAddMutation.mutate({
+    add,
+    removeIds: removedRecords.map(r => r.id),
+  });
+};
 
   const openEdit = (inf) => { setEditing(inf); setForm({ influencer_name: inf.influencer_name, instagram_link: inf.instagram_link || '', contact_number: inf.contact_number || '', status: inf.status, pricing: inf.pricing || 0, payment_status: inf.payment_status, posting_date: inf.posting_date || '', posting_link: inf.posting_link || '', notes: inf.notes || '' }); setShowDialog(true); };
 
@@ -248,7 +327,7 @@ export default function CampaignWorkspace() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 w-48 h-8 text-xs" />
           </div>
-          <Button onClick={() => setShowDialog(true)} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 text-xs">
+          <Button onClick={() => onClick={openAddDialog}  size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 text-xs">
             <Plus className="w-3 h-3" /> Add Influencer
           </Button>
         </div>
@@ -299,7 +378,7 @@ export default function CampaignWorkspace() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={v => { if (!v) closeDialog(); }}>
-        <DialogContent className="max-w-lg">
+        {/* <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -331,7 +410,201 @@ export default function CampaignWorkspace() {
               {editing ? 'Update' : 'Add Influencer'}
             </Button>
           </div>
+        </DialogContent> */}
+
+
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editing ? 'Edit Influencer' : 'Add Influencer'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {!editing && (
+            <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-lg">
+              <button
+                type="button"
+                onClick={() => setAddMode('database')}
+                className={`text-xs font-medium py-1.5 rounded-md transition-colors ${
+                  addMode === 'database'
+                    ? 'bg-white shadow-sm text-foreground'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                From Database
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAddMode('manual')}
+                className={`text-xs font-medium py-1.5 rounded-md transition-colors ${
+                  addMode === 'manual'
+                    ? 'bg-white shadow-sm text-foreground'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Manual Entry
+              </button>
+            </div>
+          )}
+
+          {!editing && addMode === 'database' ? (
+            <div className="space-y-3">
+              <InfluencerPicker
+                influencers={dbInfluencers}
+                existingIds={linkedIds}
+                selectedIds={selectedIds}
+                onToggle={toggleSelected}
+              />
+
+              {removedRecords.length > 0 && (
+                <p className="text-[11px] text-red-600">
+                  {removedRecords.length} unchecked influencer
+                  {removedRecords.length === 1 ? '' : 's'} will be
+                  removed from this campaign with their tracking details.
+                </p>
+              )}
+
+              <Button
+                onClick={handleBulkAdd}
+                disabled={
+                  (newIds.length === 0 && removedRecords.length === 0) ||
+                  bulkAddMutation.isPending
+                }
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                {bulkAddMutation.isPending
+                  ? 'Saving...'
+                  : newIds.length > 0 && removedRecords.length > 0
+                  ? `Add ${newIds.length} · Remove ${removedRecords.length}`
+                  : newIds.length > 0
+                  ? `Add ${newIds.length} Influencer${newIds.length === 1 ? '' : 's'}`
+                  : removedRecords.length > 0
+                  ? `Remove ${removedRecords.length} from Campaign`
+                  : 'No Changes'}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Name *</Label>
+                  <Input
+                    value={form.influencer_name}
+                    onChange={e =>
+                      setForm({ ...form, influencer_name: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-xs">Contact Number</Label>
+                  <Input
+                    value={form.contact_number}
+                    onChange={e =>
+                      setForm({ ...form, contact_number: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs">Instagram Link</Label>
+                <Input
+                  value={form.instagram_link}
+                  onChange={e =>
+                    setForm({ ...form, instagram_link: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Status</Label>
+                  <Select
+                    value={form.status}
+                    onValueChange={v => setForm({ ...form, status: v })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {STATUSES.map(s => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-xs">Pricing (₹)</Label>
+                  <Input
+                    type="number"
+                    value={form.pricing}
+                    onChange={e =>
+                      setForm({ ...form, pricing: Number(e.target.value) })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Payment Status</Label>
+                  <Select
+                    value={form.payment_status}
+                    onValueChange={v =>
+                      setForm({ ...form, payment_status: v })
+                    }
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Paid">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-xs">Posting Date</Label>
+                  <Input
+                    type="date"
+                    value={form.posting_date}
+                    onChange={e =>
+                      setForm({ ...form, posting_date: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs">Posting Link</Label>
+                <Input
+                  value={form.posting_link}
+                  onChange={e =>
+                    setForm({ ...form, posting_link: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs">Notes</Label>
+                <Textarea
+                  value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  rows={2}
+                />
+              </div>
+
+              <Button
+                onClick={handleSave}
+                disabled={!form.influencer_name}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                {editing ? 'Update' : 'Add Influencer'}
+              </Button>
+            </div>
+          )}
         </DialogContent>
+
       </Dialog>
 
       {/* Edit Campaign Dialog */}
