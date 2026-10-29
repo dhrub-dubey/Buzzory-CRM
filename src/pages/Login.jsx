@@ -97,7 +97,7 @@ export default function Login() {
           <span className="text-2xl font-bold text-white">Buzz</span>
           <span className="text-2xl font-bold text-orange-500">ory</span>
         </div>
-        <p className="text-xs text-gray-500">CRM V0.01</p>
+        <p className="text-xs text-gray-500">CRM V3.2</p>
         <div className="mt-16">
           <h1 className="text-4xl font-bold text-white leading-tight">Influencer Marketing,</h1>
           <h1 className="text-4xl font-bold text-orange-500 leading-tight">Simplified.</h1>

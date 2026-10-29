@@ -39,7 +39,10 @@ export default function CampaignWorkspace() {
   const [showDialog, setShowDialog] = useState(
     () => localStorage.getItem(`campaign_${id}_influencerDialog`) === "true"
   );
-  const [editing, setEditing] = useState(null);
+  // const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState(
+    /** @type {any | null} */ (null)
+  );
   const [deleteId, setDeleteId] = useState(null);
  // const [form, setForm] = useState(emptyForm);
   const [form, setForm] = useState(() => {
@@ -65,7 +68,10 @@ export default function CampaignWorkspace() {
   });
 
   const [addMode, setAddMode] = useState('database');
-  const [selectedIds, setSelectedIds] = useState([]);
+  // const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(
+    /** @type {string[]} */ ([])
+  );
 
   useEffect(() => {
     localStorage.setItem(
@@ -115,12 +121,22 @@ export default function CampaignWorkspace() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.CampaignInfluencer.create({ ...data, campaign_id: id, campaign_name: campaign?.name }),
+    // mutationFn: (data) => base44.entities.CampaignInfluencer.create({ ...data, campaign_id: id, campaign_name: campaign?.name }),
+    mutationFn: (/** @type {Record<string, any>} */ data) =>
+      base44.entities.CampaignInfluencer.create({
+        ...data,
+        campaign_id: id,
+        campaign_name: campaign?.name
+      }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaignInfluencers', id] }); closeDialog(); },
   });
 
   const bulkAddMutation = useMutation({
-    mutationFn: async ({ add, removeIds }) => {
+    // mutationFn: async ({ add, removeIds }) => {
+      mutationFn: async (
+        /** @type {{ add: Record<string, any>[], removeIds: string[] }} */ variables
+      ) => {
+        const { add, removeIds } = variables;
       if (add.length) {
         await base44.entities.CampaignInfluencer.bulkCreate(add);
       }
@@ -138,7 +154,13 @@ export default function CampaignWorkspace() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ rid, data }) => base44.entities.CampaignInfluencer.update(rid, data),
+    // mutationFn: ({ rid, data }) => base44.entities.CampaignInfluencer.update(rid, data),
+    mutationFn: (
+      /** @type {{ rid: string, data: Record<string, any> }} */ variables
+    ) => {
+      const { rid, data } = variables;
+      return base44.entities.CampaignInfluencer.update(rid, data);
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['campaignInfluencers', id] }); closeDialog(); },
   });
 
@@ -192,7 +214,9 @@ export default function CampaignWorkspace() {
   };
 
   const linkedRecords = influencers.filter(i => i.influencer_id);
-const linkedIds = linkedRecords.map(i => i.influencer_id);
+  const linkedIds = linkedRecords
+  .map(i => i.influencer_id)
+  .filter((id) => typeof id === 'string');
 
 const newIds = selectedIds.filter(
   x => !linkedIds.includes(x)
@@ -210,7 +234,7 @@ const openAddDialog = () => {
   setShowDialog(true);
 };
 
-const toggleSelected = (iid) => {
+const toggleSelected = (/** @type {string} */ iid) => {
   setSelectedIds(prev =>
     prev.includes(iid)
       ? prev.filter(x => x !== iid)
@@ -243,7 +267,7 @@ const handleBulkAdd = () => {
   });
 };
 
-  const openEdit = (inf) => { setEditing(inf); setForm({ influencer_name: inf.influencer_name, instagram_link: inf.instagram_link || '', contact_number: inf.contact_number || '', status: inf.status, pricing: inf.pricing || 0, payment_status: inf.payment_status, posting_date: inf.posting_date || '', posting_link: inf.posting_link || '', notes: inf.notes || '' }); setShowDialog(true); };
+const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influencer_name: inf.influencer_name, instagram_link: inf.instagram_link || '', contact_number: inf.contact_number || '', status: inf.status, pricing: inf.pricing || 0, payment_status: inf.payment_status, posting_date: inf.posting_date || '', posting_link: inf.posting_link || '', notes: inf.notes || '' }); setShowDialog(true); };
 
   const handleSave = () => {
     if (editing) updateMutation.mutate({ rid: editing.id, data: form });

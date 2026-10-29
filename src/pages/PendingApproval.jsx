@@ -100,7 +100,7 @@ export default function PendingApproval() {
         <div className="text-center mb-8">
           <span className="text-3xl font-bold text-white">Buzz</span>
           <span className="text-3xl font-bold text-orange-500">ory</span>
-          <p className="text-xs text-gray-500 mt-1">CRM V0.01</p>
+          <p className="text-xs text-gray-500 mt-1">CRM V3.2</p>
         </div>
 
         <div className="bg-white rounded-2xl p-8 shadow-2xl text-center">

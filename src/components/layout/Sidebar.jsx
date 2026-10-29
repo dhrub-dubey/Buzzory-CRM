@@ -52,7 +52,7 @@ export default function Sidebar({ user, collapsed, onToggle }) {
             <img src="https://media.base44.com/images/public/6a1f0e76a586461557ebf349/601f5c8df_WebsiteWhite.png" alt="Buzzory" className="h-6 w-6 object-left object-cover" />
           )}
         </Link>
-        {!collapsed && <p className="text-[10px] text-gray-500 mt-1">CRM V0.01</p>}
+        {!collapsed && <p className="text-[10px] text-gray-500 mt-1">CRM V3.2</p>}
       </div>
 
       {/* Navigation */}
