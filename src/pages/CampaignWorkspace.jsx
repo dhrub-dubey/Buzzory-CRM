@@ -327,7 +327,7 @@ const handleBulkAdd = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 w-48 h-8 text-xs" />
           </div>
-          <Button onClick={() => onClick={openAddDialog}  size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 text-xs">
+          <Button onClick={openAddDialog} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 text-xs">
             <Plus className="w-3 h-3" /> Add Influencer
           </Button>
         </div>
