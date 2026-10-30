@@ -537,12 +537,78 @@ export default function Campaigns() {
   );
 }
 
+// function CampaignCard({ campaign }) {
+//   return (
+//     <Link to={`/campaigns/${campaign.id}`}>
+//       <Card className="p-4 border border-border/50 hover:border-orange-500/30 hover:shadow-md transition-all cursor-pointer group">
+//         <div className="flex items-start justify-between mb-2">
+//           <h3 className="text-sm font-semibold text-foreground group-hover:text-orange-500 transition-colors">
+//             {campaign.name}
+//           </h3>
+
+//           <Badge
+//             className={
+//               campaign.status === 'active'
+//                 ? 'bg-green-500/10 text-green-600 border-0 text-[10px]'
+//                 : 'bg-gray-500/10 text-gray-500 border-0 text-[10px]'
+//             }
+//           >
+//             {campaign.status === 'active'
+//               ? 'Active'
+//               : 'Completed'}
+//           </Badge>
+//         </div>
+
+//         <p className="text-xs text-muted-foreground mb-3">
+//           {campaign.client_name}
+//         </p>
+
+//         <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+//           <span className="flex items-center gap-1">
+//             <Calendar className="w-3 h-3" />
+
+//             {campaign.start_date
+//               ? format(
+//                   new Date(campaign.start_date),
+//                   'MMM d, yyyy'
+//                 )
+//               : 'No date'}
+//           </span>
+
+//           <span className="flex items-center gap-1">
+//             <User className="w-3 h-3" />
+
+//             {campaign.assigned_manager ||
+//               'Unassigned'}
+//           </span>
+//         </div>
+
+//         {campaign.budget > 0 && (
+//           <div className="text-[10px] mt-2">
+//             <span className="text-muted-foreground">
+//               Influencer Budget:{' '}
+//             </span>
+
+//             <span className="text-orange-500 font-semibold">
+//               ₹
+//               {(campaign.budget || 0).toLocaleString(
+//                 'en-IN'
+//               )}
+//             </span>
+//           </div>
+//         )}
+//       </Card>
+//     </Link>
+//   );
+// }
+
+
 function CampaignCard({ campaign }) {
   return (
-    <Link to={`/campaigns/${campaign.id}`}>
-      <Card className="p-4 border border-border/50 hover:border-orange-500/30 hover:shadow-md transition-all cursor-pointer group">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-orange-500 transition-colors">
+    <Link to={`/campaigns/${campaign.id}`} className="block h-full">
+      <Card className="p-4 h-full flex flex-col border border-border/50 hover:border-orange-500/30 hover:shadow-md transition-all cursor-pointer group">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-sm font-semibold text-foreground group-hover:text-orange-500 transition-colors line-clamp-2 leading-5 h-10">
             {campaign.name}
           </h3>
 
@@ -553,50 +619,39 @@ function CampaignCard({ campaign }) {
                 : 'bg-gray-500/10 text-gray-500 border-0 text-[10px]'
             }
           >
-            {campaign.status === 'active'
-              ? 'Active'
-              : 'Completed'}
+            {campaign.status === 'active' ? 'Active' : 'Completed'}
           </Badge>
         </div>
 
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className="text-xs text-muted-foreground mb-3 truncate">
           {campaign.client_name}
         </p>
 
         <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-
             {campaign.start_date
-              ? format(
-                  new Date(campaign.start_date),
-                  'MMM d, yyyy'
-                )
+              ? format(new Date(campaign.start_date), 'MMM d, yyyy')
               : 'No date'}
           </span>
 
-          <span className="flex items-center gap-1">
-            <User className="w-3 h-3" />
-
-            {campaign.assigned_manager ||
-              'Unassigned'}
+          <span className="flex items-center gap-1 min-w-0">
+            <User className="w-3 h-3 shrink-0" />
+            <span className="truncate">
+              {campaign.assigned_manager || 'Unassigned'}
+            </span>
           </span>
         </div>
 
-        {campaign.budget > 0 && (
-          <div className="text-[10px] mt-2">
-            <span className="text-muted-foreground">
-              Influencer Budget:{' '}
-            </span>
+        <div className="flex items-center gap-4 text-[10px] mt-auto pt-2">
+          <span className="text-muted-foreground">
+            Budget: ₹{(campaign.budget || 0).toLocaleString('en-IN')}
+          </span>
 
-            <span className="text-orange-500 font-semibold">
-              ₹
-              {(campaign.budget || 0).toLocaleString(
-                'en-IN'
-              )}
-            </span>
-          </div>
-        )}
+          <span className="text-orange-500 font-medium">
+            Revenue: ₹{(campaign.revenue || 0).toLocaleString('en-IN')}
+          </span>
+        </div>
       </Card>
     </Link>
   );
