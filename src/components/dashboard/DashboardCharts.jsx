@@ -18,7 +18,7 @@ export function CampaignPerformanceChart({ campaigns }) {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.28)" />
               <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <YAxis tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid hsl(220 13% 91%)' }} />
@@ -46,7 +46,7 @@ export function RevenueChart({ payments, fullWidth, dateRange }) {
         <div className={fullWidth ? 'h-96' : 'h-64'}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.28)" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <YAxis tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid hsl(220 13% 91%)' }} />
@@ -86,10 +86,10 @@ export function ProfitChart({ clientPayments, influencerPayments }) {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.28)" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <YAxis tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid hsl(220 13% 91%)' }} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', boxShadow: '0 12px 30px -16px rgba(15,23,42,0.3)' }} />
               <Line type="monotone" dataKey="revenue" stroke="hsl(25 95% 53%)" strokeWidth={2} dot={false} name="Revenue" />
               <Line type="monotone" dataKey="cost" stroke="hsl(0 84% 60%)" strokeWidth={2} dot={false} name="Cost" />
               <Line type="monotone" dataKey="profit" stroke="hsl(142 71% 45%)" strokeWidth={2} dot={false} name="Profit" />

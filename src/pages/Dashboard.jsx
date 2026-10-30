@@ -528,7 +528,7 @@ export default function Dashboard() {
           {/* Revenue / Calendar toggle */}
           {showFinancials && (
             <div className="flex justify-end mb-4">
-              <div className="inline-flex rounded-lg border border-border/60 p-0.5 bg-muted/40">
+              <div className="inline-flex rounded-full border border-white/70 bg-white/50 p-0.5 backdrop-blur-md shadow-sm">
                 <button
                   onClick={() =>
                     setDashView('revenue')

@@ -30,19 +30,19 @@ export default function StatCard({ title, value, icon: Icon, color = 'orange', t
   };
 
   return (
-    <Card className="p-5 border border-border/50 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
-          <p className="text-2xl font-bold mt-2 text-foreground">{value}</p>
+    <Card className="p-3 sm:p-5 hover:shadow-lg hover:shadow-slate-900/10 transition-shadow">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">{title}</p>
+          <p className="text-base sm:text-xl font-bold mt-1 sm:mt-2 text-foreground whitespace-nowrap">{value}</p>
           {trend && (
             <p className={`text-xs mt-1 ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
               {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% from last month
             </p>
           )}
         </div>
-        <div className={`w-10 h-10 rounded-xl ${bgMap[color]} flex items-center justify-center`}>
-          <Icon className={`w-5 h-5 ${textMap[color]}`} />
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl ${bgMap[color]} flex items-center justify-center flex-shrink-0`}>
+          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${textMap[color]}`} />
         </div>
       </div>
     </Card>

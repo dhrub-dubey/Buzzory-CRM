@@ -581,7 +581,7 @@ export default function Influencers() {
       <Card className="border border-border/50 overflow-hidden mb-4">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
+            <TableRow className="bg-white/40 hover:bg-white/40">
               <TableHead className="text-xs font-semibold text-foreground/70 py-3">Influencer</TableHead>
               <TableHead className="text-xs font-semibold text-foreground/70">Social Links</TableHead>
               <TableHead className="text-xs font-semibold text-foreground/70">Followers</TableHead>

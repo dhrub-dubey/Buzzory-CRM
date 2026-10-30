@@ -5,7 +5,7 @@ import { colorOf, formatTime, fullDateLabel } from '@/lib/calendarUtils';
 
 export default function DayDetailsPanel({ dateKey, events, onClose, onAdd, onEdit, onDelete }) {
   return (
-    <div className="border border-border/60 rounded-xl bg-white p-4 h-full">
+    <div className="border border-white/70 rounded-2xl bg-white/45 backdrop-blur-md p-4 h-full">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-gray-800">{fullDateLabel(dateKey)}</h3>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">

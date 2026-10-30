@@ -11,8 +11,8 @@ export default function CalendarGrid({ cursor, eventsByDate, selectedDate, onSel
   const todayKey = toDateKey(new Date());
 
   return (
-    <div className="border border-border/60 rounded-xl overflow-hidden bg-white">
-      <div className="grid grid-cols-7 bg-muted/40 border-b border-border/60">
+    <div className="border border-white/70 rounded-2xl overflow-hidden bg-white/45 backdrop-blur-md">
+      <div className="grid grid-cols-7 bg-white/30 border-b border-white/60">
         {WEEKDAYS.map(d => (
           <div key={d} className="py-2 text-center text-[11px] font-semibold text-gray-500">{d}</div>
         ))}
@@ -29,7 +29,7 @@ export default function CalendarGrid({ cursor, eventsByDate, selectedDate, onSel
               key={i}
               onClick={() => onSelectDate(key)}
               className={`min-h-[92px] border-b border-r border-border/40 p-1.5 cursor-pointer transition-colors ${
-                inMonth ? 'bg-white' : 'bg-muted/20'
+                inMonth ? 'bg-white/40' : 'bg-slate-900/[0.03]'
               } ${isSelected ? 'ring-1 ring-inset ring-orange-400' : 'hover:bg-orange-50/40'}`}
             >
               <div className="mb-1">

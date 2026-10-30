@@ -445,13 +445,13 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
           </DialogHeader>
 
           {!editing && (
-            <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-lg">
+            <div className="grid grid-cols-2 gap-1 p-1 glass-subtle rounded-xl">
               <button
                 type="button"
                 onClick={() => setAddMode('database')}
                 className={`text-xs font-medium py-1.5 rounded-md transition-colors ${
                   addMode === 'database'
-                    ? 'bg-white shadow-sm text-foreground'
+                    ? 'bg-white/95 shadow-sm text-foreground'
                     : 'text-muted-foreground'
                 }`}
               >
@@ -463,7 +463,7 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
                 onClick={() => setAddMode('manual')}
                 className={`text-xs font-medium py-1.5 rounded-md transition-colors ${
                   addMode === 'manual'
-                    ? 'bg-white shadow-sm text-foreground'
+                    ? 'bg-white/95 shadow-sm text-foreground'
                     : 'text-muted-foreground'
                 }`}
               >

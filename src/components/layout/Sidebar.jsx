@@ -42,7 +42,7 @@ export default function Sidebar({ user, collapsed, onToggle }) {
   user?.role === 'super_admin';
 
   return (
-    <aside className={`fixed left-0 top-0 h-screen bg-[hsl(222,47%,11%)] text-white flex flex-col z-50 transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
+    <aside className={`fixed left-0 top-0 h-screen bg-[#0b1120]/95 backdrop-blur-2xl border-r border-white/10 shadow-[0_20px_60px_-20px_rgba(11,17,32,0.5)] text-white flex flex-col z-50 transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
       {/* Logo */}
       <div className="px-4 pt-6 pb-2">
         <Link to="/" className="flex items-center">
@@ -52,7 +52,7 @@ export default function Sidebar({ user, collapsed, onToggle }) {
             <img src="https://media.base44.com/images/public/6a1f0e76a586461557ebf349/601f5c8df_WebsiteWhite.png" alt="Buzzory" className="h-6 w-6 object-left object-cover" />
           )}
         </Link>
-        {!collapsed && <p className="text-[10px] text-gray-500 mt-1">CRM V3.2</p>}
+        {!collapsed && <p className="text-[10px] text-gray-500 mt-1 tracking-wide">CRM V3.2</p>}
       </div>
 
       {/* Navigation */}
@@ -63,10 +63,10 @@ export default function Sidebar({ user, collapsed, onToggle }) {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 active
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#ff7324] to-[#ff8f4d] text-white shadow-lg shadow-orange-500/30 ring-1 ring-inset ring-white/20'
+                  : 'text-gray-400 hover:bg-white/10 hover:text-white'
               }`}
             >
               <item.icon className={`w-4.5 h-4.5 flex-shrink-0 ${active ? 'text-white' : 'text-gray-500 group-hover:text-gray-300'}`} />

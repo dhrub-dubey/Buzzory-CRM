@@ -220,7 +220,7 @@ export default function FundLedger() {
         ) : (
           transactions.map((t, i) => (
             <SwipeableRow key={t.id} onDelete={() => deleteMutation.mutate(t.id)}>
-              <div className={`grid grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-3 text-sm items-center ${i % 2 === 0 ? 'bg-white' : 'bg-muted/20'} border-b border-border/30 last:border-b-0`}>
+              <div className={`grid grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-3 text-sm items-center ${i % 2 === 0 ? 'bg-white/45' : 'bg-slate-900/[0.03]'} border-b border-border/30 last:border-b-0`}>
                 <span className="text-xs text-muted-foreground">{t.date || '-'}</span>
                 <span>
                   <Badge className={`${t.transaction_type === 'Credit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'} border-0 text-[10px] px-1.5`}>
