@@ -10,7 +10,9 @@ export default function PageHeader({ icon: Icon, title, subtitle, children }) {
           </div>
         )}
         <div>
-        <h1 className="text-[26px] font-semibold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-[26px] font-semibold tracking-tight text-foreground">
+          {title}
+        </h1>
           {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
       </div>

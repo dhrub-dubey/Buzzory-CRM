@@ -21,7 +21,7 @@ export function CampaignPerformanceChart({ campaigns }) {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.28)" />
               <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <YAxis tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid hsl(220 13% 91%)' }} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', boxShadow: '0 12px 30px -16px rgba(15,23,42,0.3)' }} />
               <Bar dataKey="budget" fill="hsl(222 47% 25%)" radius={[4, 4, 0, 0]} name="Budget" />
               <Bar dataKey="revenue" fill="hsl(25 95% 53%)" radius={[4, 4, 0, 0]} name="Revenue" />
             </BarChart>
@@ -49,7 +49,7 @@ export function RevenueChart({ payments, fullWidth, dateRange }) {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.28)" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
               <YAxis tick={{ fontSize: 11 }} stroke="hsl(220 9% 46%)" />
-              <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid hsl(220 13% 91%)' }} />
+              <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', boxShadow: '0 12px 30px -16px rgba(15,23,42,0.3)' }} />
               <Area type="monotone" dataKey="amount" stroke="hsl(25 95% 53%)" fill="hsl(25 95% 53%)" fillOpacity={0.1} name="Revenue" />
             </AreaChart>
           </ResponsiveContainer>

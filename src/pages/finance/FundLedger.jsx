@@ -203,8 +203,9 @@ export default function FundLedger() {
       </div>
 
       <Card className="border border-border/50 overflow-hidden">
+       <div className="overflow-x-auto">
         {/* Header row */}
-        <div className="grid grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50">
+        <div className="grid grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 min-w-[680px]">
           <span>Date</span>
           <span>Type</span>
           <span>Description</span>
@@ -216,7 +217,7 @@ export default function FundLedger() {
 
         {/* Transaction rows */}
         {transactions.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground text-sm">No transactions found</div>
+          <div className="text-center py-10 text-muted-foreground text-sm min-w-[680px]">No transactions found</div>
         ) : (
           transactions.map((t, i) => (
             <SwipeableRow key={t.id} onDelete={() => deleteMutation.mutate(t.id)}>
@@ -240,6 +241,7 @@ export default function FundLedger() {
             </SwipeableRow>
           ))
         )}
+        </div>
       </Card>
 
       {/* Add transaction dialog */}

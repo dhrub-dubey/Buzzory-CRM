@@ -535,7 +535,7 @@ export default function Dashboard() {
                   }
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                     dashView === 'revenue'
-                      ? 'bg-white shadow-sm text-gray-800'
+                      ? 'bg-white/95 shadow-sm text-gray-800'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -548,7 +548,7 @@ export default function Dashboard() {
                   }
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                     dashView === 'calendar'
-                      ? 'bg-white shadow-sm text-gray-800'
+                      ? 'bg-white/95 shadow-sm text-gray-800'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >

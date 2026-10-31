@@ -282,12 +282,12 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
       </Link>
 
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">{campaign?.name || 'Campaign Workspace'}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-6">
+      <div className="min-w-0">
+        <h1 className="text-xl sm:text-2xl font-bold truncate">{campaign?.name || 'Campaign Workspace'}</h1>
           <p className="text-sm text-muted-foreground mt-1">{campaign?.client_name}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Badge className={campaign?.status === 'active' ? 'bg-green-500/10 text-green-600 border-0' : 'bg-gray-500/10 text-gray-500 border-0'}>
             {campaign?.status === 'active' ? 'Active' : 'Completed'}
           </Badge>
@@ -344,14 +344,14 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
       </Card>
 
       {/* Influencer Tracking */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h2 className="text-sm font-semibold">Influencer Tracking</h2>
-        <div className="flex items-center gap-3">
-          <div className="relative">
+        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="relative flex-1 sm:flex-none">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 w-48 h-8 text-xs" />
+            <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 w-full sm:w-48 h-8 text-xs" />
           </div>
-          <Button onClick={openAddDialog} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 text-xs">
+          <Button onClick={openAddDialog} size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 text-xs flex-shrink-0">
             <Plus className="w-3 h-3" /> Add Influencer
           </Button>
         </div>
@@ -510,7 +510,7 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs">Name *</Label>
                   <Input
@@ -542,7 +542,7 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs">Status</Label>
                   <Select
@@ -570,7 +570,7 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs">Payment Status</Label>
                   <Select
