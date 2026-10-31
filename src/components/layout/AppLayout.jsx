@@ -8,7 +8,7 @@ export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       <Sidebar user={profile} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       <main className={`transition-all duration-300 ${collapsed ? 'ml-16' : 'ml-56'}`}>
         <div className="p-6 max-w-[1400px]">

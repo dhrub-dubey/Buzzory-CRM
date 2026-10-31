@@ -250,7 +250,7 @@ const handleGoogleRegister = async () => {
     return (
       <div className="min-h-screen flex">
         <LeftPanel />
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white">
+        <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white/55 backdrop-blur-2xl">
           <div className="w-full max-w-md">
             <div className="flex justify-center mb-6">
               <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
@@ -261,7 +261,7 @@ const handleGoogleRegister = async () => {
             <p className="text-sm text-center text-gray-500 mb-8">How will you be using Buzzory CRM?</p>
             <div className="space-y-3">
               <button onClick={() => { setSelectedRole("board_member"); setStep("form"); }}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group">
+                className="glass-card w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group">
                 <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-200 transition-colors">
                   <Crown className="w-5 h-5 text-purple-600" />
                 </div>
@@ -272,7 +272,7 @@ const handleGoogleRegister = async () => {
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-500 ml-auto" />
               </button>
               <button onClick={() => { setSelectedRole("employee"); setStep("form"); }}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group">
+                className="glass-card w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group">
                 <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
                   <Users className="w-5 h-5 text-blue-600" />
                 </div>
@@ -298,7 +298,7 @@ const handleGoogleRegister = async () => {
   return (
     <div className="min-h-screen flex">
       <LeftPanel />
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white/55 backdrop-blur-2xl">
         <div className="w-full max-w-md">
           <button onClick={() => { setStep("role"); setError(""); }}
             className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mb-6 transition-colors">

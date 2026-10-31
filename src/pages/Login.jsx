@@ -145,7 +145,7 @@ export default function Login() {
     return (
       <div className="min-h-screen flex">
         <LeftPanel />
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white">
+        <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white/55 backdrop-blur-2xl">
           <div className="w-full max-w-md">
             <div className="flex justify-center mb-6">
               <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
@@ -158,7 +158,7 @@ export default function Login() {
             <div className="space-y-3">
               <button
                 onClick={() => handleRoleSelect("board_member")}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group"
+                className="glass-card w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group"
               >
                 <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-200 transition-colors">
                   <Crown className="w-5 h-5 text-purple-600" />
@@ -172,7 +172,7 @@ export default function Login() {
 
               <button
                 onClick={() => handleRoleSelect("employee")}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group"
+                className="glass-card w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50/50 transition-all group"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
                   <Users className="w-5 h-5 text-blue-600" />
@@ -197,7 +197,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       <LeftPanel />
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white/55 backdrop-blur-2xl">
         <div className="w-full max-w-md">
           <button
             onClick={() => { setStep("role"); setError(""); }}

@@ -95,7 +95,7 @@ export default function PendingApproval() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] p-6">
+    <div className="min-h-screen flex items-center justify-center bg-transparent p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <span className="text-3xl font-bold text-white">Buzz</span>
@@ -103,7 +103,7 @@ export default function PendingApproval() {
           <p className="text-xs text-gray-500 mt-1">CRM V3.2</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 shadow-2xl text-center">
+        <div className="glass-panel rounded-2xl p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-5">
             <Clock className="w-8 h-8 text-orange-500" />
           </div>
@@ -116,7 +116,7 @@ export default function PendingApproval() {
           </p>
 
           {user && (
-            <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-2">
+            <div className="glass-subtle rounded-xl p-4 mb-6 text-left space-y-2">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
                 <div>
