@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, DollarSign, Megaphone, Users, FileText, BarChart3, Settings, LogOut, ChevronLeft, Shield } from 'lucide-react';
+import { LayoutDashboard, DollarSign, Megaphone, Users, FileText, BarChart3, Settings, LogOut, ChevronLeft, Shield, CalendarCheck } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const ADMIN_EMAIL = "buzzory.it@gmail.com";
@@ -12,6 +12,7 @@ const allNavItems = [
   { label: 'Finance', icon: DollarSign, path: '/finance', roles: ['admin', 'board_member'] },
   { label: 'Invoices', icon: FileText, path: '/invoices', roles: ['admin', 'board_member'] },
   { label: 'Sales', icon: BarChart3, path: '/sales', roles: ['all'] },
+  { label: 'Attendance', icon: CalendarCheck, path: '/attendance', roles: ['all'] },
   { label: 'Settings', icon: Settings, path: '/settings', roles: ['all'] },
   { label: 'User Approvals', icon: Shield, path: '/admin/approvals', roles: ['admin'] },
 ];
