@@ -55,13 +55,35 @@ export default function AttendanceTable({ employees, days, recordMap, canMark, o
           <tbody>
             {employees.map(employee => (
               <tr key={employee.id} className="group">
-                <td className="sticky left-0 z-10 bg-white/90 backdrop-blur p-0 w-[220px] min-w-[220px]">
+                {/* <td className="sticky left-0 z-10 bg-white/90 backdrop-blur p-0 w-[220px] min-w-[220px]">
                   <div className="px-4 py-2">
                     <p className="text-sm font-medium text-foreground truncate">
                       {employee.full_name?.trim().split(/\s+/)[0] || 'Employee'}
                     </p>
                   </div>
+                </td> */}
+                
+                <td className="sticky left-0 z-10 bg-white/90 backdrop-blur p-0 w-[220px] min-w-[220px]">
+                  <div className="px-4 py-2 flex items-center gap-3">
+                    {employee.avatar_url ? (
+                      <img
+                        src={employee.avatar_url}
+                        alt={employee.full_name || 'Employee'}
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                        {(employee.full_name?.trim()[0] || 'E').toUpperCase()}
+                      </div>
+                    )}
+
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {employee.full_name?.trim().split(/\s+/)[0] || 'Employee'}
+                    </p>
+                  </div>
                 </td>
+
                 {days.map(day => {
                   const key = format(day, 'yyyy-MM-dd');
                   return (

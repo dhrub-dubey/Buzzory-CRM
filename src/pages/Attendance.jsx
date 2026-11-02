@@ -60,7 +60,7 @@ export default function Attendance() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, email, role, status')
+        .select('id, full_name, email, role, status, avatar_url')
         .eq('role', 'employee')
         .eq('status', 'approved')
         .order('full_name');
