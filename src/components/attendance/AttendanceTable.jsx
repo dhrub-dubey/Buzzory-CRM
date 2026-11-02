@@ -1,7 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Check, X, Minus } from 'lucide-react';
-import SwipeEmployeeName from '@/components/attendance/SwipeEmployeeName';
 
 const STATUS_STYLES = {
   present: 'bg-emerald-500/15 text-emerald-600',
@@ -28,7 +27,7 @@ function Cell({ record, canMark, onClick }) {
   );
 }
 
-export default function AttendanceTable({ employees, days, recordMap, canMark, onSelect, onDeleteRequest }) {
+export default function AttendanceTable({ employees, days, recordMap, canMark, onSelect }) {
   const todayKey = format(new Date(), 'yyyy-MM-dd');
 
   return (
@@ -57,7 +56,11 @@ export default function AttendanceTable({ employees, days, recordMap, canMark, o
             {employees.map(employee => (
               <tr key={employee.id} className="group">
                 <td className="sticky left-0 z-10 bg-white/90 backdrop-blur p-0 w-[220px] min-w-[220px]">
-                  <SwipeEmployeeName employee={employee} canDelete={canMark} onDelete={() => onDeleteRequest?.(employee)} />
+                  <div className="px-4 py-2">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {employee.full_name?.trim().split(/\s+/)[0] || 'Employee'}
+                    </p>
+                  </div>
                 </td>
                 {days.map(day => {
                   const key = format(day, 'yyyy-MM-dd');

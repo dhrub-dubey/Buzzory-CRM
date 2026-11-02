@@ -1,124 +1,294 @@
+
 import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { format, startOfMonth, endOfMonth, addMonths, eachDayOfInterval } from 'date-fns';
-import { CalendarCheck, ChevronLeft, ChevronRight, UserPlus, Users } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  eachDayOfInterval,
+} from 'date-fns';
+import {
+  CalendarCheck,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/shared/PageHeader';
 import AttendanceStats from '@/components/attendance/AttendanceStats';
 import AttendanceTable from '@/components/attendance/AttendanceTable';
 import MarkAttendanceDialog from '@/components/attendance/MarkAttendanceDialog';
-import AddEmployeeDialog from '@/components/attendance/AddEmployeeDialog';
-import DeleteEmployeeDialog from '@/components/attendance/DeleteEmployeeDialog';
-
-const ADMIN_EMAIL = 'buzzory.it@gmail.com';
 
 export default function Attendance() {
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
+
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
   const [cell, setCell] = useState(null);
-  const [showAdd, setShowAdd] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const queryClient = useQueryClient();
+
+  const role = profile?.role;
+  const canMark = role === 'super_admin' || role === 'board_member';
+  const isEmployee = role === 'employee';
+
+  const hasAccess =
+    profile?.status === 'approved' &&
+    (canMark || isEmployee);
 
   const monthStart = format(cursor, 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(cursor), 'yyyy-MM-dd');
+  const todayKey = format(new Date(), 'yyyy-MM-dd');
 
-  const { data: me } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
-  const canMark = !!me && (me.email === ADMIN_EMAIL || me.role === 'admin' || me.role === 'board_member');
-
-  const { data: employees = [], isLoading: loadingEmployees } = useQuery({
-    queryKey: ['attendance-employees'],
+  // Employees see only their own profile.
+  // Board members and super admins see all approved employees.
+  const {
+    data: employees = [],
+    isLoading: loadingEmployees,
+    error: employeesError,
+  } = useQuery({
+    queryKey: ['attendance-employees', user?.id, role],
+    enabled: !!user?.id && hasAccess,
     queryFn: async () => {
-      const res = await base44.entities.AttendanceEmployee.list('full_name', 200);
-      const list = Array.isArray(res) ? res : res.items;
-      return list.filter(e => e.status !== 'inactive');
+      if (isEmployee) {
+        return [{
+          ...profile,
+          id: user.id,
+        }];
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, role, status')
+        .eq('role', 'employee')
+        .eq('status', 'approved')
+        .order('full_name');
+
+      if (error) throw error;
+
+      return data || [];
     },
   });
 
-  const { data: records = [] } = useQuery({
-    queryKey: ['attendance-records', monthStart, monthEnd],
+  // Fetch attendance records for the selected month.
+  // Include today's date too, so the statistics remain correct
+  // even when viewing a different month.
+  const queryStart = todayKey < monthStart ? todayKey : monthStart;
+  const queryEnd = todayKey > monthEnd ? todayKey : monthEnd;
+
+  const {
+    data: records = [],
+    isLoading: loadingRecords,
+    error: recordsError,
+  } = useQuery({
+    queryKey: [
+      'attendance-records',
+      queryStart,
+      queryEnd,
+      user?.id,
+      role,
+    ],
+    enabled: !!user?.id && hasAccess,
     queryFn: async () => {
-      const res = await base44.entities.AttendanceRecord.filter(
-        { date: { $gte: monthStart, $lte: monthEnd } },
-        { limit: 2000 }
-      );
-      return Array.isArray(res) ? res : res.items;
+      let query = supabase
+        .from('attendance')
+        .select('*')
+        .gte('date', queryStart)
+        .lte('date', queryEnd);
+
+      // Additional frontend filtering.
+      // RLS independently enforces this restriction in the database.
+      if (isEmployee) {
+        query = query.eq('employee_id', user.id);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return data || [];
     },
   });
 
-  const days = useMemo(() => eachDayOfInterval({ start: cursor, end: endOfMonth(cursor) }), [cursor]);
+  const days = useMemo(
+    () => eachDayOfInterval({
+      start: cursor,
+      end: endOfMonth(cursor),
+    }),
+    [cursor]
+  );
+
   const recordMap = useMemo(() => {
     const map = {};
-    records.forEach(r => { map[`${r.employee_id}|${r.date}`] = r; });
+
+    records.forEach(record => {
+      map[`${record.employee_id}|${record.date}`] = record;
+    });
+
     return map;
   }, [records]);
 
-  const todayKey = format(new Date(), 'yyyy-MM-dd');
   const todayCounts = useMemo(() => {
-    const counts = { present: 0, absent: 0, leave: 0 };
-    employees.forEach(e => {
-      const rec = recordMap[`${e.id}|${todayKey}`];
-      if (rec?.status) counts[rec.status] += 1;
+    const counts = {
+      present: 0,
+      absent: 0,
+      leave: 0,
+    };
+
+    employees.forEach(employee => {
+      const record = recordMap[`${employee.id}|${todayKey}`];
+
+      if (record?.status && counts[record.status] !== undefined) {
+        counts[record.status] += 1;
+      }
     });
+
     return counts;
   }, [employees, recordMap, todayKey]);
 
   const markMutation = useMutation({
     mutationFn: async ({ employee, date, status }) => {
+      if (!canMark) {
+        throw new Error('You are not authorized to modify attendance.');
+      }
+
       const existing = recordMap[`${employee.id}|${date}`];
-      if (existing && !status) return base44.entities.AttendanceRecord.delete(existing.id);
-      if (existing) return base44.entities.AttendanceRecord.update(existing.id, { status, marked_by: me?.full_name });
-      if (!status) return null;
-      return base44.entities.AttendanceRecord.create({
-        employee_id: employee.id,
-        employee_name: employee.full_name,
-        date,
-        status,
-        marked_by: me?.full_name,
-      });
+
+      // Clear an existing attendance record.
+      if (existing && !status) {
+        const { error } = await supabase
+          .from('attendance')
+          .delete()
+          .eq('id', existing.id);
+
+        if (error) throw error;
+
+        return;
+      }
+
+      // Update an existing record.
+      // Do not change marked_by: it identifies the original marker.
+      if (existing) {
+        const { error } = await supabase
+          .from('attendance')
+          .update({ status })
+          .eq('id', existing.id);
+
+        if (error) throw error;
+
+        return;
+      }
+
+      // Create a new record.
+      if (!status) return;
+
+      const { error } = await supabase
+        .from('attendance')
+        .insert({
+          employee_id: employee.id,
+          date,
+          status,
+          marked_by: user.id,
+        });
+
+      if (error) throw error;
     },
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendance-records'] });
+      queryClient.invalidateQueries({
+        queryKey: ['attendance-records'],
+      });
+
       setCell(null);
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (employee) => {
-      await base44.entities.AttendanceRecord.deleteMany({ employee_id: employee.id });
-      await base44.entities.AttendanceEmployee.delete(employee.id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attendance-records'] });
-      queryClient.invalidateQueries({ queryKey: ['attendance-employees'] });
-      setDeleteTarget(null);
-    },
-  });
+  const currentStatus = cell
+    ? recordMap[`${cell.employee.id}|${cell.date}`]?.status
+    : null;
 
-  const currentStatus = cell ? recordMap[`${cell.employee.id}|${cell.date}`]?.status : null;
+  if (!hasAccess) {
+    return (
+      <div className="glass-card rounded-2xl p-10 text-center">
+        <CalendarCheck className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+        <p className="text-sm font-medium text-foreground">
+          Attendance access unavailable
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Your account does not have an approved attendance role.
+        </p>
+      </div>
+    );
+  }
+
+  if (employeesError || recordsError) {
+    return (
+      <div className="glass-card rounded-2xl p-6 text-center">
+        <p className="text-sm font-medium text-red-600">
+          Unable to load attendance
+        </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          {employeesError?.message || recordsError?.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <PageHeader icon={CalendarCheck} title="Attendance" subtitle="Mark and view your team's monthly attendance">
+      <PageHeader
+        icon={CalendarCheck}
+        title="Attendance"
+        subtitle={
+          canMark
+            ? "Manage your team's monthly attendance"
+            : "View your monthly attendance"
+        }
+      >
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" onClick={() => setCursor(addMonths(cursor, -1))}><ChevronLeft className="w-4 h-4" /></Button>
-          <span className="text-sm font-semibold text-foreground w-36 text-center whitespace-nowrap">{format(cursor, 'MMMM yyyy')}</span>
-          <Button variant="outline" size="icon" onClick={() => setCursor(addMonths(cursor, 1))}><ChevronRight className="w-4 h-4" /></Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCursor(addMonths(cursor, -1))}
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+
+          <span className="text-sm font-semibold text-foreground w-36 text-center whitespace-nowrap">
+            {format(cursor, 'MMMM yyyy')}
+          </span>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setCursor(addMonths(cursor, 1))}
+          >
+            <ChevronRight className="w-4 h-4" />
+          </Button>
         </div>
       </PageHeader>
 
-      <AttendanceStats counts={todayCounts} total={employees.length} />
+      <AttendanceStats
+        counts={todayCounts}
+        total={employees.length}
+      />
 
-      {!loadingEmployees && employees.length === 0 ? (
+      {loadingEmployees || loadingRecords ? (
+        <div className="glass-card rounded-2xl p-10 text-center">
+          <p className="text-sm text-muted-foreground">
+            Loading attendance...
+          </p>
+        </div>
+      ) : employees.length === 0 ? (
         <div className="glass-card rounded-2xl p-10 text-center">
           <Users className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm font-medium text-foreground">No employees yet</p>
-          <p className="text-xs text-muted-foreground mt-1 mb-4">Add your team members to start marking attendance.</p>
-          {canMark && (
-            <Button onClick={() => setShowAdd(true)} className="bg-orange-500 hover:bg-orange-600 text-white gap-2">
-              <UserPlus className="w-4 h-4" /> Add Employee
-            </Button>
-          )}
+          <p className="text-sm font-medium text-foreground">
+            No approved employees found
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Approved employee profiles will appear here automatically.
+          </p>
         </div>
       ) : (
         <AttendanceTable
@@ -126,37 +296,37 @@ export default function Attendance() {
           days={days}
           recordMap={recordMap}
           canMark={canMark}
-          onSelect={(employee, date) => setCell({ employee, date })}
-          onDeleteRequest={(employee) => setDeleteTarget(employee)}
+          onSelect={(employee, date) => {
+            if (canMark) {
+              setCell({ employee, date });
+            }
+          }}
         />
       )}
 
-      {canMark && employees.length > 0 && (
-        <Button onClick={() => setShowAdd(true)} className="mt-4 bg-orange-500 hover:bg-orange-600 text-white gap-2">
-          <UserPlus className="w-4 h-4" /> Add Employee
-        </Button>
+      {canMark && (
+        <MarkAttendanceDialog
+          cell={cell}
+          current={currentStatus}
+          saving={markMutation.isPending}
+          onClose={() => setCell(null)}
+          onSelect={(status) => {
+            if (cell) {
+              markMutation.mutate({
+                employee: cell.employee,
+                date: cell.date,
+                status,
+              });
+            }
+          }}
+        />
       )}
 
-      <MarkAttendanceDialog
-        cell={cell}
-        current={currentStatus}
-        saving={markMutation.isPending}
-        onClose={() => setCell(null)}
-        onSelect={(status) => cell && markMutation.mutate({ employee: cell.employee, date: cell.date, status })}
-      />
-
-      <AddEmployeeDialog
-        open={showAdd}
-        onOpenChange={setShowAdd}
-        onSaved={() => queryClient.invalidateQueries({ queryKey: ['attendance-employees'] })}
-      />
-
-      <DeleteEmployeeDialog
-        employee={deleteTarget}
-        deleting={deleteMutation.isPending}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={(employee) => deleteMutation.mutate(employee)}
-      />
+      {markMutation.isError && (
+        <p className="text-sm text-red-600 mt-3">
+          Failed to save attendance: {markMutation.error.message}
+        </p>
+      )}
     </div>
   );
 }
