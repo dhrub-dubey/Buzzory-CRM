@@ -5,7 +5,7 @@ import AddTaskForm from './AddTaskForm';
 
 export default function TaskPanel({
   title, subtitle, icon: Icon, accent, addLabel, emptyText,
-  items, readOnly, withPriority, onAdd, onToggle, onDelete, isLoading,
+  items, readOnly, withPriority, onAdd, onToggle, onDelete, canDelete = true, isLoading,
 }) {
   const [showForm, setShowForm] = useState(false);
 
@@ -44,7 +44,14 @@ export default function TaskPanel({
           <p className="text-xs text-muted-foreground py-6 text-center">{emptyText}</p>
         ) : (
           items.map(item => (
-            <TaskItem key={item.id} item={item} readOnly={readOnly} onToggle={onToggle} onDelete={onDelete} />
+            <TaskItem
+              key={item.id}
+              item={item}
+              readOnly={readOnly}
+              onToggle={onToggle}
+              onDelete={onDelete}
+              canDelete={canDelete}
+            />
           ))
         )}
       </div>

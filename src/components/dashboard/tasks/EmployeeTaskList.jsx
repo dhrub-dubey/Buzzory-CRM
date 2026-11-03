@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/lib/supabase';
 import { ListTodo, CheckCircle2 } from 'lucide-react';
 import TaskPanel from './TaskPanel';
 import { toDateKey } from '@/lib/calendarUtils';
@@ -9,41 +10,90 @@ export default function EmployeeTaskList({ user }) {
   const today = toDateKey(new Date());
   const queryClient = useQueryClient();
 
+  const queryKey = ['dailyTaskEntry', user?.id, today];
+
   const { data: entry = null, isLoading } = useQuery({
-    queryKey: ['dailyTaskEntry', user?.email, today],
+    queryKey,
     queryFn: async () => {
-      const rows = await base44.entities.DailyTaskEntry.filter({ date: today, employee_email: user?.email });
-      return rows[0] || null;
+      const { data, error } = await supabase
+        .from('daily_task_entries')
+        .select('*')
+        .eq('employee_id', user.id)
+        .eq('date', today)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
     },
-    enabled: !!user?.email,
+    enabled: !!user?.id,
   });
 
   const save = useMutation({
-    mutationFn: async (patch) => {
-      if (entry) return base44.entities.DailyTaskEntry.update(entry.id, patch);
-      return base44.entities.DailyTaskEntry.create({
-        employee_name: user?.full_name || '',
-        employee_email: user?.email || '',
+    mutationFn: async (change) => {
+      // Always use the latest cached entry
+      const current = queryClient.getQueryData(queryKey);
+
+      const updated = {
+        employee_id: user.id,
         date: today,
-        tasks: [],
-        eod: [],
-        ...patch,
-      });
+        tasks: current?.tasks || [],
+        eod: current?.eod || [],
+        ...change(current),
+      };
+
+      const { data, error } = await supabase
+        .from('daily_task_entries')
+        .upsert(updated, {
+          onConflict: 'employee_id,date',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dailyTaskEntry'] }),
+
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKey, data);
+    },
+
+    onError: (error) => {
+      console.error('Daily task save failed:', error);
+    },
   });
 
   const tasks = entry?.tasks || [];
   const eod = entry?.eod || [];
 
-  const addTo = (key) => (item) =>
-    save.mutate({ [key]: [...(entry?.[key] || []), { ...item, id: crypto.randomUUID(), done: false }] });
+  const addTo = (key) => (item) => {
+    save.mutate((current) => ({
+      [key]: [
+        ...(current?.[key] || []),
+        {
+          ...item,
+          id: crypto.randomUUID(),
+          done: false,
+        },
+      ],
+    }));
+  };
 
-  const toggleIn = (key) => (id) =>
-    save.mutate({ [key]: (entry?.[key] || []).map(i => (i.id === id ? { ...i, done: !i.done } : i)) });
+  const toggleIn = (key) => (id) => {
+    save.mutate((current) => ({
+      [key]: (current?.[key] || []).map((item) =>
+        item.id === id
+          ? { ...item, done: !item.done }
+          : item
+      ),
+    }));
+  };
 
-  const removeFrom = (key) => (id) =>
-    save.mutate({ [key]: (entry?.[key] || []).filter(i => i.id !== id) });
+  // Only EOD items can be deleted
+  const removeEod = (id) => {
+    save.mutate((current) => ({
+      eod: (current?.eod || []).filter((item) => item.id !== id),
+    }));
+  };
 
   return (
     <div className="grid gap-4 md:grid-cols-2 items-start">
@@ -59,8 +109,9 @@ export default function EmployeeTaskList({ user }) {
         isLoading={isLoading}
         onAdd={addTo('tasks')}
         onToggle={toggleIn('tasks')}
-        onDelete={removeFrom('tasks')}
+        canDelete={false}
       />
+
       <TaskPanel
         title="End of Day (EOD)"
         subtitle="Record what you completed today"
@@ -72,7 +123,8 @@ export default function EmployeeTaskList({ user }) {
         isLoading={isLoading}
         onAdd={addTo('eod')}
         onToggle={toggleIn('eod')}
-        onDelete={removeFrom('eod')}
+        onDelete={removeEod}
+        canDelete
       />
     </div>
   );

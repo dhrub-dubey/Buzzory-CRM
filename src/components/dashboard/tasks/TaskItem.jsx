@@ -7,7 +7,7 @@ const PRIORITY_STYLES = {
   Low: 'bg-green-50 text-green-700',
 };
 
-export default function TaskItem({ item, readOnly, onToggle, onDelete }) {
+export default function TaskItem({ item, readOnly, onToggle, onDelete, canDelete = true }) {
   return (
     <div className="group flex items-center gap-3 rounded-xl bg-white/70 border border-white/80 px-3 py-2.5">
       <button
@@ -35,7 +35,7 @@ export default function TaskItem({ item, readOnly, onToggle, onDelete }) {
           </div>
         )}
       </div>
-      {!readOnly && (
+      {!readOnly && canDelete && (
         <button
           type="button"
           onClick={() => onDelete(item.id)}
