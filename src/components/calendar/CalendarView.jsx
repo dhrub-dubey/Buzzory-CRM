@@ -9,7 +9,7 @@ import DayDetailsPanel from './DayDetailsPanel';
 import EventDialog from './EventDialog';
 import { toDateKey, monthLabel } from '@/lib/calendarUtils';
 
-export default function CalendarView({ user }) {
+export default function CalendarView({ user, onReviewDay }) {
   const today = new Date();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(toDateKey(today));
@@ -115,6 +115,7 @@ export default function CalendarView({ user }) {
             onAdd={openAdd}
             onEdit={openEdit}
             onDelete={setDeleteTarget}
+            onReview={onReviewDay}
           />
         )}
       </div>

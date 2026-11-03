@@ -1,9 +1,9 @@
 import React from 'react';
-import { X, Plus, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { X, Plus, MoreVertical, Pencil, Trash2, ClipboardList } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { colorOf, formatTime, fullDateLabel } from '@/lib/calendarUtils';
 
-export default function DayDetailsPanel({ dateKey, events, onClose, onAdd, onEdit, onDelete }) {
+export default function DayDetailsPanel({ dateKey, events, onClose, onAdd, onEdit, onDelete, onReview }) {
   return (
     <div className="border border-white/70 rounded-2xl bg-white/45 backdrop-blur-md p-4 h-full">
       <div className="flex items-center justify-between mb-3">
@@ -58,6 +58,15 @@ export default function DayDetailsPanel({ dateKey, events, onClose, onAdd, onEdi
       >
         <Plus className="w-3.5 h-3.5" /> Add Event
       </button>
+
+      {onReview && (
+        <button
+          onClick={() => onReview(dateKey)}
+          className="w-full mt-2 border border-white/80 bg-white/60 hover:bg-white/80 rounded-lg py-2 text-xs font-semibold text-gray-700 flex items-center justify-center gap-1.5 transition-colors"
+        >
+          <ClipboardList className="w-3.5 h-3.5" /> Employee Updates
+        </button>
+      )}
     </div>
   );
 }

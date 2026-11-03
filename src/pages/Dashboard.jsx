@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useOutletContext } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import ViewToggle from '@/components/dashboard/ViewToggle';
+import EmployeeTaskList from '@/components/dashboard/tasks/EmployeeTaskList';
+import EmployeeReportDialog from '@/components/dashboard/tasks/EmployeeReportDialog';
 import {
   LayoutDashboard,
   Megaphone,
@@ -110,6 +113,17 @@ export default function Dashboard() {
     localStorage.setItem('dashboardView', v);
   };
 
+  const [empView, setEmpViewState] = useState(
+    () => localStorage.getItem('employeeDashboardView') || 'tasks'
+  );
+  
+  const setEmpView = (v) => {
+    setEmpViewState(v);
+    localStorage.setItem('employeeDashboardView', v);
+  };
+  
+  const [reviewDate, setReviewDate] = useState(null);
+
   const isAdmin =
     user?.email === ADMIN_EMAIL ||
     user?.role === 'admin' ||
@@ -117,6 +131,7 @@ export default function Dashboard() {
 
   const isBoardMember = user?.role === 'board_member';
   const isInfluencer = user?.role === 'influencer';
+  const isEmployee = user?.role === 'employee' && !isAdmin;
 
   const showFinancials = isAdmin || isBoardMember;
 
@@ -523,7 +538,29 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      ) : canSeeCalendar ? (
+      // ) : canSeeCalendar ? (
+
+    ) : isEmployee ? (
+      <div>
+        <div className="flex justify-end mb-4">
+          <ViewToggle
+            options={[
+              { id: 'tasks', label: 'Task List' },
+              { id: 'calendar', label: 'Calendar' }
+            ]}
+            value={empView}
+            onChange={setEmpView}
+          />
+        </div>
+
+        {empView === 'tasks' ? (
+          <EmployeeTaskList user={user} />
+        ) : (
+          <CalendarView user={user} />
+        )}
+      </div>
+    ) : canSeeCalendar ? (
+
         <div>
           {/* Revenue / Calendar toggle */}
           {showFinancials && (
@@ -587,7 +624,20 @@ export default function Dashboard() {
             }
           />
         )
-      )}
-    </div>
-  );
+//       )}
+//     </div>
+//   );
+// }
+
+)}
+
+<EmployeeReportDialog
+  open={!!reviewDate}
+  initialDate={reviewDate}
+  onOpenChange={(open) => {
+    if (!open) setReviewDate(null);
+  }}
+/>
+</div>
+);
 }
