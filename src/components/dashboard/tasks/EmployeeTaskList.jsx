@@ -78,15 +78,53 @@ export default function EmployeeTaskList({ user }) {
     }));
   };
 
+  // const toggleIn = (key) => (id) => {
+  //   save.mutate((current) => ({
+  //     [key]: (current?.[key] || []).map((item) =>
+  //       item.id === id
+  //         ? { ...item, done: !item.done }
+  //         : item
+  //     ),
+  //   }));
+  // };
+
+  
   const toggleIn = (key) => (id) => {
-    save.mutate((current) => ({
-      [key]: (current?.[key] || []).map((item) =>
+    if (key !== 'tasks') return;
+
+    save.mutate((current) => {
+      const currentTasks = current?.tasks || [];
+      const currentEod = current?.eod || [];
+
+      const updatedTasks = currentTasks.map((item) =>
         item.id === id
           ? { ...item, done: !item.done }
           : item
-      ),
-    }));
+      );
+
+      const changedTask = updatedTasks.find((item) => item.id === id);
+
+      // Automatically add completed task to EOD
+      // Remove it from EOD if it is unticked
+      const updatedEod = changedTask.done
+        ? [
+            ...currentEod.filter((item) => item.id !== id),
+            {
+              id: changedTask.id,
+              text: changedTask.text,
+              category: changedTask.category,
+              done: true,
+            },
+          ]
+        : currentEod.filter((item) => item.id !== id);
+
+      return {
+        tasks: updatedTasks,
+        eod: updatedEod,
+      };
+    });
   };
+
 
   // Only EOD items can be deleted
   const removeEod = (id) => {
@@ -121,7 +159,8 @@ export default function EmployeeTaskList({ user }) {
         emptyText="Nothing recorded yet for today."
         items={eod}
         isLoading={isLoading}
-        onAdd={addTo('eod')}
+        readOnly
+        onAdd={() => {}}
         onToggle={toggleIn('eod')}
         onDelete={removeEod}
         canDelete
