@@ -85,7 +85,7 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
                 key={item.path}
                 to={item.path}
                 onClick={onMobileClose}
-                className={`group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:min-h-0 md:text-base ${
+                className={`group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-all duration-200 md:min-h-0 ${
                   active
                     ? 'bg-gradient-to-r from-[#ff7324] to-[#ff8f4d] text-white shadow-lg shadow-orange-500/30 ring-1 ring-inset ring-white/20'
                     : 'text-gray-400 hover:bg-white/10 hover:text-white'

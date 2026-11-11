@@ -28,7 +28,7 @@ export default function AppLayout() {
         <img
           src="/Buzzory-transparent.png"
           alt="Buzzory"
-          className="h-7 w-[108px] object-contain"
+          className="h-6 w-[88px] flex-shrink-0 object-contain min-[380px]:h-7 min-[380px]:w-[108px]"
         />
         <div className="ml-auto flex min-w-0 items-center gap-2">
           {profile?.avatar_url ? (
@@ -43,7 +43,7 @@ export default function AppLayout() {
               {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
             </span>
           )}
-          <span className="max-w-[100px] truncate text-sm font-medium text-slate-700">
+          <span className="whitespace-nowrap text-[13px] font-medium text-slate-700 min-[380px]:text-sm">
             {profile?.full_name || 'Account'}
           </span>
         </div>
