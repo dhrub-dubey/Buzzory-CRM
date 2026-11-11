@@ -540,9 +540,9 @@ export default function Influencers() {
       </Card>
 
       {/* Results Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <h2 className="text-base font-semibold">
+      <div className="mb-3 flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <h2 className="min-w-0 break-words text-base font-semibold">
             {cityFilter
               ? `${cityFilter} Influencers`
               : catFilter !== "all"
@@ -551,8 +551,8 @@ export default function Influencers() {
           </h2>
           <Badge variant="outline" className="text-[10px] px-2">{allFiltered.length} Results</Badge>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => exportToCSV( allFiltered, influencerHeaders, 'influencers.csv' )}>
+        <div className="flex min-w-0 flex-wrap items-center gap-2 md:justify-end">
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => exportToCSV( allFiltered, influencerHeaders, 'influencers.csv' )}>
             <Download className="w-3.5 h-3.5" /> Export
           </Button>
           <Button
