@@ -21,6 +21,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import AttendanceStats from '@/components/attendance/AttendanceStats';
 import AttendanceTable from '@/components/attendance/AttendanceTable';
 import MarkAttendanceDialog from '@/components/attendance/MarkAttendanceDialog';
+import AttendanceEmployeeUpdatesDialog from '@/components/attendance/AttendanceEmployeeUpdatesDialog';
 
 export default function Attendance() {
   const { user, profile } = useAuth();
@@ -28,6 +29,7 @@ export default function Attendance() {
 
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
   const [cell, setCell] = useState(null);
+  const [updatesDate, setUpdatesDate] = useState(null);
 
   const role = profile?.role;
   const canMark = role === 'super_admin' || role === 'board_member';
@@ -296,6 +298,7 @@ export default function Attendance() {
           days={days}
           recordMap={recordMap}
           canMark={canMark}
+          onSelectDate={setUpdatesDate}
           onSelect={(employee, date) => {
             if (canMark) {
               setCell({ employee, date });
@@ -318,6 +321,17 @@ export default function Attendance() {
                 status,
               });
             }
+          }}
+        />
+      )}
+
+      {canMark && (
+        <AttendanceEmployeeUpdatesDialog
+          date={updatesDate}
+          employees={employees}
+          open={!!updatesDate}
+          onOpenChange={(open) => {
+            if (!open) setUpdatesDate(null);
           }}
         />
       )}

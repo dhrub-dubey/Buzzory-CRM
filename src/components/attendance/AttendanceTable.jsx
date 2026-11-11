@@ -27,7 +27,7 @@ function Cell({ record, canMark, onClick }) {
   );
 }
 
-export default function AttendanceTable({ employees, days, recordMap, canMark, onSelect }) {
+export default function AttendanceTable({ employees, days, recordMap, canMark, onSelect, onSelectDate }) {
   const todayKey = format(new Date(), 'yyyy-MM-dd');
 
   return (
@@ -43,10 +43,18 @@ export default function AttendanceTable({ employees, days, recordMap, canMark, o
                 const key = format(day, 'yyyy-MM-dd');
                 return (
                   <th key={key} className="px-0.5 py-2 text-center min-w-[32px]">
-                    <div className="text-[10px] text-muted-foreground">{format(day, 'EEEEE')}</div>
-                    <div className={`text-xs font-semibold ${key === todayKey ? 'text-orange-500' : 'text-foreground'}`}>
-                      {format(day, 'd')}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onSelectDate?.(key)}
+                      disabled={!canMark}
+                      title={canMark ? `View employee updates for ${format(day, 'MMMM d, yyyy')}` : undefined}
+                      className={`rounded-md px-1 py-1 ${canMark ? 'hover:bg-orange-500/10 cursor-pointer' : 'cursor-default'}`}
+                    >
+                      <div className="text-[10px] text-muted-foreground">{format(day, 'EEEEE')}</div>
+                      <div className={`text-xs font-semibold ${key === todayKey ? 'text-orange-500' : 'text-foreground'}`}>
+                        {format(day, 'd')}
+                      </div>
+                    </button>
                   </th>
                 );
               })}
