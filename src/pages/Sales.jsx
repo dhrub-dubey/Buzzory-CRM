@@ -206,7 +206,7 @@ export default function Sales() {
         {paginated.length === 0 ? (
           <EmptyState icon={BarChart3} title="No leads found" description="Add your first lead to start tracking sales" actionLabel="Add Lead" onAction={openAdd} />
         ) : (
-          <div className="overflow-x-auto">
+          <div className="hidden overflow-x-auto md:block">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
@@ -250,6 +250,38 @@ export default function Sales() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+        )}
+        {paginated.length > 0 && (
+          <div className="space-y-3 p-3 md:hidden">
+            {paginated.map(lead => (
+              <article key={lead.id} className="rounded-xl border border-border/60 bg-white/70 p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="break-words text-sm font-semibold">{lead.lead_name}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">Added {fmtDate(lead.date_added)}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Edit lead" onClick={() => openEdit(lead)}><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" aria-label="Delete lead" onClick={() => setDeleteId(lead.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Badge className={getReplyBadgeClass(lead.reply)}>{lead.reply || 'No Response'}</Badge>
+                  <Badge className={getStatusBadgeClass(lead.status)}>{lead.status || 'Pending'}</Badge>
+                </div>
+                <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 text-xs">
+                  <div className="min-w-0"><dt className="text-muted-foreground">Contact</dt><dd className="break-words font-medium">{lead.contact_number || '-'}</dd></div>
+                  <div className="min-w-0"><dt className="text-muted-foreground">Email</dt><dd className="break-words font-medium">{lead.email_id || '-'}</dd></div>
+                  <div className="min-w-0"><dt className="text-muted-foreground">Instagram</dt><dd className="break-words font-medium">{lead.instagram || '-'}</dd></div>
+                  <div className="min-w-0"><dt className="text-muted-foreground">Contacted by</dt><dd className="break-words font-medium">{lead.contacted_by || '-'}</dd></div>
+                  <div><dt className="text-muted-foreground">Contacted on</dt><dd className="font-medium">{fmtDate(lead.contacted_on)}</dd></div>
+                  <div><dt className="text-muted-foreground">Follow up</dt><dd className="font-medium">{fmtDate(lead.follow_up_date)}</dd></div>
+                  <div className="col-span-2 min-w-0"><dt className="text-muted-foreground">Status / Response</dt><dd className="break-words font-medium">{lead.status_response || '-'}</dd></div>
+                  <div className="col-span-2 min-w-0"><dt className="text-muted-foreground">Notes</dt><dd className="break-words font-medium">{lead.notes || '-'}</dd></div>
+                </dl>
+              </article>
+            ))}
           </div>
         )}
       </Card>

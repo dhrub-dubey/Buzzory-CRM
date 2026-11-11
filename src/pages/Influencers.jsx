@@ -579,6 +579,7 @@ export default function Influencers() {
 
       {/* Table */}
       <Card className="border border-border/50 overflow-hidden mb-4">
+        <div className="hidden md:block">
         <Table>
           <TableHeader>
             <TableRow className="bg-white/40 hover:bg-white/40">
@@ -726,6 +727,50 @@ export default function Influencers() {
             )}
           </TableBody>
         </Table>
+        </div>
+        <div className="space-y-3 p-3 md:hidden">
+          {filtered.map(inf => (
+            <article key={inf.id} className="rounded-xl border border-border/60 bg-white/70 p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                {inf.profile_photo ? (
+                  <img src={inf.profile_photo} alt={inf.full_name || 'Influencer'} className="h-12 w-12 shrink-0 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-sm font-bold text-white">{inf.full_name?.[0]?.toUpperCase() || 'I'}</div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <h3 className="break-words text-sm font-semibold">{inf.full_name}</h3>
+                  <p className="break-all text-xs text-muted-foreground">@{inf.username || 'n/a'}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="rounded-sm border border-green-100 bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-600">{inf.status || 'Active'}</span>
+                    {inf.category && <Badge className="border border-orange-200 bg-orange-50 text-[10px] font-medium text-orange-600">{categoryIcons[inf.category] || '📌'} {inf.category}</Badge>}
+                  </div>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" aria-label="Influencer actions"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setViewing(inf)}>View profile</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEdit(inf)}><Pencil className="mr-2 h-3 w-3" /> Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setDeleteId(inf.id)} className="text-red-500"><Trash2 className="mr-2 h-3 w-3" /> Delete</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 text-xs">
+                <div><p className="text-muted-foreground">Followers</p><p className="mt-0.5 font-semibold">{(inf.followers || 0).toLocaleString('en-IN')}</p></div>
+                <div><p className="text-muted-foreground">Pricing</p><p className="mt-0.5 font-semibold">₹{(inf.pricing || 0).toLocaleString('en-IN')} <span className="font-normal text-muted-foreground">/ post</span></p></div>
+                <div className="min-w-0"><p className="text-muted-foreground">Phone</p><p className="mt-0.5 break-words font-medium">{inf.phone || '-'}</p></div>
+                <div className="min-w-0"><p className="text-muted-foreground">Email</p><p className="mt-0.5 break-all font-medium">{inf.email || '-'}</p></div>
+                <div className="col-span-2"><p className="text-muted-foreground">Social links</p><div className="mt-1 flex flex-wrap gap-2">
+                  {inf.instagram && <a href={inf.instagram} target="_blank" rel="noopener noreferrer" className="rounded-full bg-pink-100 px-2.5 py-1 font-medium text-pink-700">Instagram</a>}
+                  {inf.youtube && <a href={inf.youtube} target="_blank" rel="noopener noreferrer" className="rounded-full bg-red-100 px-2.5 py-1 font-medium text-red-700">YouTube</a>}
+                  {!inf.instagram && !inf.youtube && <span>—</span>}
+                </div></div>
+                <div className="col-span-2 min-w-0"><p className="text-muted-foreground">Notes</p><p className="mt-0.5 break-words">{inf.notes || '—'}</p></div>
+              </div>
+              <Button variant="outline" size="sm" className="mt-4 h-9 w-full border-orange-300 text-orange-600 hover:bg-orange-50" onClick={() => setViewing(inf)}>View profile</Button>
+            </article>
+          ))}
+          {filtered.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">No influencers found</p>}
+        </div>
       </Card>
 
       {/* Pagination */}
