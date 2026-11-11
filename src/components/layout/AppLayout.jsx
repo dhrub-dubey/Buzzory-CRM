@@ -26,13 +26,27 @@ export default function AppLayout() {
           <Menu className="h-5 w-5" />
         </button>
         <img
-          src="https://media.base44.com/images/public/6a1f0e76a586461557ebf349/601f5c8df_WebsiteWhite.png"
+          src="/Buzzory-transparent.png"
           alt="Buzzory"
-          className="h-7 w-auto rounded bg-slate-900 px-2 py-1"
+          className="h-7 w-[108px] object-contain"
         />
-        <span className="ml-auto truncate text-xs font-medium text-muted-foreground">
-          {profile?.full_name || 'CRM V3.2'}
-        </span>
+        <div className="ml-auto flex min-w-0 items-center gap-2">
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt={profile.full_name ? `${profile.full_name} profile photo` : 'Profile photo'}
+              referrerPolicy="no-referrer"
+              className="h-8 w-8 flex-shrink-0 rounded-full border border-white object-cover shadow-sm"
+            />
+          ) : (
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-xs font-semibold text-white">
+              {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </span>
+          )}
+          <span className="max-w-[100px] truncate text-sm font-medium text-slate-700">
+            {profile?.full_name || 'Account'}
+          </span>
+        </div>
       </header>
       <main className="min-w-0 transition-all duration-300 md:ml-56">
         <div className="mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-5 sm:py-5 md:p-6">

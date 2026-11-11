@@ -85,7 +85,7 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
                 key={item.path}
                 to={item.path}
                 onClick={onMobileClose}
-                className={`group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:min-h-0 ${
+                className={`group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 md:min-h-0 md:text-base ${
                   active
                     ? 'bg-gradient-to-r from-[#ff7324] to-[#ff8f4d] text-white shadow-lg shadow-orange-500/30 ring-1 ring-inset ring-white/20'
                     : 'text-gray-400 hover:bg-white/10 hover:text-white'
@@ -101,7 +101,7 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
         <div className="mb-4 px-2">
           <button
             onClick={() => { onMobileClose(); logout(); }}
-            className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-400 transition-all hover:bg-white/5 hover:text-white"
+            className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-400 transition-all hover:bg-white/5 hover:text-white md:text-base"
           >
             <LogOut className="h-4 w-4" />
             <span>Logout</span>
@@ -123,8 +123,8 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
               </div>
             )}
             <div className="min-w-0 overflow-hidden">
-              <p className="truncate text-xs font-medium text-white">{user?.full_name || 'User'}</p>
-              <p className="truncate text-[10px] text-gray-500">
+              <p className="truncate text-xs font-medium text-white md:text-sm">{user?.full_name || 'User'}</p>
+              <p className="truncate text-[10px] text-gray-500 md:text-xs">
                 {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? '🎯 Board Member' : user?.role === 'employee' ? '✅ Employee' : user?.role || ''}
               </p>
             </div>
