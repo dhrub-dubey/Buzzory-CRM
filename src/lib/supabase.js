@@ -38,7 +38,7 @@ export async function fetchUsers() {
   ) {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, email, role, created_at')
+      .select('id, full_name, email, role, avatar_url, created_at')
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -54,7 +54,7 @@ export async function fetchUsers() {
   // - Themselves
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email, role, created_at')
+    .select('id, full_name, email, role, avatar_url, created_at')
     .or(`role.eq.super_admin,role.eq.board_member,id.eq.${currentUser.id}`)
     .order('created_at', { ascending: true })
 

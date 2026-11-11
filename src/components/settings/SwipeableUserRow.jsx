@@ -70,12 +70,26 @@ export default function SwipeableUserRow({ user, canDelete, onDelete, roleLabels
           onClick={() => { if (swiped) resetSwipe(); }}
           className={`relative z-10 ${canDelete ? 'cursor-grab active:cursor-grabbing' : ''}`}
         >
-          <div className="flex min-w-0 items-center justify-between gap-3 bg-card px-4 py-3 md:grid md:grid-cols-[1fr_1fr_140px] md:gap-3 md:min-w-[480px]">
-            <div className="min-w-0 flex-1 md:contents">
-              <span className="block truncate text-sm font-medium md:hidden">{user.full_name || 'User'}</span>
-              <span className="hidden text-sm font-medium md:block md:truncate">{user.full_name || 'User'}</span>
-              <span className="block truncate text-xs text-muted-foreground md:text-xs">{user.email}</span>
+          <div className="flex min-w-0 items-center justify-between gap-3 bg-card px-4 py-3 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_140px] md:gap-3 md:min-w-[480px]">
+            <div className="flex min-w-0 flex-1 items-center gap-3 md:flex-initial">
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="h-9 w-9 shrink-0 rounded-full object-cover md:h-8 md:w-8"
+                />
+              ) : (
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-semibold text-white md:h-8 md:w-8">
+                  {(user.full_name?.trim()?.[0] || user.email?.[0] || 'U').toUpperCase()}
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{user.full_name || 'User'}</span>
+                <span className="block truncate text-xs text-muted-foreground md:hidden">{user.email}</span>
+              </div>
             </div>
+            <span className="hidden truncate text-xs text-muted-foreground md:block">{user.email}</span>
             <Badge className={`${roleColors[user.role] || roleColors.employee} border-0 text-[10px] justify-self-start shrink-0`}>{roleLabels[user.role] || 'Employee'}</Badge>
           </div>
         </motion.div>
