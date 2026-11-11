@@ -10,12 +10,12 @@ export default function InvoiceDetail({ invoice, onEdit, onDelete, onDownload, o
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">{invoice.invoice_number}</h1>
           <p className="text-sm text-muted-foreground">{invoice.client_name}</p>
         </div>
-        <Button variant="outline" onClick={onBack} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
+        <Button variant="outline" onClick={onBack} className="w-full gap-2 sm:w-auto"><ArrowLeft className="w-4 h-4" /> Back</Button>
       </div>
 
       <div className="flex flex-wrap gap-3 mb-6">

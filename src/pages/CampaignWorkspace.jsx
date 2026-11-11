@@ -405,12 +405,12 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
         {/* <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Name *</Label><Input value={form.influencer_name} onChange={e => setForm({...form, influencer_name: e.target.value})} /></div>
               <div><Label className="text-xs">Contact Number</Label><Input value={form.contact_number} onChange={e => setForm({...form, contact_number: e.target.value})} /></div>
             </div>
             <div><Label className="text-xs">Instagram Link</Label><Input value={form.instagram_link} onChange={e => setForm({...form, instagram_link: e.target.value})} /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Status</Label>
                 <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -419,7 +419,7 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
               </div>
               <div><Label className="text-xs">Pricing (₹)</Label><Input type="number" value={form.pricing} onChange={e => setForm({...form, pricing: Number(e.target.value)})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Payment Status</Label>
                 <Select value={form.payment_status} onValueChange={v => setForm({...form, payment_status: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -636,11 +636,11 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit Campaign</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Campaign Name *</Label><Input value={campaignForm.name || ''} onChange={e => setCampaignForm({...campaignForm, name: e.target.value})} /></div>
               <div><Label className="text-xs">Client Name</Label><Input value={campaignForm.client_name || ''} onChange={e => setCampaignForm({...campaignForm, client_name: e.target.value})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Status</Label>
                 <Select value={campaignForm.status || 'active'} onValueChange={v => setCampaignForm({...campaignForm, status: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -649,7 +649,7 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
               </div>
               <div><Label className="text-xs">Influencer Cost (₹)</Label><Input type="number" value={campaignForm.budget || 0} onChange={e => setCampaignForm({...campaignForm, budget: Number(e.target.value)})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Start Date</Label><Input type="date" value={campaignForm.start_date || ''} onChange={e => setCampaignForm({...campaignForm, start_date: e.target.value})} /></div>
               <div><Label className="text-xs">End Date</Label><Input type="date" value={campaignForm.end_date || ''} onChange={e => setCampaignForm({...campaignForm, end_date: e.target.value})} /></div>
             </div>

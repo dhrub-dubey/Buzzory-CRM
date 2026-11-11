@@ -4,13 +4,12 @@ import { useToast } from '@/components/ui/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { supabase, fetchUsers, deleteUser } from '@/lib/supabase';
-import { Settings as SettingsIcon, Building2, Users, Layers, MapPin, Tag, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Users, Layers, MapPin, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import SwipeableUserRow from '@/components/settings/SwipeableUserRow';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -148,7 +147,7 @@ export default function Settings() {
       <PageHeader icon={SettingsIcon} title="Settings" subtitle="Manage your CRM settings" />
 
       <Tabs defaultValue="company" className="space-y-4">
-        <TabsList>
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 p-1 sm:h-9 sm:w-auto sm:flex-nowrap sm:justify-center sm:gap-0">
           <TabsTrigger value="company" className="gap-2"><Building2 className="w-4 h-4" /> Company</TabsTrigger>
           <TabsTrigger value="users" className="gap-2"><Users className="w-4 h-4" /> Users</TabsTrigger>
           <TabsTrigger value="crm" className="gap-2"><Layers className="w-4 h-4" /> CRM Settings</TabsTrigger>
@@ -158,7 +157,7 @@ export default function Settings() {
           <Card className="border border-border/50">
             <CardHeader><CardTitle className="text-sm">Company Settings</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div><Label className="text-xs">Company Name</Label><Input defaultValue="Buzzory" /></div>
                 <div><Label className="text-xs">Email</Label><Input defaultValue="buzzory@gmail.com" /></div>
                 <div><Label className="text-xs">Phone</Label><Input defaultValue="+91 81709 13636" /></div>

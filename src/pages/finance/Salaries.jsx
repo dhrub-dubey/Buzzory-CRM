@@ -353,11 +353,11 @@ export default function Salaries() {
             </div>     
  
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Salary (₹) *</Label><Input type="number" value={form.salary} onChange={e => setForm({...form, salary: Number(e.target.value)})} /></div>
               <div><Label className="text-xs">Commission (₹)</Label><Input type="number" value={form.commission} onChange={e => setForm({...form, commission: Number(e.target.value)})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Payment Date</Label><Input type="date" value={form.payment_date} onChange={e => setForm({...form, payment_date: e.target.value})} /></div>
               <div><Label className="text-xs">Status</Label>
                 <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>

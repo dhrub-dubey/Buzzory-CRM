@@ -224,11 +224,11 @@ export default function ProfitLedger() {
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? 'Edit Profit' : 'Add Profit'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Client Name *</Label><Input value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} /></div>
               <div><Label className="text-xs">Campaign</Label><Input value={form.campaign} onChange={e => setForm({...form, campaign: e.target.value})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Date *</Label><Input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} /></div>
               <div><Label className="text-xs">Profit Amount (₹) *</Label><Input type="number" value={form.profit_amount} onChange={e => setForm({...form, profit_amount: Number(e.target.value)})} /></div>
             </div>

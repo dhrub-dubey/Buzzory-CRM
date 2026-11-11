@@ -30,11 +30,11 @@ export default function StatCard({ title, value, icon: Icon, color = 'orange', t
   };
 
   return (
-    <Card className="p-3 sm:p-5 hover:shadow-lg hover:shadow-slate-900/10 transition-shadow">
+    <Card className="p-4 sm:p-5 hover:shadow-lg hover:shadow-slate-900/10 transition-shadow">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">{title}</p>
-          <p className="text-base sm:text-xl font-bold mt-1 sm:mt-2 text-foreground whitespace-nowrap">{value}</p>
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider sm:text-xs">{title}</p>
+          <p className="mt-1 whitespace-nowrap text-lg font-bold text-foreground sm:mt-2 sm:text-xl">{value}</p>
           {trend && (
             <p className={`text-xs mt-1 ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
               {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}% from last month

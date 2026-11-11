@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { exportToCSV, exportDataToZip } from '@/lib/exportUtils';
-import { Users, Plus, ArrowLeft, Eye, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Users, Plus, ArrowLeft, MoreVertical, Pencil, Trash2, Grid3X3, List, Download, Phone, Mail, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -280,7 +280,7 @@ export default function Influencers() {
   if (!selectedCity && !urlCity && !urlCategory) {
     return (
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
               <Users className="w-5 h-5 text-orange-500" />
@@ -294,7 +294,7 @@ export default function Influencers() {
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5"
+            className="w-full gap-1.5 sm:w-auto"
             onClick={exportCityWise}
             disabled={influencers.length === 0}
           >
@@ -302,7 +302,7 @@ export default function Influencers() {
             Export All (City-wise)
           </Button>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {cities.map(city => {
             const count = influencers.filter(i => i.city === city).length;
             const cityRecord = cityRecords.find(c => c.name === city);
@@ -465,14 +465,14 @@ export default function Influencers() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
             <Users className="w-5 h-5 text-orange-500" />
           </div>
           <h1 className="text-2xl font-bold">Influencers</h1>
         </div>
-        <Button onClick={openAdd} className="bg-orange-500 hover:bg-orange-600 text-white gap-2">
+        <Button onClick={openAdd} className="w-full gap-2 bg-orange-500 text-white hover:bg-orange-600 sm:w-auto">
           <Plus className="w-4 h-4" /> Add Influencer
         </Button>
       </div>
@@ -771,7 +771,7 @@ export default function Influencers() {
                   <p className="text-sm text-muted-foreground">@{viewing.username || 'N/A'} • {viewing.city}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                 <div><span className="text-muted-foreground text-xs">Category</span><p className="font-medium">{viewing.category || '-'}</p></div>
                 <div><span className="text-muted-foreground text-xs">Followers</span><p className="font-medium">{(viewing.followers || 0).toLocaleString()}</p></div>
                 <div><span className="text-muted-foreground text-xs">Pricing</span><p className="font-medium text-orange-500">₹{(viewing.pricing || 0).toLocaleString('en-IN')}</p></div>
@@ -814,11 +814,11 @@ export default function Influencers() {
           </DialogHeader>
 
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Full Name *</Label><Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} /></div>
               <div><Label className="text-xs">Username</Label><Input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="@username" /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">City *</Label>
                 <Select value={form.city} onValueChange={v => setForm({ ...form, city: v })}>
                   <SelectTrigger><SelectValue placeholder="Select city" /></SelectTrigger>
@@ -832,11 +832,11 @@ export default function Influencers() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Followers</Label><Input type="number" value={form.followers} onChange={e => setForm({ ...form, followers: Number(e.target.value) })} /></div>
               <div><Label className="text-xs">Pricing (₹ per post)</Label><Input type="number" value={form.pricing} onChange={e => setForm({ ...form, pricing: Number(e.target.value) })} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
               <div><Label className="text-xs">Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
             </div>
@@ -845,7 +845,7 @@ export default function Influencers() {
               <div><Label className="text-xs">YouTube URL</Label><Input value={form.youtube} onChange={e => setForm({ ...form, youtube: e.target.value })} /></div>
             </div> */}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <Label className="text-xs">Instagram URL</Label>
 
@@ -887,7 +887,7 @@ export default function Influencers() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Niche</Label><Input value={form.niche} onChange={e => setForm({ ...form, niche: e.target.value })} /></div>
               <div><Label className="text-xs">Engagement Rate %</Label><Input type="number" value={form.engagement_rate} onChange={e => setForm({ ...form, engagement_rate: Number(e.target.value) })} /></div>
             </div>

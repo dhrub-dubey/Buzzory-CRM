@@ -232,7 +232,7 @@ export default function Campaigns() {
         title="Campaigns"
         subtitle="Manage all your influencer marketing campaigns"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -394,7 +394,7 @@ export default function Campaigns() {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label>Campaign Name *</Label>
 
@@ -424,7 +424,7 @@ export default function Campaigns() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label>Start Date</Label>
 

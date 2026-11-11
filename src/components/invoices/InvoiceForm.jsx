@@ -38,12 +38,12 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">{isEdit ? 'Edit Invoice' : 'Create Invoice'}</h1>
           <p className="text-sm text-muted-foreground">Fill the details and generate professional invoice for your client.</p>
         </div>
-        <Button variant="outline" onClick={onCancel} className="gap-2"><ArrowLeft className="w-4 h-4" /> Back to Invoices</Button>
+        <Button variant="outline" onClick={onCancel} className="w-full gap-2 sm:w-auto"><ArrowLeft className="w-4 h-4" /> Back to Invoices</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -51,7 +51,7 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
           {/* Client Details */}
           <Card className="p-5 border border-border/50">
             <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><span className="w-6 h-6 rounded bg-orange-500/10 flex items-center justify-center text-orange-500 text-xs">👤</span> 1. Client Details</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Client Name *</Label><Input value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} /></div>
               <div><Label className="text-xs">Email *</Label><Input value={form.client_email} onChange={e => setForm({ ...form, client_email: e.target.value })} /></div>
               <div><Label className="text-xs">Billing Address *</Label><Input value={form.billing_address} onChange={e => setForm({ ...form, billing_address: e.target.value })} /></div>
@@ -62,7 +62,7 @@ export default function InvoiceForm({ initialForm, onSave, onCancel, isPending, 
           {/* Invoice Details */}
           <Card className="p-5 border border-border/50">
             <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><span className="w-6 h-6 rounded bg-orange-500/10 flex items-center justify-center text-orange-500 text-xs">📄</span> 2. Invoice Details</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Invoice Number *</Label><Input value={form.invoice_number} onChange={e => setForm({ ...form, invoice_number: e.target.value })} placeholder="INV-2026-0012" /></div>
               <div><Label className="text-xs">Invoice Date *</Label><Input type="date" value={form.invoice_date} onChange={e => setForm({ ...form, invoice_date: e.target.value })} /></div>
               <div><Label className="text-xs">Due Date *</Label><Input type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} /></div>

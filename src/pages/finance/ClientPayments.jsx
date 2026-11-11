@@ -222,11 +222,11 @@ export default function ClientPayments() {
         <DialogContent>
           <DialogHeader><DialogTitle>{editing ? 'Edit Payment' : 'Add Payment'}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Client Name *</Label><Input value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} /></div>
               <div><Label className="text-xs">Campaign</Label><Input value={form.campaign} onChange={e => setForm({...form, campaign: e.target.value})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Amount (₹) *</Label><Input type="number" value={form.amount} onChange={e => setForm({...form, amount: Number(e.target.value)})} /></div>
               <div><Label className="text-xs">Status</Label>
                 <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
@@ -235,7 +235,7 @@ export default function ClientPayments() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div><Label className="text-xs">Invoice Date</Label><Input type="date" value={form.invoice_date} onChange={e => setForm({...form, invoice_date: e.target.value})} /></div>
               <div><Label className="text-xs">Received Date</Label><Input type="date" value={form.received_date} onChange={e => setForm({...form, received_date: e.target.value})} /></div>
             </div>

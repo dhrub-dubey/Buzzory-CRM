@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { exportToCSV, exportDataToZip } from '@/lib/exportUtils';
 import { ArrowLeft, Plus, Search, Pencil, Trash2, Users, Calendar, User, ChevronRight, Download } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -242,7 +242,7 @@ export default function InfluencerPayments() {
             <DialogHeader><DialogTitle>{editing ? 'Edit Payment' : 'Add Payment'}</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div><Label className="text-xs">Influencer Name *</Label><Input value={form.influencer_name} onChange={e => setForm({...form, influencer_name: e.target.value})} /></div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div><Label className="text-xs">Amount (₹) *</Label><Input type="number" value={form.amount} onChange={e => setForm({...form, amount: Number(e.target.value)})} /></div>
                 <div><Label className="text-xs">Status</Label>
                   <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
