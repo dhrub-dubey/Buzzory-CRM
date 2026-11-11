@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -42,7 +42,23 @@ function getNavItems(user) {
 export default function Sidebar({ user, mobileOpen = false, onMobileClose = () => {} }) {
   const { logout } = useAuth();
   const location = useLocation();
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('buzzory-theme') === 'dark';
+    } catch {
+      return document.documentElement.classList.contains('dark');
+    }
+  });
   const navItems = getNavItems(user);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    try {
+      localStorage.setItem('buzzory-theme', darkMode ? 'dark' : 'light');
+    } catch {
+      // The active theme still applies for this session if storage is unavailable.
+    }
+  }, [darkMode]);
 
   const isActive = (path) => path === '/'
     ? location.pathname === '/'
@@ -133,7 +149,7 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
               <div className="mb-2 flex items-center gap-2 border-b border-white/10 px-1 pb-3">
                 <Moon className="h-4 w-4 text-gray-300" />
                 <span className="flex-1 text-sm font-medium text-gray-100">Dark mode</span>
-                <Switch checked={false} disabled aria-label="Dark mode coming soon" />
+                <Switch checked={darkMode} onCheckedChange={setDarkMode} aria-label="Toggle dark mode" />
               </div>
               <button
                 type="button"
