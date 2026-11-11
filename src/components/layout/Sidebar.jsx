@@ -91,7 +91,7 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
                 className="h-8 w-auto"
               />
             </Link>
-            <p className="mt-1 text-[10px] tracking-wide text-gray-500">CRM V3.2</p>
+            <p className="mt-1 text-[10px] tracking-wide text-gray-500">CRM V4.0</p>
           </div>
           <button
             type="button"
@@ -147,7 +147,7 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
                 <div className="min-w-0 overflow-hidden">
                   <p className="truncate text-sm font-medium text-white">{user?.full_name || 'User'}</p>
                   <p className="truncate text-xs text-gray-400">
-                    {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? '🎯 Board Member' : user?.role === 'employee' ? '✅ Employee' : user?.role || ''}
+                    {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? '🎯 Board Member' : user?.role === 'employee' ? '🧑🏼‍💼 Employee' : user?.role || ''}
                   </p>
                 </div>
               </button>

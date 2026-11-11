@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 export default function AppLayout() {
   const { profile, logout } = useAuth();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains('dark'));
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function AppLayout() {
           alt="Buzzory"
           className="h-6 w-[88px] flex-shrink-0 object-contain min-[380px]:h-7 min-[380px]:w-[108px]"
         />
-        <Popover>
+        <Popover open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
           <PopoverTrigger asChild>
             <button
               type="button"
@@ -83,7 +84,14 @@ export default function AppLayout() {
             <div className={`mb-2 flex items-center gap-2 border-b px-1 pb-3 ${darkMode ? 'border-white/10' : 'border-slate-200/70'}`}>
               <Moon className={`h-4 w-4 ${darkMode ? 'text-gray-300' : 'text-slate-500'}`} />
               <span className="flex-1 text-sm font-medium">Dark mode</span>
-              <Switch checked={darkMode} onCheckedChange={updateTheme} aria-label="Toggle dark mode" />
+              <Switch
+                checked={darkMode}
+                onCheckedChange={(enabled) => {
+                  updateTheme(enabled);
+                  setAccountMenuOpen(false);
+                }}
+                aria-label="Toggle dark mode"
+              />
             </div>
             <button
               type="button"

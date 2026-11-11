@@ -35,16 +35,16 @@ export default function CampaignWorkspace() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  //const [showDialog, setShowDialog] = useState(false);
+  
   const [showDialog, setShowDialog] = useState(
     () => localStorage.getItem(`campaign_${id}_influencerDialog`) === "true"
   );
-  // const [editing, setEditing] = useState(null);
+  
   const [editing, setEditing] = useState(
     /** @type {any | null} */ (null)
   );
   const [deleteId, setDeleteId] = useState(null);
- // const [form, setForm] = useState(emptyForm);
+ 
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(
       `campaign_${id}_influencerDraft`
@@ -68,7 +68,7 @@ export default function CampaignWorkspace() {
   });
 
   const [addMode, setAddMode] = useState('database');
-  // const [selectedIds, setSelectedIds] = useState([]);
+  
   const [selectedIds, setSelectedIds] = useState(
     /** @type {string[]} */ ([])
   );
@@ -121,7 +121,6 @@ export default function CampaignWorkspace() {
   });
 
   const createMutation = useMutation({
-    // mutationFn: (data) => base44.entities.CampaignInfluencer.create({ ...data, campaign_id: id, campaign_name: campaign?.name }),
     mutationFn: (/** @type {Record<string, any>} */ data) =>
       base44.entities.CampaignInfluencer.create({
         ...data,
@@ -132,7 +131,6 @@ export default function CampaignWorkspace() {
   });
 
   const bulkAddMutation = useMutation({
-    // mutationFn: async ({ add, removeIds }) => {
       mutationFn: async (
         /** @type {{ add: Record<string, any>[], removeIds: string[] }} */ variables
       ) => {
@@ -154,7 +152,6 @@ export default function CampaignWorkspace() {
   });
 
   const updateMutation = useMutation({
-    // mutationFn: ({ rid, data }) => base44.entities.CampaignInfluencer.update(rid, data),
     mutationFn: (
       /** @type {{ rid: string, data: Record<string, any> }} */ variables
     ) => {
@@ -183,8 +180,6 @@ export default function CampaignWorkspace() {
       closeEditCampaign();
     },
   });
-
-  //const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
 
   const closeDialog = () => {
     localStorage.removeItem(
@@ -402,40 +397,6 @@ const openEdit = (/** @type {any} */ inf) => { setEditing(inf); setForm({ influe
 
       {/* Add/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={v => { if (!v) closeDialog(); }}>
-        {/* <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Influencer' : 'Add Influencer'}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div><Label className="text-xs">Name *</Label><Input value={form.influencer_name} onChange={e => setForm({...form, influencer_name: e.target.value})} /></div>
-              <div><Label className="text-xs">Contact Number</Label><Input value={form.contact_number} onChange={e => setForm({...form, contact_number: e.target.value})} /></div>
-            </div>
-            <div><Label className="text-xs">Instagram Link</Label><Input value={form.instagram_link} onChange={e => setForm({...form, instagram_link: e.target.value})} /></div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div><Label className="text-xs">Status</Label>
-                <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div><Label className="text-xs">Pricing (₹)</Label><Input type="number" value={form.pricing} onChange={e => setForm({...form, pricing: Number(e.target.value)})} /></div>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div><Label className="text-xs">Payment Status</Label>
-                <Select value={form.payment_status} onValueChange={v => setForm({...form, payment_status: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="Pending">Pending</SelectItem><SelectItem value="Paid">Paid</SelectItem></SelectContent>
-                </Select>
-              </div>
-              <div><Label className="text-xs">Posting Date</Label><Input type="date" value={form.posting_date} onChange={e => setForm({...form, posting_date: e.target.value})} /></div>
-            </div>
-            <div><Label className="text-xs">Posting Link</Label><Input value={form.posting_link} onChange={e => setForm({...form, posting_link: e.target.value})} /></div>
-            <div><Label className="text-xs">Notes</Label><Textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
-            <Button onClick={handleSave} disabled={!form.influencer_name} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-              {editing ? 'Update' : 'Add Influencer'}
-            </Button>
-          </div>
-        </DialogContent> */}
-
 
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>

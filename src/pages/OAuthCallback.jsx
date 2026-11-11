@@ -54,9 +54,6 @@ export default function OAuthCallback() {
         };
 
         
-
-        //await supabase.from("profiles").upsert(profilePayload, { onConflict: "id" });
-
         const { data, error: upsertError } = await supabase
             .from("profiles")
             .upsert(profilePayload, {

@@ -36,13 +36,11 @@ export default function ClientPayments() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
-  //const [showDialog, setShowDialog] = useState(false);
   const [showDialog, setShowDialog] = useState(
     () => localStorage.getItem("clientPaymentDialog") === "true"
   );
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
- // const [form, setForm] = useState(emptyForm);
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(
       "clientPaymentDraft"
@@ -86,8 +84,6 @@ export default function ClientPayments() {
     mutationFn: (id) => base44.entities.ClientPayment.delete(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['clientPayments'] }); setDeleteId(null); },
   });
-
-  //const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
 
   const closeDialog = () => {
     localStorage.removeItem(

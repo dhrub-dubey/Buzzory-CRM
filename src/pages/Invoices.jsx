@@ -59,20 +59,6 @@ export default function Invoices() {
 
   const selectedInvoice = invoices.find(i => i.id === selectedId);
 
-  // useEffect(() => {
-  //   if (!downloadInvoice) return;
-  
-  //   requestAnimationFrame(() => {
-  //     requestAnimationFrame(async () => {
-  //       try {
-  //         await downloadPreviewPDF(downloadInvoice);
-  //       } finally {
-  //         setDownloadInvoice(null);
-  //       }
-  //     });
-  //   });
-  // }, [downloadInvoice]);
-
   useEffect(() => {
     if (!downloadInvoice) return;
   
@@ -93,37 +79,6 @@ export default function Invoices() {
     });
   }, [downloadInvoice]);
 
-  // const downloadPreviewPDF = async (invoice) => {
-  //   const element = document.getElementById("invoice-pdf");
-  
-  //   if (!element) {
-  //     console.log("Invoice preview not found");
-  //     return;
-  //   }
-  
-  //   const canvas = await html2canvas(element, {
-  //     scale: 2,
-  //     backgroundColor: "#ffffff",
-  //   });
-  
-  //   const imgData = canvas.toDataURL("image/png");
-  
-  //   const pdf = new jsPDF("p", "mm", "a4");
-  
-  //   const pdfWidth = pdf.internal.pageSize.getWidth();
-  //   const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-  
-  //   pdf.addImage(
-  //     imgData,
-  //     "PNG",
-  //     0,
-  //     0,
-  //     pdfWidth,
-  //     pdfHeight
-  //   );
-  
-  //   pdf.save(`${invoice.invoice_number || "invoice"}.pdf`);
-  // };
 
   const downloadPreviewPDF = async (invoice) => {
     const element = document.getElementById("invoice-pdf");
@@ -146,20 +101,6 @@ export default function Invoices() {
       toastId,
     });
   };
-
-  // const handleDownloadZip = async () => {
-  //   if (invoices.length === 0) return;
-  //   setDownloadingZip(true);
-  //   try {
-  //     const files = invoices.map(inv => ({
-  //       name: `${inv.invoice_number || 'invoice'}.pdf`,
-  //       data: getInvoicePdfBytes(inv),
-  //     }));
-  //     exportFilesToZip(files, 'invoices.zip');
-  //   } finally {
-  //     setDownloadingZip(false);
-  //   }
-  // };
 
   const handleDownloadZip = async () => {
     if (invoices.length === 0) return;

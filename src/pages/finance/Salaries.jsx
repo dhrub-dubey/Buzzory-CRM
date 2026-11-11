@@ -16,19 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import PageHeader from '@/components/shared/PageHeader';
 
-//const emptyForm = { employee_name: '', salary: 0, commission: 0, month: '', payment_date: '', status: 'Pending', notes: '' };
-
-// const emptyForm = {
-//   employee_name: '',
-//   salary: 0,
-//   commission: 0,
-//   month: MONTHS[new Date().getMonth()],
-//   year: String(new Date().getFullYear()),
-//   payment_date: '',
-//   status: 'Pending',
-//   notes: ''
-// };
-
 export default function Salaries() {
   const now = new Date();
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -54,13 +41,13 @@ export default function Salaries() {
   const [search, setSearch] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(String(now.getFullYear()));
- // const [showDialog, setShowDialog] = useState(false);
   const [showDialog, setShowDialog] = useState(
     () => localStorage.getItem("salaryDialog") === "true"
   );
+
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
- // const [form, setForm] = useState(emptyForm);
+
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(
       "salaryDraft"
@@ -118,8 +105,6 @@ export default function Salaries() {
     setEditing(null);
     setForm(emptyForm);
   };
-  //const openEdit = (p) => { setEditing(p); setForm({ employee_name: p.employee_name, salary: p.salary, commission: p.commission || 0, month: p.month || '', payment_date: p.payment_date || '', status: p.status, notes: p.notes || '' }); setShowDialog(true); };
-  // const handleSave = () => { if (editing) updateMutation.mutate({ id: editing.id, data: form }); else createMutation.mutate(form); };
 
   const openEdit = (p) => {
     const parts = (p.month || '').split(' ');
@@ -268,32 +253,6 @@ export default function Salaries() {
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-3">
               <div><Label className="text-xs">Employee Name *</Label><Input value={form.employee_name} onChange={e => setForm({...form, employee_name: e.target.value})} /></div>
-              {/* <div><Label className="text-xs">Month</Label> <Select
-                  value={form.month}
-                  onValueChange={v =>
-                    setForm({
-                      ...form,
-                      month: v
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Month" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {MONTHS.map(month => (
-                      <SelectItem
-                        key={month}
-                        value={`${month} ${selectedYear}`}
-                      >
-                        {month} {selectedYear}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select> 
-              </div> */}
-
             <div>
               <Label className="text-xs">Month</Label>
 

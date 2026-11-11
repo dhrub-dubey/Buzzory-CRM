@@ -61,8 +61,8 @@ export default function Influencers() {
   const [followFilter, setFollowFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('');
- // const [showDialog, setShowDialog] = useState(false);
- const [showDialog, setShowDialog] = useState(
+
+  const [showDialog, setShowDialog] = useState(
   () => localStorage.getItem("showInfluencerDialog") === "true"
   );
   const [editing, setEditing] = useState(null);
@@ -71,7 +71,7 @@ export default function Influencers() {
   const [deleteCity, setDeleteCity] = useState(null);
   const [confirmCityName, setConfirmCityName] = useState('');
   const [viewMode, setViewMode] = useState('table');
- // const [form, setForm] = useState(emptyForm);
+ 
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem("influencerDraft");
     return saved ? JSON.parse(saved) : emptyForm;
@@ -130,10 +130,6 @@ export default function Influencers() {
   const cities = cityRecords.map(c => c.name);
   const cityEmojiMap = Object.fromEntries(cityRecords.map(c => [c.name, c.emoji || '📍']));
 
-  // const createCityMutation = useMutation({
-  //   mutationFn: (data) => base44.entities.City.create(data),
-  //   onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['cities'] }); setShowAddCity(false); setNewCityName(''); setNewCityEmoji('📍'); },
-  // });
 
   const createCityMutation = useMutation({
     mutationFn: async (data) => {
@@ -157,7 +153,6 @@ export default function Influencers() {
 
       queryClient.invalidateQueries({ queryKey: ['cities'] });
   
-      // if deleted city was currently selected
       if (selectedCity === deletedName) {
         setSelectedCity(null);
       }
@@ -187,7 +182,7 @@ export default function Influencers() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['influencers'] }); setDeleteId(null); },
   });
 
- // const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
+
   const closeDialog = () => {
     localStorage.removeItem("influencerDraft");
     localStorage.removeItem("showInfluencerDialog");
@@ -217,15 +212,6 @@ export default function Influencers() {
     try {
       setFetchingInstagram(true);
   
-      // const response = await axios.post(
-      //   'http://localhost:5000/api/instagram',
-      //   {
-      //     instagramUrl: form.instagram.trim(),
-      //   }
-      // );
-      // console.log("ENV:", import.meta.env);
-      // console.log("API_BASE:", API_BASE);
-
       const response = await axios.post(
         `${API_BASE}/api/instagram`,
         {
@@ -276,7 +262,6 @@ export default function Influencers() {
   };
 
   // City selection view
-  //if (!selectedCity) {
   if (!selectedCity && !urlCity && !urlCategory) {
     return (
       <div>
@@ -885,10 +870,6 @@ export default function Influencers() {
               <div><Label className="text-xs">Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
               <div><Label className="text-xs">Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
             </div>
-            {/* <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">Instagram URL</Label><Input value={form.instagram} onChange={e => setForm({ ...form, instagram: e.target.value })} /></div>
-              <div><Label className="text-xs">YouTube URL</Label><Input value={form.youtube} onChange={e => setForm({ ...form, youtube: e.target.value })} /></div>
-            </div> */}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>

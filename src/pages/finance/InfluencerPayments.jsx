@@ -22,7 +22,7 @@ const emptyForm = { influencer_name: '', campaign: '', amount: 0, status: 'Pendi
 
 export default function InfluencerPayments() {
   const now = new Date();
-  //const [selectedCampaign, setSelectedCampaign] = useState(null);
+  
   const [selectedCampaign, setSelectedCampaign] = useState(() => {
     const saved = localStorage.getItem(
       "selectedInfluencerPaymentCampaign"
@@ -33,13 +33,13 @@ export default function InfluencerPayments() {
   const [search, setSearch] = useState('');
   const [monthFilter, setMonthFilter] = useState(String(now.getMonth() + 1).padStart(2, '0'));
   const [yearFilter, setYearFilter] = useState(String(now.getFullYear()));
-  //const [showDialog, setShowDialog] = useState(false);
   const [showDialog, setShowDialog] = useState(
     () => localStorage.getItem("influencerPaymentDialog") === "true"
   );
+
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
- // const [form, setForm] = useState(emptyForm);
+  
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(
       "influencerPaymentDraft"
@@ -102,7 +102,6 @@ export default function InfluencerPayments() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['influencerPayments'] }); setDeleteId(null); },
   });
 
-  // const closeDialog = () => { setShowDialog(false); setEditing(null); setForm(emptyForm); };
   const closeDialog = () => {
     localStorage.removeItem(
       "influencerPaymentDraft"

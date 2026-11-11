@@ -127,8 +127,6 @@ async function syncInstagramProfile(instagramUrl, influencerId) {
                 ? "png"
                 : "jpg";
 
-        // const filePath = `instagram/${profile.username}.${extension}`;
-
         const storageScope = influencerId || profile.username || "unlinked";
         const filePath = `instagram/${storageScope}/${profile.username}.${extension}`;
 

@@ -153,12 +153,6 @@ export default function Dashboard() {
     enabled: showFinancials,
   });
 
-  // const { data: influencerPayments = [] } = useQuery({
-  //   queryKey: ['influencerPayments'],
-  //   queryFn: () => base44.entities.InfluencerPayment.list('-created_date', 200),
-  //   enabled: showFinancials,
-  // });
-
   const { data: profitEntries = [] } = useQuery({
     queryKey: ['profitEntries'],
     queryFn: () => base44.entities.ProfitEntry.list('-created_date', 200),
@@ -538,7 +532,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      // ) : canSeeCalendar ? (
 
     ) : isEmployee ? (
       <div>
@@ -624,10 +617,6 @@ export default function Dashboard() {
             }
           />
         )
-//       )}
-//     </div>
-//   );
-// }
 
 )}
 

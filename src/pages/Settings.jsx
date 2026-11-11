@@ -29,9 +29,6 @@ export default function Settings() {
   const [inviteRole, setInviteRole] = useState('employee');
   const [inviting, setInviting] = useState(false);
 
-  // useEffect(() => {
-  //   base44.auth.me().then(setUser).catch(() => {});
-  // }, []);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -175,48 +172,6 @@ export default function Settings() {
               <CardTitle className="text-sm">User Management</CardTitle>
               <Button onClick={() => setShowInvite(true)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs">Invite User</Button>
             </CardHeader>
-            {/* <CardContent>
-              <Table>
-                <TableHeader><TableRow className="bg-muted/50">
-                  <TableHead className="text-xs">Name</TableHead><TableHead className="text-xs">Email</TableHead>
-                  <TableHead className="text-xs">Role</TableHead>
-                  <TableHead className="text-xs text-right">
-                    Actions
-                  </TableHead>
-                </TableRow></TableHeader>
-                <TableBody>
-                  {[...users]
-                      .sort((a, b) => {
-                        const order = {
-                          super_admin: 1,
-                          board_member: 2,
-                          employee: 3,
-                        };
-
-                        return (order[a.role] || 99) - (order[b.role] || 99);
-                      })
-                      .map(u => (
-                    <TableRow key={u.id}>
-                      <TableCell className="text-sm font-medium">{u.full_name || 'User'}</TableCell>
-                      <TableCell className="text-xs">{u.email}</TableCell>
-                      <TableCell><Badge className={`${roleColors[u.role] || roleColors.employee} border-0 text-[10px]`}>{roleLabels[u.role] || 'Employee'}</Badge></TableCell>
-                      <TableCell className="text-right">
-                        {canDeleteUser(u) && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(u)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent> */}
 
             <CardContent>
               <p className="text-[11px] text-muted-foreground mb-3">

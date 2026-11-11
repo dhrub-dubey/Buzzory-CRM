@@ -70,13 +70,6 @@ export default function InvoicePreview({ form, subtotal, total }) {
         </table>
 
         {/* Totals */}
-        {/* <div className="text-right space-y-1 border-t pt-3">
-          <p className="text-xs">Sub Total <span className="ml-4 font-semibold">₹{subtotal.toLocaleString('en-IN')}</span></p>
-          <p className="text-xs">GST ({form.gst_percent || 18}%) <span className="ml-4 font-semibold">₹{gstAmount.toLocaleString('en-IN')}</span></p>
-          <p className="text-sm font-bold text-orange-500 mt-2">Total Amount <span className="ml-4">₹{total.toLocaleString('en-IN')}</span></p>
-        </div> */}
-
-        {/* Totals */}
         <div className="text-right space-y-1 border-t pt-3">
           <p className="text-xs">
             Sub Total

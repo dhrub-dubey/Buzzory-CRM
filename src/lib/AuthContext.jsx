@@ -14,10 +14,6 @@ export const AuthProvider = ({ children }) => {
   const [authChecked, setAuthChecked] = useState(false);
   const [authError, setAuthError] = useState(null);
 
-  // const loadUser = async () => {
-  //   try {
-  //     setIsLoadingAuth(true);
-
   const loadUser = async (showLoader = false) => {
     try {
       if (showLoader) {
@@ -57,16 +53,6 @@ export const AuthProvider = ({ children }) => {
         setIsLoadingAuth(false);
         return;
       }
-
-      // if (!profileData) {
-      //   setUser(session.user);
-      //   setProfile(null);
-      //   setIsAuthenticated(false);
-      //   setAuthError({ type: "pending_approval" });
-      //   setAuthChecked(true);
-      //   setIsLoadingAuth(false);
-      //   return;
-      // }
 
       if (!profileData) {
         // Let OAuthCallback create the profile first
@@ -121,17 +107,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // useEffect(() => {
-  //   loadUser();
-
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange(() => {
-  //     loadUser();
-  //   });
-
-  //   return () => subscription.unsubscribe();
-  // }, []);
 
   useEffect(() => {
     // Initial app load

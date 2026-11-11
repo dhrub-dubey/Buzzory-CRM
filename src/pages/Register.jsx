@@ -29,7 +29,7 @@ export default function Register() {
           <span className="text-2xl font-bold text-white">Buzz</span>
           <span className="text-2xl font-bold text-orange-500">ory</span>
         </div>
-        <p className="text-xs text-gray-500">CRM V3.2</p>
+        <p className="text-xs text-gray-500">CRM V4.0</p>
         <div className="mt-16">
           <h1 className="text-4xl font-bold text-white leading-tight">Join the</h1>
           <h1 className="text-4xl font-bold text-orange-500 leading-tight">Buzzory Family.</h1>
@@ -107,87 +107,6 @@ export default function Register() {
     }
   };
 
-//   const handleVerify = async () => {
-//     setError("");
-//     setLoading(true);
-//     try {
-//       const result = await base44.auth.verifyOtp({ email, otpCode });
-//       if (result?.access_token) {
-//         base44.auth.setToken(result.access_token);
-//       }
-
-//       // Now update user profile with name + requested role + pending status
-//       const user = await base44.auth.me();
-
-//       // Update user record
-//       await base44.entities.User.update(user.id, {
-//         approval_status: email === ADMIN_EMAIL ? "approved" : "pending",
-//         role: email === ADMIN_EMAIL ? "admin" : selectedRole,
-//         requested_role: selectedRole,
-//         sign_in_method: "email",
-//       });
-
-//       // Update name
-//       await base44.auth.updateMe({ full_name: fullName });
-
-//       if (email === ADMIN_EMAIL) {
-//         window.location.href = "/";
-//         return;
-//       }
-
-//       // Notify admin
-//       const roleLabel = selectedRole === "board_member" ? "Board Member" : "Employee";
-//       const emailBody = `
-// <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-//   <div style="background: #f97316; padding: 24px; border-radius: 8px 8px 0 0;">
-//     <h1 style="color: white; margin: 0; font-size: 20px;">Buzzory CRM — New Access Request</h1>
-//   </div>
-//   <div style="background: #fff; border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
-//     <p style="color: #374151; font-size: 15px;">A new user has requested access to Buzzory CRM:</p>
-//     <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-//       <tr style="background: #f9fafb;">
-//         <td style="padding: 10px 12px; font-weight: 600; color: #6b7280; font-size: 13px; border: 1px solid #e5e7eb;">Full Name</td>
-//         <td style="padding: 10px 12px; color: #111827; font-size: 14px; border: 1px solid #e5e7eb;">${fullName || "Not provided"}</td>
-//       </tr>
-//       <tr>
-//         <td style="padding: 10px 12px; font-weight: 600; color: #6b7280; font-size: 13px; border: 1px solid #e5e7eb;">Email</td>
-//         <td style="padding: 10px 12px; color: #111827; font-size: 14px; border: 1px solid #e5e7eb;">${email}</td>
-//       </tr>
-//       <tr style="background: #f9fafb;">
-//         <td style="padding: 10px 12px; font-weight: 600; color: #6b7280; font-size: 13px; border: 1px solid #e5e7eb;">Requested Role</td>
-//         <td style="padding: 10px 12px; color: #111827; font-size: 14px; border: 1px solid #e5e7eb;">${roleLabel}</td>
-//       </tr>
-//       <tr>
-//         <td style="padding: 10px 12px; font-weight: 600; color: #6b7280; font-size: 13px; border: 1px solid #e5e7eb;">Sign-in Method</td>
-//         <td style="padding: 10px 12px; color: #111827; font-size: 14px; border: 1px solid #e5e7eb;">Email & Password</td>
-//       </tr>
-//     </table>
-//     <p style="color: #6b7280; font-size: 13px;">Please log in to the Buzzory Admin Panel to review this request.</p>
-//   </div>
-// </div>`.trim();
-
-//       // Send email and wait to see if it works, but redirect either way
-//       try {
-//         await base44.integrations.Core.SendEmail({
-//           to: ADMIN_EMAIL,
-//           from_name: "Buzzory CRM",
-//           subject: `New Access Request: ${fullName || email} (${roleLabel})`,
-//           body: emailBody,
-//         });
-//         console.log("Admin notification email sent successfully to", ADMIN_EMAIL);
-//       } catch (emailErr) {
-//         console.error("Failed to send admin notification email:", emailErr);
-//         // Still redirect — don't block user
-//       }
-
-//       window.location.href = "/pending-approval";
-//     } catch (err) {
-//       setError(err.message || "Verification failed");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
 const handleGoogleRegister = async () => {
   try {
   sessionStorage.setItem("requested_role", selectedRole);
@@ -208,41 +127,6 @@ const handleGoogleRegister = async () => {
   }
   };
   
-
-  // OTP step
-  // if (step === "otp") {
-  //   return (
-  //     <div className="min-h-screen flex">
-  //       <LeftPanel />
-  //       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white">
-  //         <div className="w-full max-w-md text-center">
-  //           <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
-  //             <Mail className="w-7 h-7 text-white" />
-  //           </div>
-  //           <h1 className="text-2xl font-bold text-gray-900 mb-1">Verify your email</h1>
-  //           <p className="text-sm text-gray-500 mb-8">We sent a 6-digit code to <strong>{email}</strong></p>
-  //           {error && <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm border border-red-100">{error}</div>}
-  //           <div className="flex justify-center mb-6">
-  //             <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
-  //               <InputOTPGroup>
-  //                 <InputOTPSlot index={0} /><InputOTPSlot index={1} /><InputOTPSlot index={2} />
-  //                 <InputOTPSlot index={3} /><InputOTPSlot index={4} /><InputOTPSlot index={5} />
-  //               </InputOTPGroup>
-  //             </InputOTP>
-  //           </div>
-  //           <Button className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-semibold"
-  //             onClick={handleVerify} disabled={loading || otpCode.length < 6}>
-  //             {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verifying...</> : "Verify & Continue"}
-  //           </Button>
-  //           <p className="text-center text-sm text-gray-500 mt-4">
-  //             Didn't receive the code?{" "}
-  //             <button onClick={() => base44.auth.resendOtp(email)} className="text-orange-500 font-medium hover:underline">Resend</button>
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   // Role selection step
   if (step === "role") {

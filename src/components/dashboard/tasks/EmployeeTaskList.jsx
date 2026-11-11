@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -94,17 +93,7 @@ export default function EmployeeTaskList({ user }) {
       ],
     }));
   };
-
-  // const toggleIn = (key) => (id) => {
-  //   save.mutate((current) => ({
-  //     [key]: (current?.[key] || []).map((item) =>
-  //       item.id === id
-  //         ? { ...item, done: !item.done }
-  //         : item
-  //     ),
-  //   }));
-  // };
-
+  
   
   const toggleIn = (key) => (id) => {
     if (key !== 'tasks') return;

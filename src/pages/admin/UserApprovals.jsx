@@ -78,13 +78,6 @@ export default function UserApprovals() {
   </div>
 </div>`.trim();
 
-    // await base44.integrations.Core.SendEmail({
-    //   to: targetUser.email,
-    //   from_name: "Buzzory CRM",
-    //   subject: "Your Buzzory CRM access has been approved!",
-    //   body: emailBody,
-    // });
-
     queryClient.invalidateQueries({ queryKey: ["allUsers"] });
     setSending(false);
     setActionDialog(null);
@@ -118,14 +111,6 @@ export default function UserApprovals() {
     <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">Team Buzzory</p>
   </div>
 </div>`.trim();
-
-    //   await base44.integrations.Core.SendEmail({
-    //     to: targetUser.email,
-    //     from_name: "Buzzory CRM",
-    //     subject: "Update on your Buzzory CRM access request",
-    //     body: emailBody,
-    //   });
-    // }
 
     queryClient.invalidateQueries({ queryKey: ["allUsers"] });
     setSending(false);

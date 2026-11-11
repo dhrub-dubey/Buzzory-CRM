@@ -41,21 +41,6 @@ export default function PendingApproval() {
           }
         }
 
-        // if (!profile) {
-        //   console.error("Error loading profile:", idError);
-        //   setUser({
-        //     full_name:
-        //       session.user.user_metadata?.full_name ||
-        //       session.user.user_metadata?.fullName ||
-        //       session.user.email,
-        //     email: session.user.email,
-        //     role: null,
-        //     status: "pending",
-        //     admin_message: "",
-        //   });
-        //   return;
-        // }
-
         if (!profile) {
           await supabase.auth.signOut();
           navigate("/login", { replace: true });
@@ -100,7 +85,7 @@ export default function PendingApproval() {
         <div className="text-center mb-8">
           <span className="text-3xl font-bold text-white">Buzz</span>
           <span className="text-3xl font-bold text-orange-500">ory</span>
-          <p className="text-xs text-gray-500 mt-1">CRM V3.2</p>
+          <p className="text-xs text-gray-500 mt-1">CRM V4.0</p>
         </div>
 
         <div className="glass-panel rounded-2xl p-8 text-center">
