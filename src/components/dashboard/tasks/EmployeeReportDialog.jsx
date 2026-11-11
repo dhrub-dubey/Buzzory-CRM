@@ -19,11 +19,11 @@ export default function EmployeeReportDialog({ open, initialDate, onOpenChange }
   }, [open, initialDate]);
 
   const { data: employees = [], isLoading: loadingEmployees, error: employeesError } = useQuery({
-    queryKey: ['attendance-employees'],
+    queryKey: ['attendance-employees', 'with-avatars'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, email, role, status')
+        .select('id, full_name, email, role, status, avatar_url')
         .eq('role', 'employee')
         .eq('status', 'approved')
         .order('full_name');
@@ -71,7 +71,24 @@ export default function EmployeeReportDialog({ open, initialDate, onOpenChange }
             <SelectTrigger className="h-9 flex-1 text-sm"><SelectValue placeholder="Select an employee" /></SelectTrigger>
             <SelectContent>
               {employees.map((item) => (
-                <SelectItem key={item.id} value={item.id}>{item.full_name || item.email}</SelectItem>
+                <SelectItem key={item.id} value={item.id}>
+                  <span className="inline-flex min-w-0 items-center gap-2">
+                    {item.avatar_url ? (
+                      <img
+                        src={item.avatar_url}
+                        alt=""
+                        aria-hidden="true"
+                        referrerPolicy="no-referrer"
+                        className="h-6 w-6 flex-shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-500 text-[10px] font-semibold text-white">
+                        {(item.full_name?.trim()[0] || item.email?.trim()[0] || 'E').toUpperCase()}
+                      </span>
+                    )}
+                    <span className="truncate">{item.full_name || item.email}</span>
+                  </span>
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
