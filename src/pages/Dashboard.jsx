@@ -608,7 +608,7 @@ export default function Dashboard() {
               }
             />
           ) : (
-            <CalendarView user={user} />
+            <CalendarView user={user} onReviewDay={setReviewDate} />
           )}
         </div>
       ) : (

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { ListTodo, CheckCircle2 } from 'lucide-react';
@@ -7,8 +7,25 @@ import TaskPanel from './TaskPanel';
 import { toDateKey } from '@/lib/calendarUtils';
 
 export default function EmployeeTaskList({ user }) {
-  const today = toDateKey(new Date());
+  const [today, setToday] = useState(() => toDateKey(new Date()));
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const refreshToday = () => {
+      const dateKey = toDateKey(new Date());
+      setToday((current) => current === dateKey ? current : dateKey);
+    };
+
+    const timer = window.setInterval(refreshToday, 60_000);
+    window.addEventListener('focus', refreshToday);
+    document.addEventListener('visibilitychange', refreshToday);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refreshToday);
+      document.removeEventListener('visibilitychange', refreshToday);
+    };
+  }, []);
 
   const queryKey = ['dailyTaskEntry', user?.id, today];
 
