@@ -101,46 +101,13 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
           })}
         </nav>
 
-        <div className="mb-4 px-2 md:hidden">
-          <button
-            onClick={() => { onMobileClose(); logout(); }}
-            className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-400 transition-all hover:bg-white/5 hover:text-white md:text-base"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Logout</span>
-          </button>
-        </div>
-
-        <div className="border-t border-white/10 px-3 py-3 md:hidden">
-          <div className="flex items-center gap-3">
-            {user?.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt={user.full_name || 'User'}
-                className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-xs font-bold text-white">
-                {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
-            )}
-            <div className="min-w-0 overflow-hidden">
-              <p className="truncate text-xs font-medium text-white md:text-sm">{user?.full_name || 'User'}</p>
-              <p className="truncate text-[10px] text-gray-500 md:text-xs">
-                {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? '🎯 Board Member' : user?.role === 'employee' ? '✅ Employee' : user?.role || ''}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="hidden border-t border-white/10 px-3 py-3 md:block">
+        <div className="border-t border-white/10 px-3 py-3">
           <Popover>
             <PopoverTrigger asChild>
               <button
                 type="button"
                 aria-label="Open account menu"
-                className="flex w-full items-center gap-3 rounded-xl p-1 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl p-1 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
               >
                 {user?.avatar_url ? (
                   <img
@@ -156,22 +123,22 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
                 )}
                 <div className="min-w-0 overflow-hidden">
                   <p className="truncate text-sm font-medium text-white">{user?.full_name || 'User'}</p>
-                  <p className="truncate text-xs text-gray-500">
+                  <p className="truncate text-xs text-gray-400">
                     {isAdmin ? '⭐ Admin' : user?.role === 'board_member' ? '🎯 Board Member' : user?.role === 'employee' ? '✅ Employee' : user?.role || ''}
                   </p>
                 </div>
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="end" sideOffset={10} className="w-56 border border-white/60 bg-white/85 p-3 shadow-xl backdrop-blur-2xl">
-              <div className="mb-2 flex items-center gap-2 border-b border-slate-200/70 px-1 pb-3">
-                <Moon className="h-4 w-4 text-slate-500" />
-                <span className="flex-1 text-sm font-medium text-slate-700">Dark mode</span>
+            <PopoverContent side="top" align="end" sideOffset={10} className="w-56 border border-white/10 bg-slate-800/95 p-3 text-white shadow-xl backdrop-blur-2xl">
+              <div className="mb-2 flex items-center gap-2 border-b border-white/10 px-1 pb-3">
+                <Moon className="h-4 w-4 text-gray-300" />
+                <span className="flex-1 text-sm font-medium text-gray-100">Dark mode</span>
                 <Switch checked={false} disabled aria-label="Dark mode coming soon" />
               </div>
               <button
                 type="button"
-                onClick={() => logout()}
-                className="flex min-h-10 w-full items-center gap-2 rounded-lg px-2 text-sm font-medium text-slate-700 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                onClick={() => { onMobileClose(); logout(); }}
+                className="flex min-h-10 w-full items-center gap-2 rounded-lg px-2 text-sm font-medium text-gray-100 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
