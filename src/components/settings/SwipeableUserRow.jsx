@@ -70,10 +70,13 @@ export default function SwipeableUserRow({ user, canDelete, onDelete, roleLabels
           onClick={() => { if (swiped) resetSwipe(); }}
           className={`relative z-10 ${canDelete ? 'cursor-grab active:cursor-grabbing' : ''}`}
         >
-          <div className="grid grid-cols-[1fr_1fr_140px] gap-3 px-4 py-3 items-center bg-card min-w-[480px]">
-            <span className="text-sm font-medium truncate">{user.full_name || 'User'}</span>
-            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-            <Badge className={`${roleColors[user.role] || roleColors.employee} border-0 text-[10px] justify-self-start`}>{roleLabels[user.role] || 'Employee'}</Badge>
+          <div className="flex min-w-0 items-center justify-between gap-3 bg-card px-4 py-3 md:grid md:grid-cols-[1fr_1fr_140px] md:gap-3 md:min-w-[480px]">
+            <div className="min-w-0 flex-1 md:contents">
+              <span className="block truncate text-sm font-medium md:hidden">{user.full_name || 'User'}</span>
+              <span className="hidden text-sm font-medium md:block md:truncate">{user.full_name || 'User'}</span>
+              <span className="block truncate text-xs text-muted-foreground md:text-xs">{user.email}</span>
+            </div>
+            <Badge className={`${roleColors[user.role] || roleColors.employee} border-0 text-[10px] justify-self-start shrink-0`}>{roleLabels[user.role] || 'Employee'}</Badge>
           </div>
         </motion.div>
       </div>

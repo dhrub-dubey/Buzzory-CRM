@@ -223,8 +223,8 @@ export default function Settings() {
                 Swipe a row left to reveal the delete option.
               </p>
 
-              <div className="overflow-x-auto">
-                <div className="grid grid-cols-[1fr_1fr_140px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 min-w-[480px]">
+              <div>
+                <div className="hidden grid-cols-[1fr_1fr_140px] gap-3 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 min-w-[480px] md:grid">
                   <span>Name</span>
                   <span>Email</span>
                   <span>Role</span>

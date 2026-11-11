@@ -203,9 +203,9 @@ export default function FundLedger() {
       </div>
 
       <Card className="border border-border/50 overflow-hidden">
-       <div className="overflow-x-auto">
+       <div className="md:overflow-x-auto">
         {/* Header row */}
-        <div className="grid grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 min-w-[680px]">
+        <div className="hidden grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-2 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 min-w-[680px] md:grid">
           <span>Date</span>
           <span>Type</span>
           <span>Description</span>
@@ -217,11 +217,11 @@ export default function FundLedger() {
 
         {/* Transaction rows */}
         {transactions.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground text-sm min-w-[680px]">No transactions found</div>
+          <div className="text-center py-10 text-muted-foreground text-sm">No transactions found</div>
         ) : (
           transactions.map((t, i) => (
             <SwipeableRow key={t.id} onDelete={() => deleteMutation.mutate(t.id)}>
-              <div className={`grid grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-3 text-sm items-center ${i % 2 === 0 ? 'bg-white/45' : 'bg-slate-900/[0.03]'} border-b border-border/30 last:border-b-0`}>
+              <div className={`hidden grid-cols-[90px_70px_1fr_90px_90px_90px_100px] gap-2 px-4 py-3 text-sm items-center min-w-[680px] md:grid ${i % 2 === 0 ? 'bg-white/45' : 'bg-slate-900/[0.03]'} border-b border-border/30 last:border-b-0`}>
                 <span className="text-xs text-muted-foreground">{t.date || '-'}</span>
                 <span>
                   <Badge className={`${t.transaction_type === 'Credit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'} border-0 text-[10px] px-1.5`}>
@@ -237,6 +237,21 @@ export default function FundLedger() {
                 </span>
                 <span className="text-right font-semibold text-xs">₹{(t.running_balance || 0).toLocaleString('en-IN')}</span>
                 <span className="text-xs text-muted-foreground truncate">{t.notes || '-'}</span>
+              </div>
+              <div className={`space-y-3 p-4 md:hidden ${i % 2 === 0 ? 'bg-white/45' : 'bg-slate-900/[0.03]'} border-b border-border/30`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold break-words">{t.description || '-'}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t.date || '-'}</p>
+                  </div>
+                  <Badge className={`${t.transaction_type === 'Credit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'} shrink-0 border-0 text-[10px] px-1.5`}>{t.transaction_type}</Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                  <div><span className="text-muted-foreground">Credited</span><p className="font-medium text-green-600">{t.amount_credited > 0 ? `₹${t.amount_credited.toLocaleString('en-IN')}` : '-'}</p></div>
+                  <div><span className="text-muted-foreground">Debited</span><p className="font-medium text-red-500">{t.amount_debited > 0 ? `₹${t.amount_debited.toLocaleString('en-IN')}` : '-'}</p></div>
+                  <div><span className="text-muted-foreground">Balance</span><p className="font-semibold">₹{(t.running_balance || 0).toLocaleString('en-IN')}</p></div>
+                  <div className="min-w-0"><span className="text-muted-foreground">Notes</span><p className="break-words">{t.notes || '-'}</p></div>
+                </div>
               </div>
             </SwipeableRow>
           ))
