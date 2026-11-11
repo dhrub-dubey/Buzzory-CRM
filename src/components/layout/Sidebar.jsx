@@ -60,6 +60,13 @@ export default function Sidebar({ user, mobileOpen = false, onMobileClose = () =
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => setDarkMode(root.classList.contains('dark')));
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   const isActive = (path) => path === '/'
     ? location.pathname === '/'
     : location.pathname.startsWith(path);
